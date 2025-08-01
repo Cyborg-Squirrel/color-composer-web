@@ -24,5 +24,8 @@ jobs:
 
     - name: Build
       run: |
-        npm install
+        # npm install includes an audit. Audit will always fail for react-scripts.
+        # See: https://github.com/facebook/create-react-app/issues/11174 for more details.
+        npm install --no-audit
+        npm audit --only=prod
         gulp
