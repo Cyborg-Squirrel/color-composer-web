@@ -1,4 +1,4 @@
-name: NodeJS with Gulp
+name: NodeJS
 
 on:
   push:
@@ -28,4 +28,3 @@ jobs:
         # See: https://github.com/facebook/create-react-app/issues/11174 for more details.
         npm install --no-audit
         npm audit --only=prod
-        gulp
