@@ -1,11 +1,17 @@
 import '@mantine/core/styles.css';
 import './App.css';
-import React from 'react';
 import logo from './logo.svg';
+
+import { createTheme, MantineProvider } from '@mantine/core';
+
+const theme = createTheme({
+  /** TODO Put your mantine theme override here */
+});
 
 function App() {
   return (
-    <div className="App">
+    <MantineProvider theme={theme}>
+      <div className="App">
       <header className="App-header">
         <img src={logo} className="App-logo" alt="logo" />
         <p>
@@ -21,6 +27,7 @@ function App() {
         </a>
       </header>
     </div>
+    </MantineProvider>
   );
 }
 
