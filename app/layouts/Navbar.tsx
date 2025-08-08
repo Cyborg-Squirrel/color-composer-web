@@ -37,7 +37,7 @@ export function Navbar({navbarTitle, selectedNavbarItem}) {
         {navComponents}
       </div>
 
-      <div className={classes.footer}>
+      <div className={bottomNavComponents.length == 0 ? "" : classes.footer}>
         {bottomNavComponents}
       </div>
     </nav>
