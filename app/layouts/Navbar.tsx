@@ -2,31 +2,29 @@ import { Code, Group, Text } from '@mantine/core';
 import { useState } from 'react';
 import classes from './Navbar.module.css';
 
-const data = [
-  { link: '#', label: 'Clients'},
-  { link: '#', label: 'LED Strips'},
-  { link: '#', label: 'Effects'},
-  { link: '#', label: 'Palettes'},
-  { link: '#', label: 'Triggers'}
+const navItems = [
+  { key: 'nav-0', link: '#', label: 'Clients' },
+  { key: 'nav-1', link: '#', label: 'LED Strips' },
+  { key: 'nav-2', link: '#', label: 'Effects' },
+  { key: 'nav-3', link: '#', label: 'Palettes' },
+  { key: 'nav-4', link: '#', label: 'Triggers' }
+];
+
+const bottomNavItems = [
+  { key: 'nav-5', link: '#', label: 'Settings' },
+  { key: 'nav-6', link: '#', label: 'About' }
 ];
 
 // @ts-ignore
 export function Navbar({navbarTitle, selectedNavbarItem}) {
   const [active, setActive] = useState(selectedNavbarItem);
 
-  const links = data.map((item) => (
-    <a
-      className={classes.link}
-      data-active={item.label === active || undefined}
-      href={item.link}
-      key={item.label}
-      onClick={(event) => {
-        event.preventDefault();
-        setActive(item.label);
-      }}
-    >
-      <span>{item.label}</span>
-    </a>
+  const navComponents = navItems.map((item) => (
+    <NavItem key={item.key} label={item.label} link={item.link} active={active} setActive={setActive}/>
+  ));
+
+  const bottomNavComponents = bottomNavItems.map((item) => (
+    <NavItem key={item.key} label={item.label} link={item.link} active={active} setActive={setActive}/>
   ));
 
   return (
@@ -36,19 +34,30 @@ export function Navbar({navbarTitle, selectedNavbarItem}) {
           <Text className={classes.span} fw={700} span>{navbarTitle}</Text>
           <Code fw={700}>v0.0.1</Code>
         </Group>
-        {links}
+        {navComponents}
       </div>
 
       <div className={classes.footer}>
-        <a href="#" className={classes.link} onClick={(event) => event.preventDefault()}>
-          <span>Settings</span>
-        </a>
-
-        <a href="#" className={classes.link} onClick={(event) => event.preventDefault()}>
-          <span>About</span>
-        </a>
+        {bottomNavComponents}
       </div>
     </nav>
+  );
+}
+
+function NavItem(props) {
+  return (
+    <a
+      className={classes.link}
+      data-active={props.label === props.active || undefined}
+      href={props.link}
+      key={props.label}
+      onClick={(event) => {
+        event.preventDefault();
+        props.setActive(props.label);
+      }}
+    >
+      <span>{props.label}</span>
+    </a>
   );
 }
 
