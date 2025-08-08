@@ -44,6 +44,7 @@ export function Navbar({navbarTitle, selectedNavbarItem}) {
   );
 }
 
+// @ts-ignore
 function NavItem(props) {
   let active = props.data.label === props.active || undefined;
   return (
