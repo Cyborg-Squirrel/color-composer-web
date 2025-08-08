@@ -3,16 +3,16 @@ import { useState } from 'react';
 import classes from './Navbar.module.css';
 
 const navItems = [
-  { key: 'nav-0', link: '#', label: 'Clients' },
-  { key: 'nav-1', link: '#', label: 'LED Strips' },
-  { key: 'nav-2', link: '#', label: 'Effects' },
-  { key: 'nav-3', link: '#', label: 'Palettes' },
-  { key: 'nav-4', link: '#', label: 'Triggers' }
+  { key: 'nav-0', link: '#', label: 'Clients', emoji: '🛜' },
+  { key: 'nav-1', link: '#', label: 'LED Strips', emoji: '💡' },
+  { key: 'nav-2', link: '#', label: 'Effects', emoji: '✨' },
+  { key: 'nav-3', link: '#', label: 'Palettes', emoji: '🎨' },
+  { key: 'nav-4', link: '#', label: 'Triggers', emoji: '⏲️' }
 ];
 
 const bottomNavItems = [
-  { key: 'nav-5', link: '#', label: 'Settings' },
-  { key: 'nav-6', link: '#', label: 'About' }
+  { key: 'nav-5', link: '#', label: 'Settings', emoji: '⚙️' },
+  { key: 'nav-6', link: '#', label: 'About', emoji: 'ℹ' }
 ];
 
 // @ts-ignore
@@ -20,11 +20,11 @@ export function Navbar({navbarTitle, selectedNavbarItem}) {
   const [active, setActive] = useState(selectedNavbarItem);
 
   const navComponents = navItems.map((item) => (
-    <NavItem key={item.key} label={item.label} link={item.link} active={active} setActive={setActive}/>
+    <NavItem key={item.key} data={item} active={active} setActive={setActive}/>
   ));
 
   const bottomNavComponents = bottomNavItems.map((item) => (
-    <NavItem key={item.key} label={item.label} link={item.link} active={active} setActive={setActive}/>
+    <NavItem key={item.key} data={item} active={active} setActive={setActive}/>
   ));
 
   return (
@@ -48,48 +48,14 @@ function NavItem(props) {
   return (
     <a
       className={classes.link}
-      data-active={props.label === props.active || undefined}
-      href={props.link}
-      key={props.label}
-      onClick={(event) => {
-        event.preventDefault();
-        props.setActive(props.label);
+      data-active={props.data.label === props.active || undefined}
+      href={props.data.link}
+      key={props.data.label}
+      onClick={() => {
+        props.setActive(props.data.label);
       }}
     >
-      <span>{props.label}</span>
+      <span>{props.data.emoji} {props.data.label}</span>
     </a>
   );
 }
-
-const OLDSidebarLayout = ({sidebarTitle, selectedSidebarItem}) => {
-  return (
-    <div className="flex min-h-screen">
-      <aside className="w-64 shadow-lg p-8">
-        <h2 className="text-2xl font-semibold mb-6">{sidebarTitle}</h2>
-        <nav className="space-y-4">
-          <NavLink
-          label="Home"
-          href="#"
-          active={selectedSidebarItem === 'Clients'}
-          // onClick={() => setActive('home')}
-        />
-          <a href="#" className="block">🛜 Clients</a>
-          <a href="#" className="block">💡 LED Strips</a>
-          <a href="#" className="block">✨ Effects</a>
-          <a href="#" className="block">🎨 Palettes</a>
-          <a href="#" className="block">⏲️ Triggers</a>
-          <a href="#" className="block">⚙️ Settings</a>
-        </nav>
-      </aside>
-
-      <main className="flex-1 p-8">
-        <h1 className="text-3xl font-bold mb-4">{selectedSidebarItem}</h1>
-        <p className="text-gray-600">
-          TODO user interface
-        </p>
-      </main>
-    </div>
-  );
-};
-
-export default OLDSidebarLayout;
