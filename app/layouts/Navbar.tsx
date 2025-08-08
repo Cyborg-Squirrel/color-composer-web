@@ -29,7 +29,7 @@ export function Navbar({navbarTitle, selectedNavbarItem}) {
 
   return (
     <nav className={classes.navbar}>
-      <div className={classes.navbarMain}>
+      <div>
         <Group className={classes.header} justify="space-between">
           <Text className={classes.span} fw={700} span>{navbarTitle}</Text>
           <Code fw={700}>v0.0.1</Code>
