@@ -9,9 +9,5 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export default function Home() {
-  return (
-    <div className="wrapper">
-      <Navbar navbarTitle="Color Composer" selectedNavbarItem="Clients" />
-    </div>
-  );
+  return <Navbar navbarTitle="Color Composer" selectedNavbarItem="Clients" />;
 }

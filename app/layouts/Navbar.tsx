@@ -45,17 +45,19 @@ export function Navbar({navbarTitle, selectedNavbarItem}) {
 }
 
 function NavItem(props) {
+  let active = props.data.label === props.active || undefined;
   return (
     <a
       className={classes.link}
-      data-active={props.data.label === props.active || undefined}
+      data-active={active}
       href={props.data.link}
       key={props.data.label}
       onClick={() => {
         props.setActive(props.data.label);
       }}
     >
-      <span>{props.data.emoji} {props.data.label}</span>
+      <span className={active ? classes.linkIcon : classes.greyScaleIcon}>{props.data.emoji}</span>
+      <span>&nbsp;{props.data.label}</span>
     </a>
   );
 }

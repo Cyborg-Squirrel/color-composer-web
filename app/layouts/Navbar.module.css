@@ -1,5 +1,5 @@
 .navbar {
-  height: 700px;
+  height: 100%;
   width: 300px;
   padding: var(--mantine-spacing-md);
   display: flex;
@@ -29,7 +29,7 @@
   text-decoration: none;
   font-size: var(--mantine-font-size-sm);
   color: light-dark(var(--mantine-color-gray-7), var(--mantine-color-dark-1));
-  padding: var(--mantine-spacing-xs) var(--mantine-spacing-sm);
+  padding: var(--mantine-spacing-sm) var(--mantine-spacing-sm);
   border-radius: var(--mantine-radius-sm);
   font-weight: 500;
 
@@ -57,11 +57,15 @@
 
 .linkIcon {
   color: light-dark(var(--mantine-color-gray-6), var(--mantine-color-dark-2));
-  margin-right: var(--mantine-spacing-sm);
-  width: 25px;
-  height: 25px;
+  margin-right: var(--mantine-spacing-xs);
 }
 
 .span {
   color: light-dark(var(--mantine-color-gray-7), var(--mantine-color-dark-1));
+}
+
+.greyScaleIcon {
+  color: light-dark(var(--mantine-color-gray-7), var(--mantine-color-dark-1));
+  filter: grayscale(100%);
+  margin-right: var(--mantine-spacing-xs);
 }
