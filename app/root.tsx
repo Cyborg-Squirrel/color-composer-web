@@ -9,6 +9,7 @@ import {
 
 import { DEFAULT_THEME, MantineProvider } from '@mantine/core';
 import '@mantine/core/styles.css';
+import { StrictMode } from "react";
 import type { Route } from "./+types/root";
 import "./app.css";
 
@@ -27,6 +28,7 @@ export const links: Route.LinksFunction = () => [
 
 export function Layout({ children }: { children: React.ReactNode }) {
   return (
+    <StrictMode>
     <MantineProvider defaultColorScheme="auto" theme={DEFAULT_THEME}>
       <html lang="en">
       <head>
@@ -42,6 +44,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
       </body>
     </html>
     </MantineProvider>
+    </StrictMode>
   );
 }
 
