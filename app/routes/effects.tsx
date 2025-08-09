@@ -1,4 +1,4 @@
-import { Navbar } from "~/components/Navbar";
+import { BasicAppShell } from "~/components/AppShell";
 import type { Route } from "./+types/home";
 
 export function meta({}: Route.MetaArgs) {
@@ -9,5 +9,5 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export default function Effects() {
-  return <Navbar title="Color Composer" selectedNavItemText="effects" />;
+  return <BasicAppShell title="Color Composer" selectedNavItemText="effects" />;
 }

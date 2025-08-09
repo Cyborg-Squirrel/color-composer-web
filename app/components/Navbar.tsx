@@ -1,4 +1,4 @@
-import { Code, Group, NavLink, Text } from '@mantine/core';
+import { NavLink } from '@mantine/core';
 import { useState } from 'react';
 import classes from './Navbar.module.css';
 
@@ -18,12 +18,7 @@ const bottomNavItems = [
 
 const allNavItems = [...navItems, ...bottomNavItems];
 
-interface NavBarProps {
-  title: string;
-  selectedNavItemText: string;
-}
-
-export function Navbar({title, selectedNavItemText}: NavBarProps) {
+export function Navbar({selectedNavItemText}: { selectedNavItemText: string }) {
   const selectedNavItem = selectedNavItemText?.trim()
   ? allNavItems.find(item => item.link.toLowerCase() === selectedNavItemText.trim().toLowerCase())?.label
   : '';
@@ -53,10 +48,6 @@ export function Navbar({title, selectedNavItemText}: NavBarProps) {
   return (
     <nav className={classes.navbar}>
       <div>
-        <Group className={classes.header} justify="space-between">
-          <Text className={classes.span} fw={700} span>{title}</Text>
-          <Code fw={700}>v0.0.1</Code>
-        </Group>
         {navComponents}
       </div>
 
