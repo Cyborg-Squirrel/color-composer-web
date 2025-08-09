@@ -7,9 +7,13 @@ export function BasicAppShell(props: { title: string; selectedNavItemText: strin
 
   return (
     <AppShell
-      header={{ height: 60 }}
-      navbar={{ width: 300, breakpoint: 'sm', collapsed: { mobile: !opened } }}
       padding="md"
+      header={{ height: { base: 60, md: 65, lg: 70 } }}
+      navbar={{
+        width: { base: 200, md: 250, lg: 300 },
+        breakpoint: 'sm',
+        collapsed: { mobile: !opened },
+      }}
     >
       <AppShell.Header>
         <Group h="100%" px="md">
