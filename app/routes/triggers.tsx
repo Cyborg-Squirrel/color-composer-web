@@ -1,4 +1,4 @@
-import { Navbar } from "~/components/Navbar";
+import { BasicAppShell } from "~/components/AppShell";
 import type { Route } from "./+types/home";
 
 export function meta({}: Route.MetaArgs) {
@@ -9,5 +9,5 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export default function Triggers() {
-  return <Navbar title="Color Composer" selectedNavItemText="triggers" />;
+  return <BasicAppShell title="Color Composer" selectedNavItemText="triggers" />;
 }
