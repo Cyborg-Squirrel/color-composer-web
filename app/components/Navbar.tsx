@@ -1,4 +1,4 @@
-import { NavLink } from '@mantine/core';
+import { AppShell, NavLink } from '@mantine/core';
 import { useState } from 'react';
 import classes from './Navbar.module.css';
 
@@ -8,13 +8,12 @@ const navItems = [
   { key: 'nav-2', link: 'strips', label: 'LED Strips', emoji: '💡' },
   { key: 'nav-3', link: 'effects', label: 'Effects', emoji: '✨' },
   { key: 'nav-4', link: 'palettes', label: 'Palettes', emoji: '🎨' },
-  { key: 'nav-5', link: 'triggers', label: 'Triggers', emoji: '⏲️' }
-];
-
-const bottomNavItems = [
+  { key: 'nav-5', link: 'triggers', label: 'Triggers', emoji: '⏲️' },
   { key: 'nav-6', link: 'settings', label: 'Settings', emoji: '⚙️' },
   { key: 'nav-7', link: 'about', label: 'About', emoji: 'ℹ' }
 ];
+
+const bottomNavItems: any[] = [];
 
 const allNavItems = [...navItems, ...bottomNavItems];
 
@@ -47,16 +46,11 @@ export function Navbar({selectedNavItemText}: { selectedNavItemText: string }) {
     />
   ));
 
-  return (
-    <nav className={classes.navbar}>
-      <div>
-        {navComponents}
-      </div>
-
+  return <AppShell.Navbar>
+      { navComponents }
       <div className={bottomNavComponents.length == 0 ? "" : classes.footer}>
-        {bottomNavComponents}
+        { bottomNavComponents }
       </div>
-    </nav>
-  );
+    </AppShell.Navbar>
 }
 
