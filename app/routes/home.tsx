@@ -1,13 +1,13 @@
-import { Navbar } from "~/layouts/Navbar";
+import { Navbar } from "~/components/Navbar";
 import type { Route } from "./+types/home";
 
 export function meta({}: Route.MetaArgs) {
   return [
-    { title: "Color Composer" },
-    { name: "description", content: "Welcome to Color Composer!" },
+    { title: "Home | Color Composer" },
+    { name: "description", content: "Home" },
   ];
 }
 
 export default function Home() {
-  return <Navbar navbarTitle="Color Composer" selectedNavbarItem="Clients" />;
+  return <Navbar title="Color Composer" selectedNavItemText="/" />;
 }

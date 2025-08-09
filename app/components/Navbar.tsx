@@ -3,21 +3,32 @@ import { useState } from 'react';
 import classes from './Navbar.module.css';
 
 const navItems = [
-  { key: 'nav-0', link: '#', label: 'Clients', emoji: '🛜' },
-  { key: 'nav-1', link: '#', label: 'LED Strips', emoji: '💡' },
-  { key: 'nav-2', link: '#', label: 'Effects', emoji: '✨' },
-  { key: 'nav-3', link: '#', label: 'Palettes', emoji: '🎨' },
-  { key: 'nav-4', link: '#', label: 'Triggers', emoji: '⏲️' }
+  { key: 'nav-0', link: '/', label: 'Home', emoji: '🏠' },
+  { key: 'nav-1', link: 'clients', label: 'Clients', emoji: '🛜' },
+  { key: 'nav-2', link: 'strips', label: 'LED Strips', emoji: '💡' },
+  { key: 'nav-3', link: 'effects', label: 'Effects', emoji: '✨' },
+  { key: 'nav-4', link: 'palettes', label: 'Palettes', emoji: '🎨' },
+  { key: 'nav-5', link: 'triggers', label: 'Triggers', emoji: '⏲️' }
 ];
 
 const bottomNavItems = [
-  { key: 'nav-5', link: '#', label: 'Settings', emoji: '⚙️' },
-  { key: 'nav-6', link: '#', label: 'About', emoji: 'ℹ' }
+  { key: 'nav-6', link: 'settings', label: 'Settings', emoji: '⚙️' },
+  { key: 'nav-7', link: 'about', label: 'About', emoji: 'ℹ' }
 ];
 
-// @ts-ignore
-export function Navbar({navbarTitle, selectedNavbarItem}) {
-  const [active, setActive] = useState(selectedNavbarItem);
+const allNavItems = [...navItems, ...bottomNavItems];
+
+interface NavBarProps {
+  title: string;
+  selectedNavItemText: string;
+}
+
+export function Navbar({title, selectedNavItemText}: NavBarProps) {
+  const selectedNavItem = selectedNavItemText?.trim()
+  ? allNavItems.find(item => item.link.toLowerCase() === selectedNavItemText.trim().toLowerCase())?.label
+  : '';
+  
+  const [active, setActive] = useState(selectedNavItem);
 
   const navComponents = navItems.map((item) => (
     <NavItem key={item.key} data={item} active={active} setActive={setActive}/>
@@ -31,7 +42,7 @@ export function Navbar({navbarTitle, selectedNavbarItem}) {
     <nav className={classes.navbar}>
       <div>
         <Group className={classes.header} justify="space-between">
-          <Text className={classes.span} fw={700} span>{navbarTitle}</Text>
+          <Text className={classes.span} fw={700} span>{title}</Text>
           <Code fw={700}>v0.0.1</Code>
         </Group>
         {navComponents}

@@ -7,7 +7,7 @@ import {
   ScrollRestoration,
 } from "react-router";
 
-import { DEFAULT_THEME, MantineProvider } from '@mantine/core';
+import { ColorSchemeScript, DEFAULT_THEME, MantineProvider } from '@mantine/core';
 import '@mantine/core/styles.css';
 import { StrictMode } from "react";
 import type { Route } from "./+types/root";
@@ -29,13 +29,14 @@ export const links: Route.LinksFunction = () => [
 export function Layout({ children }: { children: React.ReactNode }) {
   return (
     <StrictMode>
-    <MantineProvider defaultColorScheme="auto" theme={DEFAULT_THEME}>
+    <MantineProvider defaultColorScheme="auto" theme={ DEFAULT_THEME }>
       <html lang="en">
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <Meta />
         <Links />
+        <ColorSchemeScript defaultColorScheme="auto" />
       </head>
       <body>
         {children}
