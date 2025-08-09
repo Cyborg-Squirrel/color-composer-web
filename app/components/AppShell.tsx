@@ -15,8 +15,8 @@ export function BasicAppShell(props: { title: string; selectedNavItemText: strin
         <Group h="100%" px="md">
           <Burger opened={opened} onClick={toggle} hiddenFrom="sm" size="sm" />
           <Group justify="space-between">
-          <Text fw={700} span>{ props.title }</Text>
-          <Code fw={700}>v0.0.1</Code>
+          <Text id="title" fw={700} span>{ props.title }</Text>
+          <Code id="version" fw={700}>v0.0.1</Code>
         </Group>
         </Group>
       </AppShell.Header>

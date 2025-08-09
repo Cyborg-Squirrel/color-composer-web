@@ -27,6 +27,7 @@ export function Navbar({selectedNavItemText}: { selectedNavItemText: string }) {
 
   const navComponents = navItems.map((item) => (
     <NavLink
+        id={item.key}
         key={item.key}
         href={item.link}
         label={item.label}
@@ -37,6 +38,7 @@ export function Navbar({selectedNavItemText}: { selectedNavItemText: string }) {
 
   const bottomNavComponents = bottomNavItems.map((item) => (
     <NavLink
+        id={item.key}
         key={item.key}
         href={item.link}
         label={item.label}
