@@ -51,11 +51,6 @@
   }
 }
 
-.linkIcon {
-  color: light-dark(var(--mantine-color-gray-6), var(--mantine-color-dark-2));
-  margin-right: var(--mantine-spacing-xs);
-}
-
 .span {
   color: light-dark(var(--mantine-color-gray-7), var(--mantine-color-dark-1));
 }
@@ -63,5 +58,4 @@
 .greyScaleIcon {
   color: light-dark(var(--mantine-color-gray-7), var(--mantine-color-dark-1));
   filter: grayscale(100%);
-  margin-right: var(--mantine-spacing-xs);
 }

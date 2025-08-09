@@ -1,4 +1,4 @@
-import { Code, Group, Text } from '@mantine/core';
+import { Code, Group, NavLink, Text } from '@mantine/core';
 import { useState } from 'react';
 import classes from './Navbar.module.css';
 
@@ -31,11 +31,23 @@ export function Navbar({title, selectedNavItemText}: NavBarProps) {
   const [active, setActive] = useState(selectedNavItem);
 
   const navComponents = navItems.map((item) => (
-    <NavItem key={item.key} data={item} active={active} setActive={setActive}/>
+    <NavLink
+        key={item.key}
+        href={item.link}
+        label={item.label}
+        leftSection={<span className={item.label === active ? classes.linkIcon : classes.greyScaleIcon}>{item.emoji}</span>}
+        active={ item.label === active }
+    />
   ));
 
   const bottomNavComponents = bottomNavItems.map((item) => (
-    <NavItem key={item.key} data={item} active={active} setActive={setActive}/>
+    <NavLink
+        key={item.key}
+        href={item.link}
+        label={item.label}
+        leftSection={<span className={item.label === active ? classes.linkIcon : classes.greyScaleIcon}>{item.emoji}</span>}
+        active={ item.label === active }
+    />
   ));
 
   return (
@@ -55,21 +67,3 @@ export function Navbar({title, selectedNavItemText}: NavBarProps) {
   );
 }
 
-// @ts-ignore
-function NavItem(props) {
-  let active = props.data.label === props.active || undefined;
-  return (
-    <a
-      className={classes.link}
-      data-active={active}
-      href={props.data.link}
-      key={props.data.label}
-      onClick={() => {
-        props.setActive(props.data.label);
-      }}
-    >
-      <span className={active ? classes.linkIcon : classes.greyScaleIcon}>{props.data.emoji}</span>
-      <span>&nbsp;{props.data.label}</span>
-    </a>
-  );
-}
