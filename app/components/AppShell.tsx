@@ -1,8 +1,14 @@
-import { AppShell, Burger, Code, Group, Text } from '@mantine/core';
+import { AppShell, Burger, Code, Divider, Group, Space, Text, Title } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { Navbar } from './Navbar';
 
-export function BasicAppShell(props: { title: string; selectedNavItemText: string; }) {
+interface AppShellProps {
+  title: string;
+  pageName: string;
+  content: React.ReactNode;
+}
+
+export function BasicAppShell(props: AppShellProps) {
   const [opened, { toggle }] = useDisclosure();
 
   return (
@@ -24,12 +30,15 @@ export function BasicAppShell(props: { title: string; selectedNavItemText: strin
         </Group>
         </Group>
       </AppShell.Header>
-      <AppShell.Navbar p="md">
-        <Navbar selectedNavItemText={ props.selectedNavItemText }></Navbar>
-      </AppShell.Navbar>
-      <AppShell.Main>
-        <Text>This is the main section, your app content here.</Text>
-        <Text>Layout used in most cases – Navbar and Header with fixed position</Text>
+      <Navbar selectedNavItemText={ props.pageName }/>
+      <AppShell.Main style={{
+        background:"var(--mantine-color-disabled)"
+      }}>
+        <Title order={2}>{ props.pageName }</Title>
+        <Space h="xs"></Space>
+        <Divider></Divider>
+        <Space h="xl"></Space>
+        {props.content}
       </AppShell.Main>
     </AppShell>
   );

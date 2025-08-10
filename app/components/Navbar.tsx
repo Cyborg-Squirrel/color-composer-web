@@ -19,7 +19,8 @@ const allNavItems = [...navItems, ...bottomNavItems];
 
 export function Navbar({selectedNavItemText}: { selectedNavItemText: string }) {
   const selectedNavItem = selectedNavItemText?.trim()
-  ? allNavItems.find(item => item.link.toLowerCase() === selectedNavItemText.trim().toLowerCase())?.label
+  ? allNavItems.find(item => item.link.toLowerCase() === selectedNavItemText.trim().toLowerCase() ||
+  item.label.toLowerCase() === selectedNavItemText.trim().toLowerCase())?.label
   : '';
   
   const [active, setActive] = useState(selectedNavItem);

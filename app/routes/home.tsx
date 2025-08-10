@@ -9,5 +9,5 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export default function Home() {
-  return <BasicAppShell title="Color Composer" selectedNavItemText="/" />;
+  return <BasicAppShell title="Color Composer" pageName="Home" />;
 }
