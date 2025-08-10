@@ -9,5 +9,5 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export default function Palettes() {
-  return <BasicAppShell title="Color Composer" pageName="Palettes" />;
+  return <BasicAppShell title="Color Composer" pageName="Palettes" content={<div/>}/>;
 }

@@ -9,5 +9,5 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export default function Home() {
-  return <BasicAppShell title="Color Composer" pageName="Home" />;
+  return <BasicAppShell title="Color Composer" pageName="Home" content={<div/>}/>;
 }
