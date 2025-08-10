@@ -1,4 +1,5 @@
 import { BasicAppShell } from "~/components/AppShell";
+import { ClientGrid } from "~/components/ClientGrid";
 import type { Route } from "./+types/home";
 
 export function meta({}: Route.MetaArgs) {
@@ -9,5 +10,5 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export default function Clients() {
-  return <BasicAppShell title="Color Composer" selectedNavItemText="clients" />;
+  return <BasicAppShell title="Color Composer" pageName="Clients" content={<ClientGrid/>}/>;
 }

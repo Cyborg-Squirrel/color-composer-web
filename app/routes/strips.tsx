@@ -9,5 +9,5 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export default function Strips() {
-  return <BasicAppShell title="Color Composer" selectedNavItemText="strips" />;
+  return <BasicAppShell title="Color Composer" pageName="Strips" content={<div/>}/>;
 }

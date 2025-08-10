@@ -9,5 +9,5 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export default function Triggers() {
-  return <BasicAppShell title="Color Composer" selectedNavItemText="triggers" />;
+  return <BasicAppShell title="Color Composer" pageName="Triggers" content={<div/>}/>;
 }
