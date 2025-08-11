@@ -2,13 +2,13 @@ import { AppShell, Burger, Code, Divider, Group, Space, Text, Title } from '@man
 import { useDisclosure } from '@mantine/hooks';
 import { Navbar } from './Navbar';
 
-interface AppShellProps {
+interface IAppShellProps {
   title: string;
   pageName: string;
   content: React.ReactNode;
 }
 
-export function BasicAppShell(props: AppShellProps) {
+export function BasicAppShell(props: IAppShellProps) {
   const [opened, { toggle }] = useDisclosure();
 
   return (
