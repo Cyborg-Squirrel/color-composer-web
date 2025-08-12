@@ -14,7 +14,6 @@ export function ClientGrid(props: IClientGridProps) {
     useEffect(() => {
         if (loading) {
             getClients().then((clientList) => {
-                console.log('Received client list ' + clientList);
                 setClients(clientList);
                 setLoading(false);
             }).catch(() => {
@@ -27,7 +26,6 @@ export function ClientGrid(props: IClientGridProps) {
     }, []);
 
     if (loading) {
-        console.log('Showing loading overlay');
         return <BoundedLoadingOverlay loading/>
     } else if (error) {
         console.log('Showing error ' + error);

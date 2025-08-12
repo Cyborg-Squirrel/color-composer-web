@@ -12,8 +12,8 @@ export interface ILedStripClient {
 export async function getClients(): Promise<ILedStripClient[]> {
     let apiUrl = import.meta.env.VITE_API_URL;
     let mockMode = import.meta.env.VITE_MOCK_MODE;
-    if (apiUrl && mockMode === false) {
-        const res = await fetch(apiUrl + '/clients');
+    if (mockMode == 'false' && apiUrl != null) {
+        const res = await fetch(apiUrl + '/client');
         const json = await res.json();
         const clientList = json.clients.map((c: ILedStripClient) => c);
         return clientList;

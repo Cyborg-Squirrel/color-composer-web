@@ -10,5 +10,5 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export default function Clients() {
-  return <BasicAppShell title="Color Composer" pageName="Clients" content={<ClientTable/>}/>;
+  return <BasicAppShell title="Color Composer" pageName="Clients" content={<ClientTable/>} topPadding={"sm"}/>;
 }
