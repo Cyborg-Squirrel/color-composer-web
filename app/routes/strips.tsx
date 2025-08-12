@@ -1,4 +1,4 @@
-import { BasicAppShell } from "~/components/AppShell";
+import { BasicAppShell } from "~/components/layouts/AppShell";
 import type { Route } from "./+types/home";
 
 export function meta({}: Route.MetaArgs) {
