@@ -42,9 +42,9 @@ export function ClientTable(props: IClientTableProps) {
             <Table.Td>{c.address}</Table.Td>
             <Table.Td c={statusColors.ok}>Idle</Table.Td>
             <Table.Td>
-                <Menu shadow="md" width="10em">
+                <Menu shadow="md" width="10em" position="bottom-end">
                     <Menu.Target>
-                        <button>...</button>
+                        <Button variant="subtle" size="xs" c="var(--mantine-color-text)">...</Button>
                     </Menu.Target>
                     <Menu.Dropdown>
                         <Button variant="subtle" size="md" c="var(--mantine-color-text)" justify="left" fullWidth>Edit</Button>
@@ -56,7 +56,7 @@ export function ClientTable(props: IClientTableProps) {
     ));
 
     return (
-        <Table verticalSpacing="sm">
+        <Table verticalSpacing="xs">
             <Table.Thead>
                 <Table.Tr>
                     <Table.Th>Name</Table.Th>
