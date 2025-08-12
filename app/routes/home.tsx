@@ -1,4 +1,5 @@
-import { BasicAppShell } from "~/components/AppShell";
+import { ClientGrid } from "~/components/clients/ClientGrid";
+import { BasicAppShell } from "~/components/layouts/AppShell";
 import type { Route } from "./+types/home";
 
 export function meta({}: Route.MetaArgs) {
@@ -9,5 +10,5 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export default function Home() {
-  return <BasicAppShell title="Color Composer" pageName="Home" content={<div/>}/>;
+  return <BasicAppShell title="Color Composer" pageName="Home" content={<ClientGrid/>}/>;
 }
