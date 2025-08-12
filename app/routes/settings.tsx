@@ -9,5 +9,5 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export default function Settings() {
-  return <BasicAppShell title="Color Composer" pageName="Settings" content={<div/>}/>;
+  return <BasicAppShell title="Color Composer" pageName="Settings" content={<div/>} topPadding={"sm"}/>;
 }
