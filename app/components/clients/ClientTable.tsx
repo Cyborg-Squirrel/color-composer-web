@@ -1,4 +1,4 @@
-import { Center, Table } from "@mantine/core";
+import { Button, Center, Menu, Table } from "@mantine/core";
 import { useEffect, useState } from "react";
 import { getClients, type ILedStripClient } from "~/api/clients_api";
 import { BoundedLoadingOverlay } from "../BoundedLoadingOverlay";
@@ -14,7 +14,6 @@ export function ClientTable(props: IClientTableProps) {
     useEffect(() => {
         if (loading) {
             getClients().then((clientList) => {
-                console.log('Received client list ' + clientList);
                 setClients(clientList);
                 setLoading(false);
             }).catch(() => {
@@ -27,7 +26,6 @@ export function ClientTable(props: IClientTableProps) {
     }, []);
 
     if (loading) {
-        console.log('Showing loading overlay');
         return <BoundedLoadingOverlay loading/>;
     } else if (error) {
         console.log('Showing error ' + error);
@@ -43,12 +41,22 @@ export function ClientTable(props: IClientTableProps) {
             <Table.Td>{c.name}</Table.Td>
             <Table.Td>{c.address}</Table.Td>
             <Table.Td c={statusColors.ok}>Idle</Table.Td>
-            <Table.Td>...</Table.Td>
+            <Table.Td>
+                <Menu shadow="md" width="10em">
+                    <Menu.Target>
+                        <button>...</button>
+                    </Menu.Target>
+                    <Menu.Dropdown>
+                        <Button variant="subtle" size="md" c="var(--mantine-color-text)" justify="left" fullWidth>Edit</Button>
+                        <Button variant="subtle" size="md" c="var(--mantine-color-text)" justify="left" fullWidth>Delete</Button>
+                    </Menu.Dropdown>
+                </Menu>
+            </Table.Td>
         </Table.Tr>
     ));
 
     return (
-        <Table>
+        <Table verticalSpacing="sm">
             <Table.Thead>
                 <Table.Tr>
                     <Table.Th>Name</Table.Th>

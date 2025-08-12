@@ -6,6 +6,7 @@ interface IAppShellProps {
   title: string;
   pageName: string;
   content: React.ReactNode;
+  topPadding: 'xl' | 'lg' | 'md' | 'sm' | 'xs';
 }
 
 export function BasicAppShell(props: IAppShellProps) {
@@ -37,7 +38,7 @@ export function BasicAppShell(props: IAppShellProps) {
         <Title order={2}>{ props.pageName }</Title>
         <Space h="xs"></Space>
         <Divider></Divider>
-        <Space h="xl"></Space>
+        <Space h={props.topPadding}></Space>
         {props.content}
       </AppShell.Main>
     </AppShell>
