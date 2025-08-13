@@ -18,6 +18,7 @@ body {
 /* ----- Layout ----- */
 [data-mantine-color-scheme="dark"] .mantine-AppShell-header {
   background-color: var(--mantine-color-dark-7);
+  border: none;
 }
 
 /* Box behind central content */
@@ -27,5 +28,5 @@ body {
 
 /* ----- Home page ----- */
 .grid-card {
-  background-color: light-dark(var(--mantine-color-gray-2), var(--mantine-color-dark-6));
+  background-color: light-dark(var(--mantine-color-gray-2), var(--mantine-color-dark-7));
 }

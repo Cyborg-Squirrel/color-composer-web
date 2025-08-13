@@ -1,5 +1,6 @@
 [data-mantine-color-scheme="dark"] .navbar {
   background-color: var(--mantine-color-dark-7);
+  border-right: none;
 }
 
 .footer {
