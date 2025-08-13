@@ -56,7 +56,7 @@ export function ClientTable(props: IClientTableProps) {
     ));
 
     return (
-        <Table verticalSpacing="xs" striped highlightOnHover>
+        <Table verticalSpacing="xs" striped highlightOnHover withRowBorders={false}>
             <Table.Thead>
                 <Table.Tr>
                     <Table.Th>Name</Table.Th>

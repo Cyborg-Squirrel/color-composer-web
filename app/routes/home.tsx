@@ -10,5 +10,5 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export default function Home() {
-  return <BasicAppShell title="Color Composer" pageName="Home" content={<ClientGrid />} topPadding={"lg"}/>;
+  return <BasicAppShell title="Color Composer" pageName="Home" content={<ClientGrid />} topPadding={"lg"} disableContentBoxCss contentMarginTop={0}/>;
 }

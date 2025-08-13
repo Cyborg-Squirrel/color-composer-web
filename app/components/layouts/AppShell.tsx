@@ -8,10 +8,14 @@ interface IAppShellProps {
   content: React.ReactNode;
   topPadding: 'xl' | 'lg' | 'md' | 'sm' | 'xs';
   hideDivider?: boolean;
+  disableContentBoxCss?: boolean;
+  contentMarginTop?: number;
 }
 
 export function BasicAppShell(props: IAppShellProps) {
   const [opened, { toggle }] = useDisclosure();
+  let boxClassName = props.disableContentBoxCss ? undefined : 'content-box';
+  let cmt = props.contentMarginTop ?? 1.5;
 
   return (
     <AppShell
@@ -34,7 +38,7 @@ export function BasicAppShell(props: IAppShellProps) {
       </AppShell.Header>
       <Navbar selectedNavItemText={ props.pageName }/>
       <AppShell.Main>
-        <Box className="content-box" p="1em" mt='1.5em' ml='.5em' mr='.5em'>
+        <Box className={boxClassName} p="1em" mt={cmt + 'em'} ml='.5em' mr='.5em'>
         <Title order={2}>{ props.pageName }</Title>
         <Space h="xs"></Space>
         <Divider hidden={props.hideDivider}></Divider>

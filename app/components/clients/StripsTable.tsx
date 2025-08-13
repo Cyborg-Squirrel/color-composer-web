@@ -55,7 +55,7 @@ export function StripsTable(props: IStripsTableProps) {
     ));
 
     return (
-        <Table verticalSpacing="xs" striped highlightOnHover>
+        <Table verticalSpacing="xs" striped highlightOnHover withRowBorders={false}>
             <Table.Thead>
                 <Table.Tr>
                     <Table.Th>Name</Table.Th>
