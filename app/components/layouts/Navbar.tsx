@@ -31,7 +31,7 @@ export function Navbar({selectedNavItemText}: { selectedNavItemText: string }) {
         key={item.key}
         href={item.link}
         label={item.label}
-        leftSection={<span className={item.label === active ? classes.linkIcon : classes.greyScaleIcon}>{item.emoji}</span>}
+        leftSection={<span className={item.label === active ? classes.linkIcon : classes.grayscale}>{item.emoji}</span>}
         active={ item.label === active }
     />
   ));
@@ -47,7 +47,7 @@ export function Navbar({selectedNavItemText}: { selectedNavItemText: string }) {
     />
   ));
 
-  return <AppShell.Navbar>
+  return <AppShell.Navbar className={classes.navbar}>
       { navComponents }
       <div className={bottomNavComponents.length == 0 ? "" : classes.footer}>
         { bottomNavComponents }

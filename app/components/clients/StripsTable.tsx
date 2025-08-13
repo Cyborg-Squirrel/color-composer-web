@@ -1,20 +1,19 @@
 import { Button, Center, Menu, Table } from "@mantine/core";
 import { useEffect, useState } from "react";
-import { getClients, type ILedStripClient } from "~/api/clients_api";
+import { getStrips, type ILedStripClient } from "~/api/strips_api";
 import { BoundedLoadingOverlay } from "../BoundedLoadingOverlay";
-import { statusColors } from "../status";
 
-interface IClientTableProps {}
+interface IStripsTableProps {}
 
-export function ClientTable(props: IClientTableProps) {
-    const [clients, setClients] = useState<ILedStripClient[]>([]);
+export function StripsTable(props: IStripsTableProps) {
+    const [strips, setStrips] = useState<ILedStripClient[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
     useEffect(() => {
         if (loading) {
-            getClients().then((clientList) => {
-                setClients(clientList);
+            getStrips().then((stripList) => {
+                setStrips(stripList);
                 setLoading(false);
             }).catch((error) => {
                 setError(error);
@@ -31,16 +30,16 @@ export function ClientTable(props: IClientTableProps) {
         console.log('Showing error ' + error);
        return <Center>
             <div>
-                Error fetching clients
+                Error fetching LED strips
             </div>
         </Center>
     }
     
-    const rows = clients.map((c) => (
-        <Table.Tr key={c.uuid}>
-            <Table.Td>{c.name}</Table.Td>
-            <Table.Td>{c.address}</Table.Td>
-            <Table.Td c={statusColors.ok}>Idle</Table.Td>
+    const rows = strips.map((s) => (
+        <Table.Tr key={s.uuid}>
+            <Table.Td>{s.name}</Table.Td>
+            <Table.Td>{s.clientUuid}</Table.Td>
+            <Table.Td>{s.length}</Table.Td>
             <Table.Td>
                 <Menu shadow="md" width="10em" position="bottom-end">
                     <Menu.Target>
@@ -60,8 +59,8 @@ export function ClientTable(props: IClientTableProps) {
             <Table.Thead>
                 <Table.Tr>
                     <Table.Th>Name</Table.Th>
-                    <Table.Th>Address</Table.Th>
-                    <Table.Th>Status</Table.Th>
+                    <Table.Th>Client</Table.Th>
+                    <Table.Th>LEDs</Table.Th>
                 </Table.Tr>
             </Table.Thead>
             <Table.Tbody>

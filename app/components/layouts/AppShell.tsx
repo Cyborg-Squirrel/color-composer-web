@@ -1,4 +1,4 @@
-import { AppShell, Burger, Code, Divider, Group, Space, Text, Title } from '@mantine/core';
+import { AppShell, Box, Burger, Code, Divider, Group, Space, Text, Title } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { Navbar } from './Navbar';
 
@@ -7,6 +7,7 @@ interface IAppShellProps {
   pageName: string;
   content: React.ReactNode;
   topPadding: 'xl' | 'lg' | 'md' | 'sm' | 'xs';
+  hideDivider?: boolean;
 }
 
 export function BasicAppShell(props: IAppShellProps) {
@@ -23,7 +24,7 @@ export function BasicAppShell(props: IAppShellProps) {
       }}
     >
       <AppShell.Header>
-        <Group h="100%" px="md">
+        <Group h="100%" pl="md">
           <Burger opened={opened} onClick={toggle} hiddenFrom="sm" size="sm" />
           <Group justify="space-between">
           <Text id="title" fw={700} span>{ props.title }</Text>
@@ -32,14 +33,14 @@ export function BasicAppShell(props: IAppShellProps) {
         </Group>
       </AppShell.Header>
       <Navbar selectedNavItemText={ props.pageName }/>
-      <AppShell.Main style={{
-        background:"var(--mantine-color-disabled)"
-      }}>
+      <AppShell.Main>
+        <Box className="content-box" p="1em" mt='1.5em' ml='.5em' mr='.5em'>
         <Title order={2}>{ props.pageName }</Title>
         <Space h="xs"></Space>
-        <Divider></Divider>
+        <Divider hidden={props.hideDivider}></Divider>
         <Space h={props.topPadding}></Space>
         {props.content}
+      </Box>
       </AppShell.Main>
     </AppShell>
   );

@@ -9,4 +9,20 @@ html,
 body {
   height: 100%;
   margin: 0;
+  background-color: light-dark(var(--mantine-color-background), var(--mantine-color-dark-8));
+}
+
+/* ----- Layout ----- */
+[data-mantine-color-scheme="dark"] .mantine-AppShell-header {
+  background-color: var(--mantine-color-dark-6);
+}
+
+/* Box behind central content */
+[data-mantine-color-scheme="dark"] .content-box {
+  background-color: var(--mantine-color-dark-6);
+}
+
+/* ----- Home page ----- */
+.grid-card {
+  background-color: light-dark(var(--mantine-color-gray-2), var(--mantine-color-dark-7));
 }

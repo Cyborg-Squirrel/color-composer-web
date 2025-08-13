@@ -9,15 +9,15 @@ interface IClientGridProps {}
 export function ClientGrid(props: IClientGridProps) {
     const [clients, setClients] = useState<ILedStripClient[]>([]);
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(false);
+    const [error, setError] = useState(null);
 
     useEffect(() => {
         if (loading) {
             getClients().then((clientList) => {
                 setClients(clientList);
                 setLoading(false);
-            }).catch(() => {
-                setError(true);
+            }).catch((error) => {
+                setError(error);
                 setLoading(false);
             });
         }
@@ -37,7 +37,7 @@ export function ClientGrid(props: IClientGridProps) {
     }
 
     const gridItems = clients.map((c) => (
-        <Card h={250} bg="var(--mantine-color-body)" style={{padding: '12px'}}>
+        <Card h={250} className='grid-card' style={{padding: '12px'}}>
                 <span
                 style={{
                     position: "absolute",
@@ -47,7 +47,7 @@ export function ClientGrid(props: IClientGridProps) {
                     height: '1rem',
                 }}>⚙️</span>
                 <Text fw={ 700 } span>
-                    { clients[0].name }
+                    { c.name }
                 </Text>
                 <Text c={statusColors.warning} span>
                     Setup incomplete
@@ -55,13 +55,13 @@ export function ClientGrid(props: IClientGridProps) {
                 <Space h={10}></Space>
                 <Divider></Divider>
                 <Space h={15}></Space>
-                <span><Text fw={ 700 } span>Address: </Text><Text c="dimmed" span>{ c.address }</Text></span>
+                <SpanRow startingText='Address: ' endingText={c.address}></SpanRow>
                 <Space h={10}></Space>
-                <span><Text fw={ 700 } span>Type: </Text><Text c="dimmed" span>{ c.clientType }</Text></span>
+                <SpanRow startingText='Type: ' endingText={c.clientType}></SpanRow>
                 <Space h={10}></Space>
-                <span><Text fw={ 700 } span>Strips: </Text><Text c="dimmed" span>1</Text></span>
+                <SpanRow startingText='Strips: ' endingText={'1'}></SpanRow>
                 <Space h={10}></Space>
-                <span><Text fw={ 700 } span>Playing: </Text><Text c="dimmed" span>3 effects</Text></span>
+                <SpanRow startingText='Active effects: ' endingText={'3'}></SpanRow>
             </Card>
         ));
     
@@ -73,4 +73,11 @@ export function ClientGrid(props: IClientGridProps) {
             { gridItems }
         </SimpleGrid>
     );
+}
+
+function SpanRow(props: {startingText: string, endingText: string}) {
+    return <span>
+        <Text fw={ 700 } span>{ props.startingText }</Text>
+        <Text span>{ props.endingText }</Text>
+    </span>
 }
