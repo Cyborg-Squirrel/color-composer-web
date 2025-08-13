@@ -9,7 +9,6 @@ html,
 body {
   height: 100%;
   margin: 0;
-  background-color: light-dark(var(--mantine-color-background), var(--mantine-color-dark-8));
 }
 
 /* ----- Layout ----- */
