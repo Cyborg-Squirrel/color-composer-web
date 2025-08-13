@@ -12,7 +12,7 @@ body {
 }
 
 [data-mantine-color-scheme="dark"] html, body {
-  background-color: var(--mantine-color-dark-8);
+  background-color: light-dark(var(--mantine-color-background), var(--mantine-color-dark-8));
 }
 
 /* ----- Layout ----- */
@@ -27,5 +27,5 @@ body {
 
 /* ----- Home page ----- */
 .grid-card {
-  background-color: light-dark(var(--mantine-color-gray-2), var(--mantine-color-dark-7));
+  background-color: light-dark(var(--mantine-color-background), var(--mantine-color-dark-7));
 }
