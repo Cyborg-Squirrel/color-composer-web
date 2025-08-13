@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { getClients, type ILedStripClient } from "~/api/clients_api";
 import { BoundedLoadingOverlay } from "../BoundedLoadingOverlay";
 import { statusColors } from "../status";
+import classes from './ClientGrid.module.css';
 
 interface IClientGridProps {}
 
@@ -37,7 +38,7 @@ export function ClientGrid(props: IClientGridProps) {
     }
 
     const gridItems = clients.map((c) => (
-        <Card h={250} className='grid-card' style={{padding: '12px'}}>
+        <Card h={250} className={classes.grid_card} style={{padding: '12px'}}>
                 <span
                 style={{
                     position: "absolute",

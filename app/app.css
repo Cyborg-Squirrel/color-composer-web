@@ -9,9 +9,6 @@ html,
 body {
   height: 100%;
   margin: 0;
-}
-
-[data-mantine-color-scheme="dark"] html, body {
   background-color: light-dark(var(--mantine-color-background), var(--mantine-color-dark-8));
 }
 
@@ -23,9 +20,4 @@ body {
 /* Box behind central content */
 [data-mantine-color-scheme="dark"] .content-box {
   background-color: var(--mantine-color-dark-7);
-}
-
-/* ----- Home page ----- */
-.grid-card {
-  background-color: light-dark(var(--mantine-color-background), var(--mantine-color-dark-7));
 }
