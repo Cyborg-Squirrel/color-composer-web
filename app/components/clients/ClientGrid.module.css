@@ -1,3 +1,7 @@
 .grid_card {
-  background-color: var(--mantine-color-dark-7);
+  outline: 1px solid light-dark(var(--app-shell-border-color), transparent);
+}
+
+.grid_card_dimmed_text {
+    color: light-dark(#757575, #a1a1a1);
 }

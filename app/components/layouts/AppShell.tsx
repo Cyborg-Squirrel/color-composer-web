@@ -1,5 +1,6 @@
-import { AppShell, Box, Burger, Code, Divider, Group, Space, Text, Title } from '@mantine/core';
+import { AppShell, Box, Burger, Code, Divider, Group, Space, Text, Title, useComputedColorScheme } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
+import { ColorSchemeToggle } from '../ColorSchemeToggle';
 import { Navbar } from './Navbar';
 
 interface IAppShellProps {
@@ -13,6 +14,7 @@ interface IAppShellProps {
 }
 
 export function BasicAppShell(props: IAppShellProps) {
+  const computedColorScheme = useComputedColorScheme('light', { getInitialValueInEffect: true });
   const [opened, { toggle }] = useDisclosure();
   let boxClassName = props.disableContentBoxCss ? undefined : 'content-box';
   let cmt = props.contentMarginTop ?? 1.5;
@@ -26,6 +28,7 @@ export function BasicAppShell(props: IAppShellProps) {
         breakpoint: 'sm',
         collapsed: { mobile: !opened },
       }}
+      withBorder={ computedColorScheme === 'light' }
     >
       <AppShell.Header>
         <Group h="100%" pl="md">
@@ -34,6 +37,7 @@ export function BasicAppShell(props: IAppShellProps) {
           <Text id="title" fw={700} span>{ props.title }</Text>
           <Code id="version" fw={700}>v0.0.1</Code>
         </Group>
+          <ColorSchemeToggle hidden={import.meta.env.VITE_COLOR_SCHEME_TOGGLE_ENABLED === true}/>
         </Group>
       </AppShell.Header>
       <Navbar selectedNavItemText={ props.pageName }/>

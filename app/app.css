@@ -14,10 +14,9 @@ body {
 /* ----- Layout ----- */
 [data-mantine-color-scheme="dark"] .mantine-AppShell-header {
   background-color: var(--mantine-color-dark-7);
-  border-bottom: none;
 }
 
 /* Box behind central content */
-[data-mantine-color-scheme="dark"] .content-box {
-  background-color: var(--mantine-color-dark-7);
+.content-box {
+  background-color: light-dark(transparent, var(--mantine-color-dark-7));
 }

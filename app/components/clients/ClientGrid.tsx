@@ -79,6 +79,6 @@ export function ClientGrid(props: IClientGridProps) {
 function SpanRow(props: {startingText: string, endingText: string}) {
     return <span>
         <Text fw={ 700 } span>{ props.startingText }</Text>
-        <Text span>{ props.endingText }</Text>
+        <Text className={classes.grid_card_dimmed_text} span>{ props.endingText }</Text>
     </span>
 }
