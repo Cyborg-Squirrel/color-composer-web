@@ -53,7 +53,7 @@ export function ClientGrid(props: IClientGridProps) {
                 <Text c={statusColors.warning} span>
                     Setup incomplete
                 </Text>
-                <Space h={10}></Space>
+                <Space h={7}></Space>
                 <Divider></Divider>
                 <Space h={15}></Space>
                 <SpanRow startingText='Address: ' endingText={c.address}></SpanRow>

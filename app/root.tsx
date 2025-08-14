@@ -28,7 +28,9 @@ export const links: Route.LinksFunction = () => [
 
 const resolver: CSSVariablesResolver = (theme) => ({
   variables: {},
-  light: {},
+  light: {
+    '--mantine-color-body': '#f7fafc'
+  },
   dark: {
     '--mantine-color-body': theme.colors.dark[8],
   },

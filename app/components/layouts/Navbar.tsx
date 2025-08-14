@@ -48,7 +48,7 @@ export function Navbar({selectedNavItemText}: { selectedNavItemText: string }) {
     />
   ));
 
-  return <AppShell.Navbar className={classes.navbar} withBorder={computedColorScheme === 'light'}>
+  return <AppShell.Navbar className={classes.navbar} withBorder={false}>
       { navComponents }
       <div className={bottomNavComponents.length == 0 ? "" : classes.footer}>
         { bottomNavComponents }
