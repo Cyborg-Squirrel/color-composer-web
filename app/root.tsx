@@ -7,7 +7,7 @@ import {
   ScrollRestoration,
 } from "react-router";
 
-import { ColorSchemeScript, DEFAULT_THEME, MantineProvider } from '@mantine/core';
+import { ColorSchemeScript, DEFAULT_THEME, MantineProvider, type CSSVariablesResolver } from '@mantine/core';
 import '@mantine/core/styles.css';
 import { StrictMode } from "react";
 import type { Route } from "./+types/root";
@@ -26,10 +26,20 @@ export const links: Route.LinksFunction = () => [
   },
 ];
 
+const resolver: CSSVariablesResolver = (theme) => ({
+  variables: {},
+  light: {
+    '--mantine-color-body': '#f7fafc'
+  },
+  dark: {
+    '--mantine-color-body': theme.colors.dark[8],
+  },
+});
+
 export function Layout({ children }: { children: React.ReactNode }) {
   return (
     <StrictMode>
-    <MantineProvider defaultColorScheme="auto" theme={ DEFAULT_THEME }>
+    <MantineProvider defaultColorScheme="auto" theme={ DEFAULT_THEME } cssVariablesResolver={ resolver }>
       <html lang="en">
       <head>
         <meta charSet="utf-8" />

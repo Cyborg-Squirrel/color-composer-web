@@ -1,3 +1,4 @@
+import { StripsTable } from "~/components/clients/StripsTable";
 import { BasicAppShell } from "~/components/layouts/AppShell";
 import type { Route } from "./+types/home";
 
@@ -9,5 +10,5 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export default function Strips() {
-  return <BasicAppShell title="Color Composer" pageName="Strips" content={<div/>} topPadding={"sm"}/>;
+  return <BasicAppShell title="Color Composer" pageName="Strips" content={<StripsTable/>} topPadding={"sm"}/>;
 }

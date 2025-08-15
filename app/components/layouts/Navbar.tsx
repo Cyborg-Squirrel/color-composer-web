@@ -1,4 +1,4 @@
-import { AppShell, NavLink } from '@mantine/core';
+import { AppShell, NavLink, useComputedColorScheme } from '@mantine/core';
 import { useState } from 'react';
 import classes from './Navbar.module.css';
 
@@ -18,6 +18,7 @@ const bottomNavItems: any[] = [];
 const allNavItems = [...navItems, ...bottomNavItems];
 
 export function Navbar({selectedNavItemText}: { selectedNavItemText: string }) {
+  const computedColorScheme = useComputedColorScheme('light', { getInitialValueInEffect: true });
   const selectedNavItem = selectedNavItemText?.trim()
   ? allNavItems.find(item => item.link.toLowerCase() === selectedNavItemText.trim().toLowerCase() ||
   item.label.toLowerCase() === selectedNavItemText.trim().toLowerCase())?.label
@@ -31,7 +32,7 @@ export function Navbar({selectedNavItemText}: { selectedNavItemText: string }) {
         key={item.key}
         href={item.link}
         label={item.label}
-        leftSection={<span className={item.label === active ? classes.linkIcon : classes.greyScaleIcon}>{item.emoji}</span>}
+        leftSection={<span className={item.label === active ? classes.linkIcon : classes.grayscale}>{item.emoji}</span>}
         active={ item.label === active }
     />
   ));
@@ -47,7 +48,7 @@ export function Navbar({selectedNavItemText}: { selectedNavItemText: string }) {
     />
   ));
 
-  return <AppShell.Navbar>
+  return <AppShell.Navbar className={classes.navbar} withBorder={false}>
       { navComponents }
       <div className={bottomNavComponents.length == 0 ? "" : classes.footer}>
         { bottomNavComponents }
