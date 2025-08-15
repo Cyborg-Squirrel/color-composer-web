@@ -1,4 +1,4 @@
-import { ActionIcon, Button, useComputedColorScheme, useMantineColorScheme } from '@mantine/core';
+import { ActionIcon, useComputedColorScheme, useMantineColorScheme } from '@mantine/core';
 
 export function ColorSchemeToggle(props: {hidden: boolean}) {
   const { setColorScheme } = useMantineColorScheme();
@@ -12,8 +12,7 @@ export function ColorSchemeToggle(props: {hidden: boolean}) {
       aria-label="Toggle color scheme"
       hidden={props.hidden}
     >
-        <Button hidden={computedColorScheme === 'light'} variant="transparent" p='.1em'>☀️</Button>
-        <Button hidden={computedColorScheme === 'dark'} variant="transparent" p='.1em'>🌛</Button>
+        {computedColorScheme == 'light' ? '🌛' : '☀️'}
     </ActionIcon>
   );
 }

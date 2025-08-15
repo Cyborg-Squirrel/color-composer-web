@@ -32,7 +32,7 @@ export async function getStrips(): Promise<ILedStripClient[]> {
                 clientUuid: '0efcbf1f-9766-4d60-8b9b-edc4df639998',
                 pin: 'D10',
                 length: 120,
-                powerLimit: 2000
+                powerLimit: 2000,
             },
             {
                 name: 'LED Lamp Strip',
