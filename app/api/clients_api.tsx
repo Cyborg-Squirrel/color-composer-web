@@ -7,6 +7,15 @@ export interface ILedStripClient {
     colorOrder: 'RGB' | 'GRB';
     apiPort: number;
     wsPort: number;
+    status: ClientStatus;
+}
+
+export const enum ClientStatus {
+    SetupIncomplete = 'SetupIncomplete',
+    Idle = 'Idle',
+    Active = 'Active',
+    Disconnected = 'Disconnected',
+    Error = 'Error'
 }
 
 export async function getClients(): Promise<ILedStripClient[]> {
@@ -35,6 +44,7 @@ export async function getClients(): Promise<ILedStripClient[]> {
                 colorOrder: 'GRB',
                 apiPort: 8000,
                 wsPort: 8765,
+                status: ClientStatus.Idle,
             },
             {
                 name: 'Demo NightDriver client',
@@ -44,6 +54,7 @@ export async function getClients(): Promise<ILedStripClient[]> {
                 colorOrder: 'RGB',
                 apiPort: 80,
                 wsPort: 49152,
+                status: ClientStatus.SetupIncomplete,
             }
         ];
     }

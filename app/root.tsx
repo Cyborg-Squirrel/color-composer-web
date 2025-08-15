@@ -29,7 +29,7 @@ export const links: Route.LinksFunction = () => [
 const resolver: CSSVariablesResolver = (theme) => ({
   variables: {},
   light: {
-    '--mantine-color-body': '#f7fafc'
+    '--mantine-color-body': '#f5f7feff'
   },
   dark: {
     '--mantine-color-body': theme.colors.dark[8],
