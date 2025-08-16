@@ -1,20 +1,21 @@
 
-export interface ILedStripClient {
+export interface ILedStrip {
     name: string;
     uuid: string;
     clientUuid: string;
     pin: string;
     length: number;
+    brightness: number;
     powerLimit: number;
 }
 
-export async function getStrips(): Promise<ILedStripClient[]> {
+export async function getStrips(): Promise<ILedStrip[]> {
     let apiUrl = import.meta.env.VITE_API_URL;
     let mockMode = import.meta.env.VITE_MOCK_MODE;
     if (mockMode == 'false' && apiUrl != null) {
         const res = await fetch(apiUrl + '/strip');
         const json = await res.json();
-        const clientList = json.strips.map((c: ILedStripClient) => c);
+        const clientList = json.strips.map((c: ILedStrip) => c);
         return clientList;
     } else {
         if (!apiUrl) {
@@ -32,6 +33,7 @@ export async function getStrips(): Promise<ILedStripClient[]> {
                 clientUuid: '0efcbf1f-9766-4d60-8b9b-edc4df639998',
                 pin: 'D10',
                 length: 120,
+                brightness: 20,
                 powerLimit: 2000,
             },
             {
@@ -40,6 +42,7 @@ export async function getStrips(): Promise<ILedStripClient[]> {
                 clientUuid: '99d53b59-cb0d-449f-a9e9-bf6cb7bf3911',
                 pin: '1',
                 length: 80,
+                brightness: 34,
                 powerLimit: 500,
             }
         ];

@@ -62,7 +62,7 @@ export function ClientGrid(props: IClientGridProps) {
                 <Space h={10}></Space>
                 <SpanRow startingText='Strips: ' endingText={'1'}></SpanRow>
                 <Space h={10}></Space>
-                <SpanRow startingText='Active effects: ' endingText={'3'}></SpanRow>
+                <SpanRow startingText='Active effects: ' endingText={'' + c.activeEffects}></SpanRow>
             </Card>
         ));
     

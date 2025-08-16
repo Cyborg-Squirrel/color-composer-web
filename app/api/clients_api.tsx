@@ -8,6 +8,7 @@ export interface ILedStripClient {
     apiPort: number;
     wsPort: number;
     status: ClientStatus;
+    activeEffects: number;
 }
 
 export const enum ClientStatus {
@@ -45,6 +46,7 @@ export async function getClients(): Promise<ILedStripClient[]> {
                 apiPort: 8000,
                 wsPort: 8765,
                 status: ClientStatus.Idle,
+                activeEffects: 0,
             },
             {
                 name: 'Demo NightDriver client',
@@ -55,6 +57,7 @@ export async function getClients(): Promise<ILedStripClient[]> {
                 apiPort: 80,
                 wsPort: 49152,
                 status: ClientStatus.SetupIncomplete,
+                activeEffects: 0,
             }
         ];
     }
