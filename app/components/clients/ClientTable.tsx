@@ -62,6 +62,7 @@ export function ClientTable(props: IClientTableProps) {
                     <Table.Th>Name</Table.Th>
                     <Table.Th>Address</Table.Th>
                     <Table.Th>Status</Table.Th>
+                    <Table.Th/>
                 </Table.Tr>
             </Table.Thead>
             <Table.Tbody>
