@@ -29,7 +29,7 @@ export const links: Route.LinksFunction = () => [
 const resolver: CSSVariablesResolver = (theme) => ({
   variables: {},
   light: {
-    '--mantine-color-body': '#f5f7feff'
+    '--mantine-color-body': '#f7f7f7ff'
   },
   dark: {
     '--mantine-color-body': theme.colors.dark[8],
@@ -41,13 +41,13 @@ export function Layout({ children }: { children: React.ReactNode }) {
     <StrictMode>
     <MantineProvider defaultColorScheme="auto" theme={ DEFAULT_THEME } cssVariablesResolver={ resolver }>
       <html lang="en">
-      <head>
-        <meta charSet="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <Meta />
-        <Links />
-        <ColorSchemeScript defaultColorScheme="auto" />
-      </head>
+        <head>
+          <meta charSet="utf-8" />
+          <meta name="viewport" content="width=device-width, initial-scale=1" />
+          <Meta />
+          <Links />
+          <ColorSchemeScript defaultColorScheme="auto" />
+        </head>
       <body>
         {children}
         <ScrollRestoration />

@@ -1,19 +1,21 @@
 import { Button, Center, Menu, Table } from "@mantine/core";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { getClients, type ILedStripClient } from "~/api/clients_api";
 import { getStrips, type ILedStrip } from "~/api/strips_api";
 import { BoundedLoadingOverlay } from "../BoundedLoadingOverlay";
+import { IsMobileContext } from "../IsMobileContext";
 
 interface IStripsTableProps {}
 
 export function StripsTable(props: IStripsTableProps) {
+    const isMobile = useContext(IsMobileContext);
     const [clients, setClients] = useState<ILedStripClient[]>([]);
     const [strips, setStrips] = useState<ILedStrip[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
     useEffect(() => {
-        async function fetch() {
+        async function fetchData() {
             let stripsList = await getStrips();
             let clientList = await getClients();
             setClients(clientList);
@@ -21,7 +23,7 @@ export function StripsTable(props: IStripsTableProps) {
         }
 
         if (loading) {
-            fetch().then(() => {
+            fetchData().then(() => {
                 setLoading(false);
             }).catch(e => {
                 setError(error);
@@ -49,13 +51,13 @@ export function StripsTable(props: IStripsTableProps) {
             <Table.Td>{s.brightness}%</Table.Td>
             <Table.Td>{s.length}</Table.Td>
             <Table.Td>
-                <Menu shadow="md" width="10em" position="bottom-end">
+                <Menu shadow="md" width="8em" position="bottom-end">
                     <Menu.Target>
-                        <Button variant="subtle" size="xs" c="var(--mantine-color-text)">...</Button>
+                        <Button variant="subtle" size="xs" color="var(--mantine-color-text)" >...</Button>
                     </Menu.Target>
                     <Menu.Dropdown>
-                        <Button variant="subtle" size="md" c="var(--mantine-color-text)" justify="left" fullWidth>Edit</Button>
-                        <Button variant="subtle" size="md" c="var(--mantine-color-text)" justify="left" fullWidth>Delete</Button>
+                        <Menu.Item>Edit</Menu.Item>
+                        <Menu.Item>Delete</Menu.Item>
                     </Menu.Dropdown>
                 </Menu>
             </Table.Td>
@@ -63,7 +65,7 @@ export function StripsTable(props: IStripsTableProps) {
     ));
 
     return (
-        <Table verticalSpacing="xs" striped highlightOnHover withRowBorders={false}>
+        <Table verticalSpacing="xs" highlightOnHover={!isMobile}>
             <Table.Thead>
                 <Table.Tr>
                     <Table.Th>Name</Table.Th>

@@ -1,4 +1,6 @@
-import { BasicAppShell } from "~/components/layouts/AppShell";
+import { isMobileUi } from "~/components/IsMobileContext";
+import BasicAppShell from "~/components/layouts/BasicAppShell";
+import UiContext from "~/components/UiContext";
 import type { Route } from "./+types/home";
 
 export function meta({}: Route.MetaArgs) {
@@ -9,5 +11,8 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export default function Palettes() {
-  return <BasicAppShell title="Color Composer" pageName="Palettes" content={<div/>} topPadding={"sm"}/>;
+  const isMobile = isMobileUi();
+  return <UiContext>
+      <BasicAppShell title="Color Composer" pageName="Palettes" topPadding={"sm"} boxCssEnabled={!isMobile}/>
+  </UiContext>;
 }

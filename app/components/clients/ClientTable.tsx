@@ -1,12 +1,14 @@
 import { Button, Center, Menu, Table } from "@mantine/core";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { getClients, type ILedStripClient } from "~/api/clients_api";
 import { BoundedLoadingOverlay } from "../BoundedLoadingOverlay";
+import { IsMobileContext } from "../IsMobileContext";
 import { statusColors } from "../status";
 
 interface IClientTableProps {}
 
 export function ClientTable(props: IClientTableProps) {
+    const isMobile = useContext(IsMobileContext);
     const [clients, setClients] = useState<ILedStripClient[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -42,13 +44,13 @@ export function ClientTable(props: IClientTableProps) {
             <Table.Td>{c.address}</Table.Td>
             <Table.Td c={statusColors.ok}>Idle</Table.Td>
             <Table.Td>
-                <Menu shadow="md" width="10em" position="bottom-end">
+                <Menu shadow="md" width="8em" position="bottom-end" closeOnItemClick>
                     <Menu.Target>
-                        <Button variant="subtle" size="xs" c="var(--mantine-color-text)">...</Button>
+                        <Button variant="subtle" size="xs" color="var(--mantine-color-text)">...</Button>
                     </Menu.Target>
                     <Menu.Dropdown>
-                        <Button variant="subtle" size="md" c="var(--mantine-color-text)" justify="left" fullWidth>Edit</Button>
-                        <Button variant="subtle" size="md" c="var(--mantine-color-text)" justify="left" fullWidth>Delete</Button>
+                        <Menu.Item>Edit</Menu.Item>
+                        <Menu.Item>Delete</Menu.Item>
                     </Menu.Dropdown>
                 </Menu>
             </Table.Td>
@@ -56,7 +58,7 @@ export function ClientTable(props: IClientTableProps) {
     ));
 
     return (
-        <Table verticalSpacing="xs" striped highlightOnHover withRowBorders={false}>
+        <Table verticalSpacing="xs" highlightOnHover={!isMobile}>
             <Table.Thead>
                 <Table.Tr>
                     <Table.Th>Name</Table.Th>
