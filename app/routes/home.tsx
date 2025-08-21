@@ -1,6 +1,6 @@
 import { ClientGrid } from "~/components/clients/ClientGrid";
 import BasicAppShell from "~/components/layouts/BasicAppShell";
-import UiContext from "~/components/UiContext";
+import UiContext from "~/context/UiContext";
 import type { Route } from "./+types/home";
 
 export function meta({}: Route.MetaArgs) {

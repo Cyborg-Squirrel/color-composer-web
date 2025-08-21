@@ -1,5 +1,5 @@
-import { isMobileUi } from "~/components/IsMobileContext";
 import BasicAppShell from "~/components/layouts/BasicAppShell";
+import { isMobileUi } from "~/context/IsMobileContext";
 import type { Route } from "./+types/home";
 
 export function meta({}: Route.MetaArgs) {

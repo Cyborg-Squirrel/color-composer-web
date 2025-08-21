@@ -1,9 +1,9 @@
 import { AppShell, Box, Burger, Code, Divider, Group, Space, Text, Title } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { useContext, type ReactElement, type ReactNode } from 'react';
+import { IsLightModeContext } from '../../context/IsLightModeContext';
+import { IsMobileContext } from '../../context/IsMobileContext';
 import { ColorSchemeToggle } from '../ColorSchemeToggle';
-import { IsLightModeContext } from '../IsLightModeContext';
-import { IsMobileContext } from '../IsMobileContext';
 import { Navbar } from './Navbar';
 
 interface IAppShellProps {
