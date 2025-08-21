@@ -41,13 +41,13 @@ export function Layout({ children }: { children: React.ReactNode }) {
     <StrictMode>
     <MantineProvider defaultColorScheme="auto" theme={ DEFAULT_THEME } cssVariablesResolver={ resolver }>
       <html lang="en">
-      <head>
-        <meta charSet="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <Meta />
-        <Links />
-        <ColorSchemeScript defaultColorScheme="auto" />
-      </head>
+        <head>
+          <meta charSet="utf-8" />
+          <meta name="viewport" content="width=device-width, initial-scale=1" />
+          <Meta />
+          <Links />
+          <ColorSchemeScript defaultColorScheme="auto" />
+        </head>
       <body>
         {children}
         <ScrollRestoration />

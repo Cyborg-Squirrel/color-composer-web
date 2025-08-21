@@ -1,5 +1,7 @@
 import { StripsTable } from "~/components/clients/StripsTable";
-import { BasicAppShell } from "~/components/layouts/BasicAppShell";
+import { isMobileUi } from "~/components/IsMobileContext";
+import BasicAppShell from "~/components/layouts/BasicAppShell";
+import UiContext from "~/components/UiContext";
 import type { Route } from "./+types/home";
 
 export function meta({}: Route.MetaArgs) {
@@ -10,5 +12,10 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export default function Strips() {
-  return <BasicAppShell title="Color Composer" pageName="Strips" content={<StripsTable/>} topPadding={"sm"}/>;
+  const isMobile = isMobileUi();
+  return <UiContext>
+      <BasicAppShell title="Color Composer" pageName="Strips" topPadding={"sm"} boxCssEnabled={!isMobile}>
+        <StripsTable/>
+      </BasicAppShell>
+  </UiContext>;
 }

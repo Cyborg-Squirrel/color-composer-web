@@ -1,14 +1,14 @@
 import { Button, Center, Menu, Table } from "@mantine/core";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { getClients, type ILedStripClient } from "~/api/clients_api";
 import { getStrips, type ILedStrip } from "~/api/strips_api";
 import { BoundedLoadingOverlay } from "../BoundedLoadingOverlay";
-import { isMobileUi } from "../isMobile";
+import { IsMobileContext } from "../IsMobileContext";
 
 interface IStripsTableProps {}
 
 export function StripsTable(props: IStripsTableProps) {
-    const isMobile = isMobileUi();
+    const isMobile = useContext(IsMobileContext);
     const [clients, setClients] = useState<ILedStripClient[]>([]);
     const [strips, setStrips] = useState<ILedStrip[]>([]);
     const [loading, setLoading] = useState(true);
@@ -65,7 +65,7 @@ export function StripsTable(props: IStripsTableProps) {
     ));
 
     return (
-        <Table verticalSpacing="xs" striped highlightOnHover={!isMobile} withRowBorders={false}>
+        <Table verticalSpacing="xs" highlightOnHover={!isMobile}>
             <Table.Thead>
                 <Table.Tr>
                     <Table.Th>Name</Table.Th>
