@@ -1,7 +1,7 @@
 import { StripsTable } from "~/components/clients/StripsTable";
-import { isMobileUi } from "~/components/IsMobileContext";
 import BasicAppShell from "~/components/layouts/BasicAppShell";
-import UiContext from "~/components/UiContext";
+import { isMobileUi } from "~/context/IsMobileContext";
+import UiContext from "~/context/UiContext";
 import type { Route } from "./+types/home";
 
 export function meta({}: Route.MetaArgs) {

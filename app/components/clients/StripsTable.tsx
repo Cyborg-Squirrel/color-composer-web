@@ -2,8 +2,8 @@ import { Button, Center, Menu, Table } from "@mantine/core";
 import { useContext, useEffect, useState } from "react";
 import { getClients, type ILedStripClient } from "~/api/clients_api";
 import { getStrips, type ILedStrip } from "~/api/strips_api";
+import { IsMobileContext } from "../../context/IsMobileContext";
 import { BoundedLoadingOverlay } from "../BoundedLoadingOverlay";
-import { IsMobileContext } from "../IsMobileContext";
 
 interface IStripsTableProps {}
 
