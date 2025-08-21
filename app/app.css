@@ -16,8 +16,3 @@ body {
   background-color: light-dark(var(--mantine-color-white), var(--mantine-color-dark-7));
   border-bottom: 1px solid light-dark(var(--mantine-color-gray-3), transparent);
 }
-
-/* Box behind central content */
-.content-box {
-  background-color: light-dark(var(--mantine-color-white), var(--mantine-color-dark-7));
-}

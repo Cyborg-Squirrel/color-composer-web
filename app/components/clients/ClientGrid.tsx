@@ -1,21 +1,37 @@
 import { Card, Center, Divider, SimpleGrid, Space, Text } from "@mantine/core";
 import { useEffect, useState } from "react";
 import { ClientStatus, getClients, type ILedStripClient } from "~/api/clients_api";
+import { getStrips, type ILedStrip } from "~/api/strips_api";
 import { BoundedLoadingOverlay } from "../BoundedLoadingOverlay";
 import { statusColors } from "../status";
 import classes from './ClientGrid.module.css';
 
 interface IClientGridProps {}
 
+interface IClientUiModel {
+    client: ILedStripClient;
+    strips: ILedStrip[];
+}
+
 export function ClientGrid(props: IClientGridProps) {
-    const [clients, setClients] = useState<ILedStripClient[]>([]);
+    const [uiModels, setUiModels] = useState<IClientUiModel[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
     useEffect(() => {
+        async function fetchData() {
+            let clientList = await getClients();
+            let stripsList = await getStrips();
+            let models = clientList.map<IClientUiModel>((c) => (
+                {
+                    client: c,
+                    strips: stripsList.filter((s) => s.clientUuid == c.uuid)
+                }
+            ));
+            setUiModels(models);
+        }
         if (loading) {
-            getClients().then((clientList) => {
-                setClients(clientList);
+            fetchData().then(() => {
                 setLoading(false);
             }).catch((error) => {
                 setError(error);
@@ -37,32 +53,32 @@ export function ClientGrid(props: IClientGridProps) {
         </Center>
     }
 
-    const gridItems = clients.map((c) => (
-        <Card key={c.uuid} h={250} className={classes.grid_card} style={{padding: '12px'}}>
+    const gridItems = uiModels.map((m) => (
+        <Card key={m.client.uuid} h='14.5em' className={classes.grid_card} style={{padding: '12px'}}>
                 <span
                 style={{
                     position: "absolute",
-                    top: '.667rem',
-                    right: '.75rem',
-                    width: '1rem',
-                    height: '1rem',
+                    top: '.667em',
+                    right: '.75em',
+                    width: '1em',
+                    height: '1em',
                 }}>⚙️</span>
                 <Text fw={ 700 } span>
-                    { c.name }
+                    { m.client.name }
                 </Text>
-                <Text c={ getStatusColor(c.status) } span>
-                    { getStatusText(c.status) }
+                <Text c={ getStatusColor(m.client.status) } span>
+                    { getStatusText(m.client.status) }
                 </Text>
                 <Space h={7}></Space>
                 <Divider></Divider>
                 <Space h={15}></Space>
-                <SpanRow startingText='Address: ' endingText={c.address}></SpanRow>
+                <SpanRow startingText='Address: ' endingText={m.client.address}></SpanRow>
                 <Space h={10}></Space>
-                <SpanRow startingText='Type: ' endingText={c.clientType}></SpanRow>
+                <SpanRow startingText='Type: ' endingText={m.client.clientType}></SpanRow>
                 <Space h={10}></Space>
-                <SpanRow startingText='Strips: ' endingText={'1'}></SpanRow>
+                <SpanRow startingText='Strips: ' endingText={'' + m.strips.length}></SpanRow>
                 <Space h={10}></Space>
-                <SpanRow startingText='Active effects: ' endingText={'' + c.activeEffects}></SpanRow>
+                <SpanRow startingText='Active effects: ' endingText={'' + m.client.activeEffects}></SpanRow>
             </Card>
         ));
     
@@ -79,7 +95,7 @@ export function ClientGrid(props: IClientGridProps) {
 function SpanRow(props: {startingText: string, endingText: string}) {
     return <span>
         <Text fw={ 700 } span>{ props.startingText }</Text>
-        <Text className={classes.grid_card_dimmed_text} span>{ props.endingText }</Text>
+        <Text span>{ props.endingText }</Text>
     </span>
 }
 
