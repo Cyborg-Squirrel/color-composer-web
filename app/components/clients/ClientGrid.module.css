@@ -2,3 +2,7 @@
   outline: 1px solid light-dark(var(--app-shell-border-color), transparent);
   background-color: light-dark(var(--mantine-color-white), var(--mantine-color-dark-7));
 }
+
+.subtle_text {
+  color: light-dark(black, #aaaaaa);
+}

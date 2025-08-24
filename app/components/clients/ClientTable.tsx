@@ -41,7 +41,7 @@ export function ClientTable(props: IClientTableProps) {
     const rows = clients.map((c) => (
         <Table.Tr key={c.uuid}>
             <Table.Td>{c.name}</Table.Td>
-            <Table.Td>{c.address}</Table.Td>
+            <Table.Td>{isMobile ? getShortAddress(c) : c.address}</Table.Td>
             <Table.Td c={statusColors.ok}>Idle</Table.Td>
             <Table.Td>
                 <Menu shadow="md" width="8em" position="bottom-end" closeOnItemClick>
@@ -72,4 +72,8 @@ export function ClientTable(props: IClientTableProps) {
             </Table.Tbody>
         </Table>
     );
+}
+
+function getShortAddress(client: ILedStripClient): string {
+    return client.address.replace(/^https?:\/\//, "");
 }
