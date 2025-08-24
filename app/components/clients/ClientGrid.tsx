@@ -20,14 +20,12 @@ export function ClientGrid(props: IClientGridProps) {
 
     useEffect(() => {
         async function fetchData() {
-            let clientList = await getClients();
-            let stripsList = await getStrips();
-            let models = clientList.map<IClientUiModel>((c) => (
-                {
-                    client: c,
-                    strips: stripsList.filter((s) => s.clientUuid == c.uuid)
-                }
-            ));
+            let promise = Promise.all([getClients(), getStrips()]);
+            let result = await promise;
+            let models = result[0].map<IClientUiModel>((c) => ({
+                client: c,
+                strips: result[1].filter((s) => s.clientUuid == c.uuid)
+            }));
             setUiModels(models);
         }
         if (loading) {
@@ -95,7 +93,7 @@ export function ClientGrid(props: IClientGridProps) {
 function SpanRow(props: {startingText: string, endingText: string}) {
     return <span>
         <Text fw={ 700 } span>{ props.startingText }</Text>
-        <Text span>{ props.endingText }</Text>
+        <Text className={classes.subtle_text} span>{ props.endingText }</Text>
     </span>
 }
 
