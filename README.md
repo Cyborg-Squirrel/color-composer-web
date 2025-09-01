@@ -32,5 +32,5 @@ The dev server runs on http://localhost:5173 (default Vite port). Open that URL 
 
 * Create a pull request
 * Explain your changes
-* The build runner must pass
+* The GitHub workflow must pass
  
