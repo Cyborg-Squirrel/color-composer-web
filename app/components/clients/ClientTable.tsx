@@ -77,8 +77,8 @@ export function ClientTable(props: IClientTableProps) {
 }
 
 function getShortAddress(client: ILedStripClient): string {
-    const MAX_ADDRESS_LENGTH = 15
-    const ELIPSES_LENGTH = 3
+    const MAX_ADDRESS_LENGTH = 15;
+    const ELIPSES_LENGTH = 3;
     let addressWithSchemeRemoved = client.address.replace(/^https?:\/\//, "");
     if (addressWithSchemeRemoved.length > MAX_ADDRESS_LENGTH) {
         return addressWithSchemeRemoved.substring(0, MAX_ADDRESS_LENGTH - ELIPSES_LENGTH) + '...';
