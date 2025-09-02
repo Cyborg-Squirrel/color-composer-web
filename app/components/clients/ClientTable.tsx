@@ -5,6 +5,9 @@ import { IsMobileContext } from "../../context/IsMobileContext";
 import { BoundedLoadingOverlay } from "../BoundedLoadingOverlay";
 import { statusColors } from "../status";
 
+const MAX_ADDRESS_LENGTH = 15;
+const ELIPSES_LENGTH = 3;
+
 interface IClientTableProps {}
 
 export function ClientTable(props: IClientTableProps) {
@@ -41,6 +44,7 @@ export function ClientTable(props: IClientTableProps) {
     const rows = clients.map((c) => (
         <Table.Tr key={c.uuid}>
             <Table.Td>{c.name}</Table.Td>
+            {isMobile ? null : <Table.Td>{c.clientType}</Table.Td>}
             <Table.Td>{isMobile ? getShortAddress(c) : c.address}</Table.Td>
             <Table.Td c={statusColors.ok}>Idle</Table.Td>
             <Table.Td>
@@ -62,6 +66,7 @@ export function ClientTable(props: IClientTableProps) {
             <Table.Thead>
                 <Table.Tr>
                     <Table.Th>Name</Table.Th>
+                    {isMobile ? null : <Table.Th>Type</Table.Th>}
                     <Table.Th>Address</Table.Th>
                     <Table.Th>Status</Table.Th>
                     <Table.Th/>
@@ -75,5 +80,10 @@ export function ClientTable(props: IClientTableProps) {
 }
 
 function getShortAddress(client: ILedStripClient): string {
-    return client.address.replace(/^https?:\/\//, "");
+    let addressWithSchemeRemoved = client.address.replace(/^https?:\/\//, "");
+    if (addressWithSchemeRemoved.length > MAX_ADDRESS_LENGTH) {
+        return addressWithSchemeRemoved.substring(0, MAX_ADDRESS_LENGTH - ELIPSES_LENGTH) + '...';
+    } else {
+        return addressWithSchemeRemoved;
+    }
 }
