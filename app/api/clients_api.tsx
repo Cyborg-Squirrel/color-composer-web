@@ -7,6 +7,7 @@ export interface ILedStripClient {
     colorOrder: 'RGB' | 'GRB';
     apiPort: number;
     wsPort: number;
+    lastSeenAt: number;
     status: ClientStatus;
     activeEffects: number;
 }
@@ -45,6 +46,7 @@ export async function getClients(): Promise<ILedStripClient[]> {
                 colorOrder: 'GRB',
                 apiPort: 8000,
                 wsPort: 8765,
+                lastSeenAt: Date.now(),
                 status: ClientStatus.Idle,
                 activeEffects: 0,
             },
@@ -56,6 +58,7 @@ export async function getClients(): Promise<ILedStripClient[]> {
                 colorOrder: 'RGB',
                 apiPort: 80,
                 wsPort: 49152,
+                lastSeenAt: Date.now() - 100000,
                 status: ClientStatus.SetupIncomplete,
                 activeEffects: 0,
             }
