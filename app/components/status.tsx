@@ -1,6 +1,9 @@
+// light-dark() CSS doesn't work well with status colors? So light and dark colors are defined separately.
 export const statusColors = {
     error: 'red.8',
-    warning: 'yellow.7',
+    warningLight: 'yellow.8',
+    warningDark: 'yellow.6',
     ok: 'green.8',
-    disconnected: 'var(--mantine-color-dimmed)'
+    offlineLight: 'var(--mantine-color-text)',
+    offlineDark: 'var(--mantine-color-dimmed)'
 };
