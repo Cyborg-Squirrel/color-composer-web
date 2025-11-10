@@ -20,9 +20,11 @@ Create a .env file in the project root and add the backend url.
 
 Example .env.development file
 
-```VITE_API_URL=http://localhost:8080
+```
+VITE_API_URL=http://localhost:8080
 VITE_MOCK_MODE=true
-VITE_COLOR_SCHEME_TOGGLE_ENABLED=true```
+VITE_COLOR_SCHEME_TOGGLE_ENABLED=true
+```
 
 3. Start the development server
 `npm run dev`
