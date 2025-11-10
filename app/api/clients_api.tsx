@@ -16,7 +16,7 @@ export const enum ClientStatus {
     SetupIncomplete = 'SetupIncomplete',
     Idle = 'Idle',
     Active = 'Active',
-    Disconnected = 'Disconnected',
+    Offline = 'Offline',
     Error = 'Error'
 }
 
@@ -39,7 +39,7 @@ export async function getClients(): Promise<ILedStripClient[]> {
         await delay(500);
         return [
             {
-                name: 'Demo Pi client',
+                name: 'CC client',
                 address: 'http://192.168.1.20',
                 uuid: '0efcbf1f-9766-4d60-8b9b-edc4df639998',
                 clientType: 'Pi',
@@ -51,7 +51,7 @@ export async function getClients(): Promise<ILedStripClient[]> {
                 activeEffects: 0,
             },
             {
-                name: 'Demo NightDriver client',
+                name: 'NightDriver client',
                 address: 'http://192.168.1.22',
                 uuid: '99d53b59-cb0d-449f-a9e9-bf6cb7bf3911',
                 clientType: 'NightDriver',
@@ -60,6 +60,18 @@ export async function getClients(): Promise<ILedStripClient[]> {
                 wsPort: 49152,
                 lastSeenAt: Date.now() - 100000,
                 status: ClientStatus.SetupIncomplete,
+                activeEffects: 0,
+            },
+            {
+                name: 'CC offline client',
+                address: 'http://192.168.1.50',
+                uuid: '2a103a1c-d3b6-4b2d-bc6d-1cb852d82d4b',
+                clientType: 'Pi',
+                colorOrder: 'RGB',
+                apiPort: 80,
+                wsPort: 49152,
+                lastSeenAt: Date.now() - 1000 * 60 * 60 * 24,
+                status: ClientStatus.Offline,
                 activeEffects: 0,
             }
         ];

@@ -1,11 +1,10 @@
 import { Button, Center, Menu, Table, Text } from "@mantine/core";
 import { useContext, useEffect, useState } from "react";
-import { getClients, type ILedStripClient } from "~/api/clients_api";
+import { ClientStatus, getClients, type ILedStripClient } from "~/api/clients_api";
 import { IsLightModeContext } from "~/context/IsLightModeContext";
 import { IsMobileContext } from "../../context/IsMobileContext";
 import { BoundedLoadingOverlay } from "../BoundedLoadingOverlay";
-import { getLastSeenAtString } from "../LastSeenAt";
-import { statusColors } from "../status";
+import { getLastSeenAtString, getStatusColor, getStatusText } from "../TextHelper";
 
 export function ClientTable() {
     const isMobile = useContext(IsMobileContext);
@@ -41,10 +40,9 @@ export function ClientTable() {
 
     const rows = clients.map((c) => (
         <Table.Tr key={c.uuid} onClick={() => onRowClicked(c.uuid, isMobile)}>
-            {getClientNameTd(c, isMobile, isLightMode)}
+            {getClientNameTd(c, c.status, isLightMode)}
             <Table.Td><Text truncate="end">{c.address}</Text></Table.Td>
-            {isMobile ? null : <Table.Td>{c.clientType}</Table.Td>}
-            <Table.Td c={statusColors.ok}>Idle</Table.Td>
+            <Table.Td>{c.clientType}</Table.Td>
             {getEditButtonTd(isMobile)}
         </Table.Tr>
     ));
@@ -55,8 +53,7 @@ export function ClientTable() {
                 <Table.Tr>
                     <Table.Th>Name</Table.Th>
                     <Table.Th>Address</Table.Th>
-                    {isMobile ? null : <Table.Th>Type</Table.Th>}
-                    <Table.Th>Status</Table.Th>
+                    <Table.Th>Type</Table.Th>
                     {isMobile ? null : <Table.Th />}
                 </Table.Tr>
             </Table.Thead>
@@ -92,9 +89,9 @@ function getEditButtonTd(isMobile: boolean) {
     }
 }
 
-function getClientNameTd(client: ILedStripClient, isMobile: boolean, isLightMode: boolean) {
+function getClientNameTd(client: ILedStripClient, status: ClientStatus, isLightMode: boolean) {
     return <Table.Td>
         <Text>{client.name}</Text>
-        <Text c={isLightMode ? undefined : "dimmed"} size="sm">Last seen: {getLastSeenAtString(client.lastSeenAt)}</Text>
+        {<Text c={getStatusColor(status, isLightMode)} size="sm">{status == ClientStatus.Offline ? 'Offline since: ' + getLastSeenAtString(client.lastSeenAt) : getStatusText(status)}</Text>}
     </Table.Td>;
 }
