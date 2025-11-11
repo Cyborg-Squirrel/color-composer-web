@@ -1,5 +1,5 @@
 import { Button, Center, Menu, Table, Text } from "@mantine/core";
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useState, type ReactNode } from "react";
 import { ClientStatus, getClients, type ILedStripClient } from "~/api/clients_api";
 import { IsLightModeContext } from "~/context/IsLightModeContext";
 import { IsMobileContext } from "../../context/IsMobileContext";
@@ -42,8 +42,8 @@ export function ClientTable() {
         <Table.Tr key={c.uuid} onClick={() => onRowClicked(c.uuid, isMobile)}>
             {getClientNameTd(c, c.status, isLightMode)}
             <Table.Td><Text truncate="end">{c.address}</Text></Table.Td>
-            <Table.Td>{c.clientType}</Table.Td>
-            {getEditButtonTd(isMobile)}
+            {!isMobile && <Table.Td>{c.clientType}</Table.Td>}
+            {!isMobile && getEditButtonTd()}
         </Table.Tr>
     ));
 
@@ -53,8 +53,8 @@ export function ClientTable() {
                 <Table.Tr>
                     <Table.Th>Name</Table.Th>
                     <Table.Th>Address</Table.Th>
-                    <Table.Th>Type</Table.Th>
-                    {isMobile ? null : <Table.Th />}
+                    {!isMobile && <Table.Th>Type</Table.Th>}
+                    {!isMobile && <Table.Th />}
                 </Table.Tr>
             </Table.Thead>
             <Table.Tbody>
@@ -71,22 +71,18 @@ function onRowClicked(clientUuid: string, isMobile: boolean) {
     }
 }
 
-function getEditButtonTd(isMobile: boolean) {
-    if (isMobile) {
-        return null;
-    } else {
-        return <Table.Td>
-            <Menu shadow="md" width="8em" position="bottom-end" closeOnItemClick>
-                <Menu.Target>
-                    <Button variant="subtle" size="xs" color="var(--mantine-color-text)">...</Button>
-                </Menu.Target>
-                <Menu.Dropdown>
-                    <Menu.Item>Edit</Menu.Item>
-                    <Menu.Item>Delete</Menu.Item>
-                </Menu.Dropdown>
-            </Menu>
-        </Table.Td>;
-    }
+function getEditButtonTd(): ReactNode {
+    return <Table.Td>
+        <Menu shadow="md" width="8em" position="bottom-end" closeOnItemClick>
+            <Menu.Target>
+                <Button variant="subtle" size="xs" color="var(--mantine-color-text)">...</Button>
+            </Menu.Target>
+            <Menu.Dropdown>
+                <Menu.Item>Edit</Menu.Item>
+                <Menu.Item>Delete</Menu.Item>
+            </Menu.Dropdown>
+        </Menu>
+    </Table.Td>;
 }
 
 function getClientNameTd(client: ILedStripClient, status: ClientStatus, isLightMode: boolean) {
