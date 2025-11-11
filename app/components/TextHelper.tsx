@@ -42,7 +42,7 @@ export function getLastSeenAtString(lastSeenAt: number) {
     } else if (lastSeenAt >= yesterday.getTime()) {
         return 'yesterday';
     }
-    
+
     return new Date(lastSeenAt).toLocaleDateString();
 }
 
