@@ -1,83 +1,60 @@
-import { Button, Center, Menu, Table } from "@mantine/core";
+import { Center } from "@mantine/core";
 import { useContext, useEffect, useState } from "react";
-import { getClients, type ILedStripClient } from "~/api/clients_api";
 import { getStrips, type ILedStrip } from "~/api/strips_api";
-import { IsMobileContext } from "../../context/IsMobileContext";
+import { IsLightModeContext } from "~/context/IsLightModeContext";
 import { BoundedLoadingOverlay } from "../BoundedLoadingOverlay";
+import { TableWithTrailingButton } from "../layouts/TableWithTrailingButton";
+import { getStripStatusColor, getStripStatusText } from "../TextHelper";
 
-interface IStripsTableProps {}
-
-export function StripsTable(props: IStripsTableProps) {
-    const isMobile = useContext(IsMobileContext);
-    const [clients, setClients] = useState<ILedStripClient[]>([]);
+export function StripsTable() {
     const [strips, setStrips] = useState<ILedStrip[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const isLightMode = useContext(IsLightModeContext);
 
     useEffect(() => {
-        async function fetchData() {
-            let stripsList = await getStrips();
-            let clientList = await getClients();
-            setClients(clientList);
-            setStrips(stripsList);
-        }
-
         if (loading) {
-            fetchData().then(() => {
+            getStrips().then((stripsList) => {
+                setStrips(stripsList);
                 setLoading(false);
-            }).catch(e => {
+            }).catch((error) => {
                 setError(error);
+                setLoading(false);
             });
         }
 
-        return () => {};
+        return () => { };
     }, []);
 
     if (loading) {
-        return <BoundedLoadingOverlay loading/>;
+        return <BoundedLoadingOverlay loading />;
     } else if (error) {
         console.log('Showing error ' + error);
-       return <Center>
+        return <Center>
             <div>
                 Error fetching LED strips
             </div>
         </Center>
     }
-    
-    const rows = strips.map((s) => (
-        <Table.Tr key={s.uuid}>
-            <Table.Td>{s.name}</Table.Td>
-            <Table.Td>{ clients.find(c => c.uuid == s.clientUuid)?.name }</Table.Td>
-            <Table.Td>{s.brightness}%</Table.Td>
-            <Table.Td>{s.length}</Table.Td>
-            <Table.Td>
-                <Menu shadow="md" width="8em" position="bottom-end">
-                    <Menu.Target>
-                        <Button variant="subtle" size="xs" color="var(--mantine-color-text)" >...</Button>
-                    </Menu.Target>
-                    <Menu.Dropdown>
-                        <Menu.Item>Edit</Menu.Item>
-                        <Menu.Item>Delete</Menu.Item>
-                    </Menu.Dropdown>
-                </Menu>
-            </Table.Td>
-        </Table.Tr>
-    ));
 
-    return (
-        <Table verticalSpacing="xs" highlightOnHover={!isMobile}>
-            <Table.Thead>
-                <Table.Tr>
-                    <Table.Th>Name</Table.Th>
-                    <Table.Th>Client</Table.Th>
-                    <Table.Th>Brightness</Table.Th>
-                    <Table.Th>LEDs</Table.Th>
-                    <Table.Th/>
-                </Table.Tr>
-            </Table.Thead>
-            <Table.Tbody>
-                { rows }
-            </Table.Tbody>
-        </Table>
-    );
+    const dataRows = strips.map(s => ({
+        name: s.name,
+        uuid: s.uuid,
+        status: getStripStatusText(s.activeEffects),
+        statusColor: getStripStatusColor(s.activeEffects, isLightMode),
+        secondColString: s.length.toString(),
+        thirdColString: s.brightness + '%',
+    }));
+
+    return <TableWithTrailingButton dataRows={dataRows} dataCols={['Name', 'Length', 'Brightness']} onEditClicked={onEditClicked} onDeleteClicked={onDeleteClicked} />;
+}
+
+// TODO: open edit form
+function onEditClicked(stripUuid: string) {
+    console.log("LED strip clicked:", stripUuid);
+}
+
+// TODO: open "are you sure" delete modal
+function onDeleteClicked(stripUuid: string) {
+    console.log("LED strip deleted:", stripUuid);
 }

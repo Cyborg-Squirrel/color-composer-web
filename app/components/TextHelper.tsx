@@ -46,7 +46,7 @@ export function getLastSeenAtString(lastSeenAt: number) {
     return new Date(lastSeenAt).toLocaleDateString();
 }
 
-export function getStatusText(status: ClientStatus) {
+export function getClientStatusText(status: ClientStatus) {
     /// Split setup incomplete into two words
     if (status === ClientStatus.SetupIncomplete) {
         return 'Setup incomplete';
@@ -55,7 +55,19 @@ export function getStatusText(status: ClientStatus) {
     }
 }
 
-export function getStatusColor(status: ClientStatus, isLightMode: boolean) {
+export function getStripStatusText(activeEffects: number) {
+    return activeEffects > 0 ? 'Active': 'Inactive';
+}
+
+export function getStripStatusColor(activeEffects: number, isLightMode: boolean) {
+    if (activeEffects > 0) {
+        return statusColors.ok;
+    } else {
+        return isLightMode ? statusColors.offlineLight : statusColors.offlineDark;
+    }
+}
+
+export function getClientStatusColor(status: ClientStatus, isLightMode: boolean) {
     switch (status) {
         case ClientStatus.SetupIncomplete:
             return isLightMode ? statusColors.warningLight : statusColors.warningDark;
