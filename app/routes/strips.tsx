@@ -1,5 +1,5 @@
-import { StripsTable } from "~/components/clients/StripsTable";
 import BasicAppShell from "~/components/layouts/BasicAppShell";
+import { StripsTable } from "~/components/strips/StripsTable";
 import { isMobileUi } from "~/context/IsMobileContext";
 import UiContext from "~/context/UiContext";
 import type { Route } from "./+types/home";

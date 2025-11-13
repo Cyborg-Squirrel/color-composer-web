@@ -12,6 +12,8 @@ export function ClientTable() {
     const [clients, setClients] = useState<ILedStripClient[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [hoveredRow, setHoveredRow] = useState("");
+    const [menuOpenRow, setMenuOpenRow] = useState("");
 
     useEffect(() => {
         if (loading) {
@@ -39,16 +41,16 @@ export function ClientTable() {
     }
 
     const rows = clients.map((c) => (
-        <Table.Tr key={c.uuid} onClick={() => onRowClicked(c.uuid, isMobile)}>
+        <Table.Tr key={c.uuid} onClick={() => onRowClicked(c.uuid, isMobile)} onMouseEnter={() => setHoveredRow(c.uuid)} onMouseLeave={() => setHoveredRow('')}>
             {getClientNameTd(c, c.status, isLightMode)}
             <Table.Td><Text truncate="end">{c.address}</Text></Table.Td>
             {!isMobile && <Table.Td>{c.clientType}</Table.Td>}
-            {!isMobile && getEditButtonTd()}
+            {!isMobile && getEditButtonTd(() => setMenuOpenRow(c.uuid), () => setMenuOpenRow(''), menuOpenRow == c.uuid || hoveredRow == c.uuid)}
         </Table.Tr>
     ));
 
     return (
-        <Table verticalSpacing="xs" highlightOnHover={true}>
+        <Table verticalSpacing="xs" highlightOnHover={false}>
             <Table.Thead>
                 <Table.Tr>
                     <Table.Th>Name</Table.Th>
@@ -71,11 +73,13 @@ function onRowClicked(clientUuid: string, isMobile: boolean) {
     }
 }
 
-function getEditButtonTd(): ReactNode {
+function getEditButtonTd(onOpen: () => void, onClose: () => void, visible: boolean): ReactNode {
     return <Table.Td>
-        <Menu shadow="md" width="8em" position="bottom-end" closeOnItemClick>
+        <Menu shadow="md" width="8em" position="bottom-end" closeOnItemClick onClose={onClose} onOpen={onOpen}>
             <Menu.Target>
-                <Button variant="subtle" size="xs" color="var(--mantine-color-text)">...</Button>
+                <Button variant="subtle" size="sm" color="var(--mantine-color-text)">
+                    <Text c={visible ? undefined : 'transparent'} fw={700}>...</Text>
+                </Button>
             </Menu.Target>
             <Menu.Dropdown>
                 <Menu.Item>Edit</Menu.Item>
@@ -88,6 +92,6 @@ function getEditButtonTd(): ReactNode {
 function getClientNameTd(client: ILedStripClient, status: ClientStatus, isLightMode: boolean) {
     return <Table.Td>
         <Text>{client.name}</Text>
-        {<Text c={getStatusColor(status, isLightMode)} size="sm">{status == ClientStatus.Offline ? 'Offline since: ' + getLastSeenAtString(client.lastSeenAt) : getStatusText(status)}</Text>}
+        {<Text c={getStatusColor(status, isLightMode)} size="sm">{status == ClientStatus.Offline ? 'Offline since ' + getLastSeenAtString(client.lastSeenAt) : getStatusText(status)}</Text>}
     </Table.Td>;
 }
