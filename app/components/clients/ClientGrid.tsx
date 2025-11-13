@@ -4,7 +4,7 @@ import { ClientStatus, getClients, type ILedStripClient } from "~/api/clients_ap
 import { getStrips, type ILedStrip } from "~/api/strips_api";
 import { IsLightModeContext } from "~/context/IsLightModeContext";
 import { BoundedLoadingOverlay } from "../BoundedLoadingOverlay";
-import { getLastSeenAtString, getStatusColor, getStatusText } from "../TextHelper";
+import { getClientStatusColor, getClientStatusText, getLastSeenAtString } from "../TextHelper";
 import classes from './ClientGrid.module.css';
 
 interface IClientGridProps { }
@@ -66,8 +66,8 @@ export function ClientGrid(props: IClientGridProps) {
             <Text fw={700} span>
                 {m.client.name}
             </Text>
-            <Text c={getStatusColor(m.client.status, isLightMode)} span>
-                {getStatusText(m.client.status)}
+            <Text c={getClientStatusColor(m.client.status, isLightMode)} span>
+                {getClientStatusText(m.client.status)}
             </Text>
             <Space h={6}></Space>
             <Divider></Divider>

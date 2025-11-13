@@ -14,7 +14,8 @@ interface IDataRow {
 interface ITableProps {
     dataRows: IDataRow[];
     dataCols: string[];
-    onClick: (clientUuid: string) => void;
+    onEditClicked: (clientUuid: string) => void;
+    onDeleteClicked: (clientUuid: string) => void;
 }
 
 export function TableWithTrailingButton(props: ITableProps) {
@@ -35,9 +36,9 @@ export function TableWithTrailingButton(props: ITableProps) {
         <Table verticalSpacing="xs" highlightOnHover={false}>
             <Table.Thead>
                 <Table.Tr>
-                    <Table.Th>props.dataCols[0]</Table.Th>
-                    <Table.Th>props.dataCols[1]</Table.Th>
-                    {!isMobile && <Table.Th>props.dataCols[2]</Table.Th>}
+                    <Table.Th>{props.dataCols[0]}</Table.Th>
+                    <Table.Th>{props.dataCols[1]}</Table.Th>
+                    {!isMobile && <Table.Th>{props.dataCols[2]}</Table.Th>}
                     {!isMobile && <Table.Th />}
                 </Table.Tr>
             </Table.Thead>
