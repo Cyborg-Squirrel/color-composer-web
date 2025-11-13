@@ -72,7 +72,7 @@ export function ClientGrid(props: IClientGridProps) {
             <Space h={6}></Space>
             <Divider></Divider>
             <Space h={12}></Space>
-            {m.client.status == ClientStatus.Offline ? <SpanRow startingText='Last seen: ' endingText={getLastSeenAtString(m.client.lastSeenAt)}></SpanRow> : null}
+            {m.client.status == ClientStatus.Offline ? <SpanRow startingText='Offline since: ' endingText={getLastSeenAtString(m.client.lastSeenAt)}></SpanRow> : null}
             {m.client.status == ClientStatus.Offline ? <Space h={10}></Space> : null}
             <SpanRow startingText='Address: ' endingText={m.client.address}></SpanRow>
             <Space h={10}></Space>

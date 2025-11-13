@@ -7,6 +7,7 @@ export interface ILedStrip {
     length: number;
     brightness: number;
     powerLimit: number;
+    activeEffects: number;
 }
 
 export async function getStrips(): Promise<ILedStrip[]> {
@@ -35,6 +36,7 @@ export async function getStrips(): Promise<ILedStrip[]> {
                 length: 120,
                 brightness: 20,
                 powerLimit: 2000,
+                activeEffects: 2,
             },
             {
                 name: 'LED Lamp Strip',
@@ -44,6 +46,7 @@ export async function getStrips(): Promise<ILedStrip[]> {
                 length: 80,
                 brightness: 34,
                 powerLimit: 500,
+                activeEffects: 0,
             }
         ];
     }
