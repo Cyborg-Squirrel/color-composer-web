@@ -10,20 +10,21 @@ export function ClientTable() {
     const isLightMode = useContext(IsLightModeContext);
     const [clients, setClients] = useState<ILedStripClient[]>([]);
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
+    const [error, setError] = useState<any>(null);
 
     useEffect(() => {
-        if (loading) {
-            getClients().then((clientList) => {
-                setClients(clientList);
+        const fetchClients = async () => {
+            try {
+                const clientsList = await getClients();
+                setClients(clientsList);
                 setLoading(false);
-            }).catch((error) => {
-                setError(error);
+            } catch (err) {
+                setError(err);
                 setLoading(false);
-            });
-        }
+            }
+        };
 
-        return () => { };
+        fetchClients();
     }, []);
 
     if (loading) {
@@ -46,7 +47,7 @@ export function ClientTable() {
         thirdColString: c.clientType,
     }));
 
-    return <TableWithTrailingButton dataRows={dataRows} dataCols={['Name', 'Address', 'Type']} onEditClicked={onEditClicked} onDeleteClicked={onDeleteClicked}/>;
+    return <TableWithTrailingButton dataRows={dataRows} dataCols={['Name', 'Address', 'Type']} onEditClicked={onEditClicked} onDeleteClicked={onDeleteClicked} />;
 }
 
 // TODO: open edit form

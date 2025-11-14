@@ -9,21 +9,22 @@ import { getStripStatusColor, getStripStatusText } from "../TextHelper";
 export function StripsTable() {
     const [strips, setStrips] = useState<ILedStrip[]>([]);
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
+    const [error, setError] = useState<any>(null);
     const isLightMode = useContext(IsLightModeContext);
 
     useEffect(() => {
-        if (loading) {
-            getStrips().then((stripsList) => {
+        const fetchStrips = async () => {
+            try {
+                const stripsList = await getStrips();
                 setStrips(stripsList);
                 setLoading(false);
-            }).catch((error) => {
-                setError(error);
+            } catch (err) {
+                setError(err);
                 setLoading(false);
-            });
-        }
+            }
+        };
 
-        return () => { };
+        fetchStrips();
     }, []);
 
     if (loading) {
