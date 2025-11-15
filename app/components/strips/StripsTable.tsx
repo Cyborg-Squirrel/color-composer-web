@@ -3,8 +3,8 @@ import { useContext, useEffect, useState } from "react";
 import { getStrips, type ILedStrip } from "~/api/strips_api";
 import { IsLightModeContext } from "~/context/IsLightModeContext";
 import { BoundedLoadingOverlay } from "../BoundedLoadingOverlay";
-import { TableWithTrailingButton } from "../layouts/TableWithTrailingButton";
 import { getStripStatusColor, getStripStatusText } from "../TextHelper";
+import TableWithTrailingButton from "../layouts/ThreeColumnTable";
 
 export function StripsTable() {
     const [strips, setStrips] = useState<ILedStrip[]>([]);
@@ -47,15 +47,10 @@ export function StripsTable() {
         thirdColString: s.brightness + '%',
     }));
 
-    return <TableWithTrailingButton dataRows={dataRows} dataCols={['Name', 'Length', 'Brightness']} onEditClicked={onEditClicked} onDeleteClicked={onDeleteClicked} />;
+    return <TableWithTrailingButton dataRows={dataRows} dataCols={['Name', 'Length', 'Brightness']} onClicked={onClicked}/>;
 }
 
 // TODO: open edit form
-function onEditClicked(stripUuid: string) {
+function onClicked(stripUuid: string) {
     console.log("LED strip clicked:", stripUuid);
-}
-
-// TODO: open "are you sure" delete modal
-function onDeleteClicked(stripUuid: string) {
-    console.log("LED strip deleted:", stripUuid);
 }

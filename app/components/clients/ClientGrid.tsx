@@ -1,8 +1,9 @@
-import { Card, Center, Divider, SimpleGrid, Space, Text } from "@mantine/core";
+import { ActionIcon, Card, Center, Divider, SimpleGrid, Space, Text } from "@mantine/core";
 import { useContext, useEffect, useState } from "react";
 import { ClientStatus, getClients, type ILedStripClient } from "~/api/clients_api";
 import { getStrips, type ILedStrip } from "~/api/strips_api";
 import { IsLightModeContext } from "~/context/IsLightModeContext";
+import { IsMobileContext } from "~/context/IsMobileContext";
 import { BoundedLoadingOverlay } from "../BoundedLoadingOverlay";
 import { getClientStatusColor, getClientStatusText, getLastSeenAtString } from "../TextHelper";
 import classes from './ClientGrid.module.css';
@@ -18,7 +19,9 @@ export function ClientGrid(props: IClientGridProps) {
     const [uiModels, setUiModels] = useState<IClientUiModel[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [hoverUuid, setHoverUuid] = useState<string | null>(null);
     let isLightMode = useContext(IsLightModeContext);
+    let isMobile = useContext(IsMobileContext);
 
     useEffect(() => {
         async function fetchData() {
@@ -54,26 +57,24 @@ export function ClientGrid(props: IClientGridProps) {
     }
 
     const gridItems = uiModels.map((m) => (
-        <Card key={m.client.uuid} h='14em' className={classes.grid_card} style={{ padding: '12px' }}>
+        <Card key={m.client.uuid} h='14em' className={classes.grid_card} style={{ padding: '12px' }} onMouseEnter={() => setHoverUuid(m.client.uuid)} onMouseLeave={() => setHoverUuid(null)}>
             <span
                 style={{
                     position: "absolute",
-                    top: '.5em',
-                    right: '.75em',
-                    width: '1em',
-                    height: '1em',
-                }}>⚙️</span>
+                    top: '.25em',
+                    right: '.25em',
+                }}>
+                <ActionIcon variant="subtle" size="lg" c={shouldShowEditIcon(m.client.uuid, hoverUuid, isMobile) ? undefined : 'transparent'} style={{ transform: 'scaleX(-1)', filter: 'grayscale(100%)' }}>✏️</ActionIcon>
+            </span>
             <Text fw={700} span>
                 {m.client.name}
             </Text>
             <Text c={getClientStatusColor(m.client.status, isLightMode)} span>
-                {getClientStatusText(m.client.status)}
+                {getStatusText(m.client.status, m.client.lastSeenAt)}
             </Text>
             <Space h={6}></Space>
             <Divider></Divider>
             <Space h={12}></Space>
-            {m.client.status == ClientStatus.Offline ? <SpanRow startingText='Offline since: ' endingText={getLastSeenAtString(m.client.lastSeenAt)}></SpanRow> : null}
-            {m.client.status == ClientStatus.Offline ? <Space h={10}></Space> : null}
             <SpanRow startingText='Address: ' endingText={m.client.address}></SpanRow>
             <Space h={10}></Space>
             <SpanRow startingText='Type: ' endingText={m.client.clientType}></SpanRow>
@@ -92,9 +93,21 @@ export function ClientGrid(props: IClientGridProps) {
     );
 }
 
+function shouldShowEditIcon(clientUuid: string, hoverUuid: string | null, isMobile: boolean): boolean {
+    return hoverUuid == clientUuid && !isMobile;
+}
+
 function SpanRow(props: { startingText: string, endingText: string }) {
     return <span>
         <Text fw={700} span>{props.startingText}</Text>
         <Text className={classes.subtle_text} span>{props.endingText}</Text>
     </span>
+}
+
+function getStatusText(status: ClientStatus, lastSeenAt: number): string {
+    if (status == ClientStatus.Offline) {
+        return 'Offline since ' + getLastSeenAtString(lastSeenAt);
+    } else {
+        return getClientStatusText(status);
+    }
 }

@@ -4,9 +4,9 @@ import { ClientStatus, getClients, type ILedStripClient } from "~/api/clients_ap
 import { IsLightModeContext } from "~/context/IsLightModeContext";
 import { BoundedLoadingOverlay } from "../BoundedLoadingOverlay";
 import { getClientStatusColor, getClientStatusText, getLastSeenAtString } from "../TextHelper";
-import { TableWithTrailingButton } from "../layouts/TableWithTrailingButton";
+import TableWithTrailingButton from "../layouts/ThreeColumnTable";
 
-export function ClientTable() {
+function ClientTable() {
     const isLightMode = useContext(IsLightModeContext);
     const [clients, setClients] = useState<ILedStripClient[]>([]);
     const [loading, setLoading] = useState(true);
@@ -47,15 +47,12 @@ export function ClientTable() {
         thirdColString: c.clientType,
     }));
 
-    return <TableWithTrailingButton dataRows={dataRows} dataCols={['Name', 'Address', 'Type']} onEditClicked={onEditClicked} onDeleteClicked={onDeleteClicked} />;
+    return <TableWithTrailingButton dataRows={dataRows} dataCols={['Name', 'Address', 'Type']} onClicked={onClicked} />;
 }
 
 // TODO: open edit form
-function onEditClicked(clientUuid: string) {
+function onClicked(clientUuid: string) {
     console.log("Client clicked:", clientUuid);
 }
 
-// TODO: open "are you sure" delete modal
-function onDeleteClicked(clientUuid: string) {
-    console.log("Client delete clicked:", clientUuid);
-}
+export default ClientTable;
