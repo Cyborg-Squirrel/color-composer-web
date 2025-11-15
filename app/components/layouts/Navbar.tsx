@@ -1,4 +1,4 @@
-import { AppShell, NavLink, useComputedColorScheme } from '@mantine/core';
+import { AppShell, NavLink } from '@mantine/core';
 import { useState } from 'react';
 import classes from './Navbar.module.css';
 
@@ -17,42 +17,43 @@ const bottomNavItems: any[] = [];
 
 const allNavItems = [...navItems, ...bottomNavItems];
 
-export function Navbar({selectedNavItemText}: { selectedNavItemText: string }) {
-  const computedColorScheme = useComputedColorScheme('light', { getInitialValueInEffect: true });
+function Navbar({ selectedNavItemText }: { selectedNavItemText: string }) {
   const selectedNavItem = selectedNavItemText?.trim()
-  ? allNavItems.find(item => item.link.toLowerCase() === selectedNavItemText.trim().toLowerCase() ||
-  item.label.toLowerCase() === selectedNavItemText.trim().toLowerCase())?.label
-  : '';
-  
+    ? allNavItems.find(item => item.link.toLowerCase() === selectedNavItemText.trim().toLowerCase() ||
+      item.label.toLowerCase() === selectedNavItemText.trim().toLowerCase())?.label
+    : '';
+
   const [active, setActive] = useState(selectedNavItem);
 
   const navComponents = navItems.map((item) => (
     <NavLink
-        id={item.key}
-        key={item.key}
-        href={item.link}
-        label={item.label}
-        leftSection={<span className={item.label === active ? classes.linkIcon : classes.grayscale}>{item.emoji}</span>}
-        active={ item.label === active }
+      id={item.key}
+      key={item.key}
+      href={item.link}
+      label={item.label}
+      leftSection={<span className={item.label === active ? classes.linkIcon : classes.grayscale}>{item.emoji}</span>}
+      active={item.label === active}
     />
   ));
 
   const bottomNavComponents = bottomNavItems.map((item) => (
     <NavLink
-        id={item.key}
-        key={item.key}
-        href={item.link}
-        label={item.label}
-        leftSection={<span className={item.label === active ? classes.linkIcon : classes.greyScaleIcon}>{item.emoji}</span>}
-        active={ item.label === active }
+      id={item.key}
+      key={item.key}
+      href={item.link}
+      label={item.label}
+      leftSection={<span className={item.label === active ? classes.linkIcon : classes.greyScaleIcon}>{item.emoji}</span>}
+      active={item.label === active}
     />
   ));
 
-  return <AppShell.Navbar className={classes.navbar} withBorder={false}>
-      { navComponents }
-      <div className={bottomNavComponents.length == 0 ? "" : classes.footer}>
-        { bottomNavComponents }
-      </div>
-    </AppShell.Navbar>
+  return <AppShell.Navbar className={classes.navbar}>
+    {navComponents}
+    <div className={bottomNavComponents.length == 0 ? "" : classes.footer}>
+      {bottomNavComponents}
+    </div>
+  </AppShell.Navbar>
 }
+
+export default Navbar;
 

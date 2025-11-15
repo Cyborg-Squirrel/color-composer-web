@@ -1,5 +1,4 @@
 import BasicAppShell from "~/components/layouts/BasicAppShell";
-import { isMobileUi } from "~/context/IsMobileContext";
 import type { Route } from "./+types/home";
 
 export function meta({}: Route.MetaArgs) {
@@ -10,6 +9,5 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export default function Effects() {
-  const isMobile = isMobileUi();
-  return <BasicAppShell title="Color Composer" pageName="Effects" topPadding={"sm"} boxCssEnabled={!isMobile}/>;
+  return <BasicAppShell title="Color Composer" pageName="Effects" topPadding={"sm"} boxCssEnabled={true}/>;
 }

@@ -1,5 +1,5 @@
 .grid_card {
-  outline: 1px solid light-dark(var(--app-shell-border-color), transparent);
+  outline: 1px solid var(--app-shell-border-color);
   background-color: light-dark(var(--mantine-color-white), var(--mantine-color-dark-7));
 }
 
