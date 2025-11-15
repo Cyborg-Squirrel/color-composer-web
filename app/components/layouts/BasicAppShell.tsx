@@ -52,7 +52,7 @@ function BasicAppShell(props: IAppShellProps) {
             <Text id="title" fw={700} span>{props.title}</Text>
             <Code id="version" fw={700}>v0.0.1</Code>
           </Group>
-          <ColorSchemeToggle hidden={import.meta.env.VITE_COLOR_SCHEME_TOGGLE_ENABLED == true} />
+          <ColorSchemeToggle hidden={import.meta.env.VITE_COLOR_SCHEME_TOGGLE_ENABLED !== 'true'} />
         </Group>
       </AppShell.Header>
       <Navbar selectedNavItemText={props.pageName} />
