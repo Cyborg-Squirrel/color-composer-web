@@ -1,10 +1,14 @@
 
+
+export const colorOrders: ColorOrder[] = ["RGB", "GRB"];
+export type ColorOrder = 'RGB' | 'GRB';
+
 export interface ILedStripClient {
     name: string;
     address: string;
     uuid: string;
     clientType: 'Pi' | 'NightDriver';
-    colorOrder: 'RGB' | 'GRB';
+    colorOrder: ColorOrder;
     apiPort: number;
     wsPort: number;
     lastSeenAt: number;

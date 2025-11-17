@@ -3,7 +3,7 @@ import BasicAppShell from "~/components/layouts/BasicAppShell";
 import UiContext from "~/context/UiContext";
 import type { Route } from "./+types/home";
 
-export function meta({}: Route.MetaArgs) {
+export function meta({ }: Route.MetaArgs) {
   return [
     { title: "Clients | Color Composer" },
     { name: "description", content: "Clients" },
@@ -12,8 +12,8 @@ export function meta({}: Route.MetaArgs) {
 
 export default function Clients() {
   return <UiContext>
-      <BasicAppShell title="Color Composer" pageName="Clients" topPadding={"sm"} boxCssEnabled={true}>
-        <ClientTable/>
-      </BasicAppShell>
+    <BasicAppShell title="Color Composer" pageName="Clients" topPadding={"sm"} boxCssEnabled={true}>
+      <ClientTable />
+    </BasicAppShell>
   </UiContext>;
 }
