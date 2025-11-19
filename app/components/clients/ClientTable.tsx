@@ -1,4 +1,4 @@
-import { Center, Drawer } from "@mantine/core";
+import { Center, Modal } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { useContext, useEffect, useState } from "react";
 import { ClientStatus, getClients, type ILedStripClient } from "~/api/clients_api";
@@ -58,10 +58,10 @@ function ClientTable() {
     }));
 
     return (<>
-        <Drawer offset={8} radius="md" size="lg" position="right" opened={drawerOpened}
+        <Modal radius="md" size="lg" fullScreen={isMobile} opened={drawerOpened}
             onClose={close} closeButtonProps={{ size: 'lg' }} title='Edit client'>
             <ClientForm client={clients.find(c => c.uuid == selectedClientUuid)} strips={strips} isMobile={isMobile} onSubmit={close} />
-        </Drawer>
+        </Modal>
         <TableWithTrailingButton dataRows={dataRows} dataCols={['Name', 'Address', 'Type']} onClicked={(uuid) => {
             setClientUuid(uuid);
             open();

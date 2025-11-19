@@ -5,12 +5,6 @@
     "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
 }
 
-html,
-body {
-  height: 100%;
-  margin: 0;
-}
-
 /* ----- Layout ----- */
 .mantine-AppShell-header {
   background-color: light-dark(var(--mantine-color-white), var(--mantine-color-dark-7));
