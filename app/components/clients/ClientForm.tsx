@@ -63,6 +63,8 @@ function ClientForm(props: IClientFormProps) {
         }
     });
 
+    // Note: mobile needs size 16 font for inputs to prevent zoom on focus
+    // in my testing on iOS you can't zoom out once zoomed in
     return (
         <form onSubmit={form.onSubmit((values) => { console.log(values); props.onSubmit(); })}>
             <TextInput
@@ -71,6 +73,7 @@ function ClientForm(props: IClientFormProps) {
                 placeholder="The client's name"
                 key={form.key('name')}
                 {...form.getInputProps('name')}
+                size={props.isMobile ? "md" : "sm"}
             />
 
             <TextInput
@@ -80,6 +83,7 @@ function ClientForm(props: IClientFormProps) {
                 placeholder="The client's network address"
                 key={form.key('address')}
                 {...form.getInputProps('address')}
+                size={props.isMobile ? "md" : "sm"}
             />
 
             <Group pt="sm" justify="center" grow>
@@ -90,6 +94,7 @@ function ClientForm(props: IClientFormProps) {
                     placeholder="The client's WebSocket port"
                     key={form.key('wsPort')}
                     {...form.getInputProps('wsPort')}
+                    size={props.isMobile ? "md" : "sm"}
                 />
 
                 <NumberInput
@@ -99,6 +104,7 @@ function ClientForm(props: IClientFormProps) {
                     placeholder="The client's API port"
                     key={form.key('apiPort')}
                     {...form.getInputProps('apiPort')}
+                    size={props.isMobile ? "md" : "sm"}
                 />
             </Group>
 
@@ -109,6 +115,7 @@ function ClientForm(props: IClientFormProps) {
                 data={props.strips.map(s => ({ value: s.uuid, label: s.name }))}
                 key={form.key('ledStrip')}
                 {...form.getInputProps('ledStrip')}
+                size={props.isMobile ? "md" : "sm"}
             />
 
             <Select
@@ -119,6 +126,7 @@ function ClientForm(props: IClientFormProps) {
                 data={colorOrders}
                 key={form.key('colorOrder')}
                 {...form.getInputProps('colorOrder')}
+                size={props.isMobile ? "md" : "sm"}
             />
 
             <Group justify="flex-end" mt="xl" grow={props.isMobile}>
