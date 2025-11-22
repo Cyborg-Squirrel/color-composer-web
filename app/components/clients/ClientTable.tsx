@@ -26,7 +26,8 @@ function ClientTable() {
                 const clientsList = await getClients();
                 const stripsList = await getStrips();
                 setStrips(stripsList);
-                setClients(clientsList);
+                setClients(clientsList.sort((a, b) =>
+                    getClientStatusPrecedence(a.status) >= getClientStatusPrecedence(b.status) ? 1 : -1));
                 setLoading(false);
             } catch (err) {
                 setError(err);
@@ -67,6 +68,23 @@ function ClientTable() {
             open();
         }} />
     </>)
+}
+
+function getClientStatusPrecedence(status: ClientStatus): number {
+    switch (status) {
+        case ClientStatus.Error:
+            return 0;
+        case ClientStatus.Offline:
+            return 4;
+        case ClientStatus.SetupIncomplete:
+            return 1;
+        case ClientStatus.Active:
+            return 2;
+        case ClientStatus.Idle:
+            return 3;
+        default:
+            return 5;
+    }
 }
 
 export default ClientTable;
