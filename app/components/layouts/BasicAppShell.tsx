@@ -2,13 +2,13 @@ import { AppShell, Box, Burger, Code, Divider, Group, Space, Text, Title } from 
 import { useDisclosure } from '@mantine/hooks';
 import { useContext, type ReactElement, type ReactNode } from 'react';
 import { IsMobileContext } from '~/context/IsMobileContext';
-import { IsLightModeContext } from '../../context/IsLightModeContext';
 import { ColorSchemeToggle } from '../ColorSchemeToggle';
 import Navbar from './Navbar';
 
 interface IAppShellProps {
   title: string;
   pageName: string;
+  addButton?: ReactNode,
   children?: ReactNode;
   topPadding: 'xl' | 'lg' | 'md' | 'sm' | 'xs';
   hideDivider?: boolean;
@@ -18,20 +18,22 @@ interface IAppShellProps {
 
 function BasicAppShell(props: IAppShellProps) {
   const isMobile = useContext(IsMobileContext);
-  const isLightMode = useContext(IsLightModeContext);
   const [opened, { toggle }] = useDisclosure();
   let contentMarginTop = props.contentMarginTop ?? 1.5;
   let titlePadding = isMobile ? '.33em' : undefined;
   let boxCssEnabled = props.boxCssEnabled ?? true;
 
   let box = getBox(isMobile, (
-    <div>
-      <Title pl={titlePadding} pt={titlePadding} order={2}>{props.pageName}</Title>
+    <>
+      <Group justify='space-between'>
+        <Title pl={titlePadding} pt={titlePadding} order={2}>{props.pageName}</Title>
+        {props.addButton}
+      </Group>
       <Space h="xs"></Space>
       <Divider hidden={props.hideDivider}></Divider>
       <Space h={props.topPadding}></Space>
       {props.children}
-    </div>
+    </>
   ),
     boxCssEnabled,
     contentMarginTop);

@@ -23,10 +23,12 @@ function ClientTable() {
     useEffect(() => {
         const fetchClients = async () => {
             try {
-                const clientsList = await getClients();
-                const stripsList = await getStrips();
-                setStrips(stripsList);
-                setClients(clientsList.sort((a, b) =>
+                const [strips, clients] = await Promise.all([
+                    getStrips(),
+                    getClients()
+                ]);
+                setStrips(strips);
+                setClients(clients.sort((a, b) =>
                     getClientStatusPrecedence(a.status) >= getClientStatusPrecedence(b.status) ? 1 : -1));
                 setLoading(false);
             } catch (err) {
@@ -60,7 +62,7 @@ function ClientTable() {
 
     return (<>
         <Modal radius="md" size="lg" fullScreen={isMobile} opened={drawerOpened}
-            onClose={close} closeButtonProps={{ size: 'lg' }} title='Edit client'>
+            onClose={close} closeButtonProps={{ size: 'lg' }} title='Edit Client'>
             <ClientForm client={clients.find(c => c.uuid == selectedClientUuid)} strips={strips} isMobile={isMobile} onSubmit={close} />
         </Modal>
         <TableWithTrailingButton dataRows={dataRows} dataCols={['Name', 'Address', 'Type']} onClicked={(uuid) => {

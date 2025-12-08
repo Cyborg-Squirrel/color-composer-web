@@ -3,6 +3,10 @@
 export const colorOrders: ColorOrder[] = ["RGB", "GRB"];
 export type ColorOrder = 'RGB' | 'GRB';
 
+export const NightDriverType = 'NightDriver';
+export const PiClientType = 'Pi';
+export type ClientType = 'Pi' | 'NightDriver';
+
 export interface ILedStripClient {
     name: string;
     address: string;
