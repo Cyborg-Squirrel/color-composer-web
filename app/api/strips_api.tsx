@@ -1,4 +1,7 @@
 
+export const piPins: PiPin[] = ['D10', 'D12', 'D18', 'D21'];
+export type PiPin = 'D10' | 'D12' | 'D18' | 'D21';
+
 export interface ILedStrip {
     name: string;
     uuid: string;
@@ -40,7 +43,7 @@ export async function getStrips(): Promise<ILedStrip[]> {
             },
             {
                 name: 'LED Lamp Strip',
-                uuid: '99d53b59-cb0d-449f-a9e9-bf6cb7bf3911',
+                uuid: '99d53b59-cb0d-449f-a9e9-bf6cb7bf391a',
                 clientUuid: '99d53b59-cb0d-449f-a9e9-bf6cb7bf3911',
                 pin: '1',
                 length: 80,

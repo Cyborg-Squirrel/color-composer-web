@@ -22,7 +22,7 @@ function TableWithTrailingButton(props: ITableProps) {
 
     const rows = props.dataRows.map((d) => (
         <Table.Tr key={d.uuid} onClick={() => props.onClicked(d.uuid)}>
-            {getClientNameTd(d.name, d.status, d.statusColor)}
+            {getNameTd(d.name, d.status, d.statusColor)}
             <Table.Td>{d.secondColString}</Table.Td>
             {!isMobile && <Table.Td>{d.thirdColString}</Table.Td>}
         </Table.Tr>
@@ -48,7 +48,7 @@ function TableWithTrailingButton(props: ITableProps) {
     }
 }
 
-function getClientNameTd(name: string, status: string, statusColor: string) {
+function getNameTd(name: string, status: string, statusColor: string) {
     return <Table.Td>
         <Text>{name}</Text>
         <Text c={statusColor} size="sm">{status}</Text>

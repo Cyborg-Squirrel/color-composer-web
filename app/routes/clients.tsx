@@ -1,3 +1,4 @@
+import AddClientButton from "~/components/clients/AddClientButton";
 import ClientTable from "~/components/clients/ClientTable";
 import BasicAppShell from "~/components/layouts/BasicAppShell";
 import UiContext from "~/context/UiContext";
@@ -12,7 +13,8 @@ export function meta({ }: Route.MetaArgs) {
 
 export default function Clients() {
   return <UiContext>
-    <BasicAppShell title="Color Composer" pageName="Clients" topPadding={"sm"} boxCssEnabled={true}>
+    <BasicAppShell title="Color Composer" pageName="Clients" topPadding={"sm"} 
+      boxCssEnabled={true} addButton={<AddClientButton/>}>
       <ClientTable />
     </BasicAppShell>
   </UiContext>;

@@ -23,14 +23,6 @@ function ClientForm(props: IClientFormProps) {
             ledStrip: strip?.uuid || '',
             colorOrder: client?.colorOrder || 'RGB',
         },
-        // validate: (values) => {
-        //     if (values.wsPort === values.apiPort) {
-        //         return {
-        //             wsPort: 'WebSocket port must be different from API port',
-        //             apiPort: 'API port must be different from WebSocket port',
-        //         };
-        //     } return {};
-        // },
         validate: {
             name: (value) => (value.length <= 20 ? null : 'Invalid name'),
             address: (value) => {
