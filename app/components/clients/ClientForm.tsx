@@ -1,4 +1,4 @@
-import { Button, Group, NumberInput, Select, TextInput } from "@mantine/core";
+import { Button, Group, MultiSelect, NumberInput, Select, TextInput } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { clientTypes, colorOrders, PiClientType, type ILedStripClient } from "~/api/clients_api";
 import type { ILedStrip } from "~/api/strips_api";
@@ -12,7 +12,8 @@ interface IClientFormProps {
 
 function ClientForm(props: IClientFormProps) {
     let client = props.client;
-    let strip = client ? props.strips.find(s => s.clientUuid == client.uuid) : undefined;
+    let multipleStripsSupported = client?.clientType !== PiClientType;
+    let clientStrips = client ? props.strips.filter(s => s.clientUuid == client.uuid) : [];
     const form = useForm({
         mode: 'uncontrolled',
         initialValues: {
@@ -20,7 +21,7 @@ function ClientForm(props: IClientFormProps) {
             address: client?.address || '',
             wsPort: client?.wsPort || '',
             apiPort: client?.apiPort || '',
-            ledStrip: strip?.uuid || '',
+            ledStrips: multipleStripsSupported ? clientStrips?.map(s => s.uuid) : clientStrips?.[0]?.uuid || undefined,
             colorOrder: client?.colorOrder || 'RGB',
             clientType: client?.clientType || PiClientType,
             powerLimit: client?.powerLimit || '',
@@ -50,7 +51,7 @@ function ClientForm(props: IClientFormProps) {
                 }
                 return null;
             },
-            ledStrip: (value) => {
+            ledStrips: (value) => {
                 // This field is optional
                 return null;
             },
@@ -86,15 +87,27 @@ function ClientForm(props: IClientFormProps) {
                 size={props.isMobile ? "md" : "sm"}
             />
 
-            <Select
-                pt="sm"
-                label="LED Strip"
-                placeholder="Select the LED strip connected to this client"
-                data={props.strips.map(s => ({ value: s.uuid, label: s.name }))}
-                key={form.key('ledStrip')}
-                {...form.getInputProps('ledStrip')}
-                size={props.isMobile ? "md" : "sm"}
-            />
+            {multipleStripsSupported ?
+                <MultiSelect
+                    pt="sm"
+                    label="LED Strip"
+                    placeholder="Select the LED strips connected to this client"
+                    data={props.strips.map(s => ({ value: s.uuid, label: s.name }))}
+                    key={form.key('ledStrips')}
+                    {...form.getInputProps('ledStrips')}
+                    size={props.isMobile ? "md" : "sm"}
+                    disabled={props.strips.length == 0}
+                /> :
+                <Select
+                    pt="sm"
+                    label="LED Strip"
+                    placeholder="Select the LED strip connected to this client"
+                    data={props.strips.map(s => ({ value: s.uuid, label: s.name }))}
+                    key={form.key('ledStrips')}
+                    {...form.getInputProps('ledStrips')}
+                    size={props.isMobile ? "md" : "sm"}
+                    disabled={props.strips.length == 0}
+                />}
 
             <Group pt="sm" justify="center" grow>
                 <NumberInput
