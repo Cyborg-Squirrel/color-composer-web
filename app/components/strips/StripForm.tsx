@@ -21,7 +21,6 @@ function StripForm(props: IStripFormProps) {
             pin: strip?.pin || '',
             length: strip?.length || 0,
             brightness: strip?.brightness || 0,
-            powerLimit: strip?.powerLimit || 0
         },
         validate: {
             name: (value) => (value.length <= 20 ? null : 'Invalid name'),
@@ -54,13 +53,6 @@ function StripForm(props: IStripFormProps) {
                 const brightness = Number(value);
                 if (isNaN(brightness) || brightness < 0 || brightness > 100) {
                     return 'Brightness must be a number between 0 and 100';
-                }
-                return null;
-            },
-            powerLimit: (value) => {
-                const powerLimit = Number(value);
-                if (value !== null && isNaN(value)) {
-                    return 'Length must be a number';
                 }
                 return null;
             },
@@ -107,6 +99,7 @@ function StripForm(props: IStripFormProps) {
                     key={form.key('length')}
                     {...form.getInputProps('length')}
                     size={props.isMobile ? "md" : "sm"}
+                    allowNegative={false}
                 />
             </Group>
 
@@ -120,16 +113,7 @@ function StripForm(props: IStripFormProps) {
                     key={form.key('brightness')}
                     {...form.getInputProps('brightness')}
                     size={props.isMobile ? "md" : "sm"}
-                />
-
-                <NumberInput
-                    hideControls
-                    label="Power limit"
-                    placeholder=""
-                    suffix=" mA"
-                    key={form.key('powerLimit')}
-                    {...form.getInputProps('powerLimit')}
-                    size={props.isMobile ? "md" : "sm"}
+                    allowNegative={false}
                 />
             </Group>
 

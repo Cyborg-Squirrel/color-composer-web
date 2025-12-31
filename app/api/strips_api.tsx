@@ -9,7 +9,6 @@ export interface ILedStrip {
     pin: string;
     length: number;
     brightness: number;
-    powerLimit: number;
     activeEffects: number;
 }
 
@@ -38,7 +37,6 @@ export async function getStrips(): Promise<ILedStrip[]> {
                 pin: 'D10',
                 length: 120,
                 brightness: 20,
-                powerLimit: 2000,
                 activeEffects: 2,
             },
             {
@@ -48,7 +46,6 @@ export async function getStrips(): Promise<ILedStrip[]> {
                 pin: '1',
                 length: 80,
                 brightness: 34,
-                powerLimit: 500,
                 activeEffects: 0,
             }
         ];
