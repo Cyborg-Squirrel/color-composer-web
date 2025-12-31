@@ -1,6 +1,6 @@
 import { Button, Group, NumberInput, Select, TextInput } from "@mantine/core";
 import { useForm } from "@mantine/form";
-import { colorOrders, type ILedStripClient } from "~/api/clients_api";
+import { clientTypes, colorOrders, PiClientType, type ILedStripClient } from "~/api/clients_api";
 import type { ILedStrip } from "~/api/strips_api";
 
 interface IClientFormProps {
@@ -22,6 +22,8 @@ function ClientForm(props: IClientFormProps) {
             apiPort: client?.apiPort || '',
             ledStrip: strip?.uuid || '',
             colorOrder: client?.colorOrder || 'RGB',
+            clientType: client?.clientType || PiClientType,
+            powerLimit: client?.powerLimit || '',
         },
         validate: {
             name: (value) => (value.length <= 20 ? null : 'Invalid name'),
@@ -52,6 +54,12 @@ function ClientForm(props: IClientFormProps) {
                 // This field is optional
                 return null;
             },
+            clientType: (value) => (clientTypes.includes(value) ? null : 'Invalid client type'),
+            colorOrder: (value) => (colorOrders.includes(value) ? null : 'Invalid color order'),
+            powerLimit: (value) => {
+                // This field is optional
+                return null;
+            },
         }
     });
 
@@ -78,28 +86,6 @@ function ClientForm(props: IClientFormProps) {
                 size={props.isMobile ? "md" : "sm"}
             />
 
-            <Group pt="sm" justify="center" grow>
-                <NumberInput
-                    withAsterisk
-                    hideControls
-                    label="WebSocket Port"
-                    placeholder="The client's WebSocket port"
-                    key={form.key('wsPort')}
-                    {...form.getInputProps('wsPort')}
-                    size={props.isMobile ? "md" : "sm"}
-                />
-
-                <NumberInput
-                    withAsterisk
-                    hideControls
-                    label="API Port"
-                    placeholder="The client's API port"
-                    key={form.key('apiPort')}
-                    {...form.getInputProps('apiPort')}
-                    size={props.isMobile ? "md" : "sm"}
-                />
-            </Group>
-
             <Select
                 pt="sm"
                 label="LED Strip"
@@ -110,15 +96,64 @@ function ClientForm(props: IClientFormProps) {
                 size={props.isMobile ? "md" : "sm"}
             />
 
-            <Select
+            <Group pt="sm" justify="center" grow>
+                <NumberInput
+                    withAsterisk
+                    hideControls
+                    label="WebSocket Port"
+                    placeholder="The client's WebSocket port"
+                    key={form.key('wsPort')}
+                    {...form.getInputProps('wsPort')}
+                    size={props.isMobile ? "md" : "sm"}
+                    allowNegative={false}
+                />
+
+                <NumberInput
+                    withAsterisk
+                    hideControls
+                    label="API Port"
+                    placeholder="The client's API port"
+                    key={form.key('apiPort')}
+                    {...form.getInputProps('apiPort')}
+                    size={props.isMobile ? "md" : "sm"}
+                    allowNegative={false}
+                />
+            </Group>
+
+            <Group pt="sm" justify="center" grow>
+                <Select
+                    withAsterisk
+                    label="Color Order"
+                    placeholder="Select RGB color order for this client"
+                    data={colorOrders}
+                    key={form.key('colorOrder')}
+                    {...form.getInputProps('colorOrder')}
+                    size={props.isMobile ? "md" : "sm"}
+                />
+
+                <Select
+                    withAsterisk
+                    label="Client Type"
+                    placeholder="Select the client type"
+                    data={clientTypes}
+                    key={form.key('clientType')}
+                    {...form.getInputProps('clientType')}
+                    size={props.isMobile ? "md" : "sm"}
+                />
+            </Group>
+
+            <NumberInput
                 pt="sm"
                 withAsterisk
-                label="Color Order"
-                placeholder="Select RGB color order for this client"
-                data={colorOrders}
-                key={form.key('colorOrder')}
-                {...form.getInputProps('colorOrder')}
+                disabled={client?.clientType !== PiClientType}
+                label="Power Limit"
+                suffix=" mA"
+                placeholder={client?.clientType === PiClientType ? "The client's power limit" : "NightDriver clients have built time defined power limits"}
+                key={form.key('powerLimit')}
+                {...form.getInputProps('powerLimit')}
                 size={props.isMobile ? "md" : "sm"}
+                min={1}
+                allowNegative={false}
             />
 
             <Group justify="flex-end" mt="xl" grow={props.isMobile}>

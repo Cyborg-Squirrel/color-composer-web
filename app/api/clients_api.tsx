@@ -3,6 +3,7 @@
 export const colorOrders: ColorOrder[] = ["RGB", "GRB"];
 export type ColorOrder = 'RGB' | 'GRB';
 
+export const clientTypes: ClientType[] = ["Pi", "NightDriver"];
 export const NightDriverType = 'NightDriver';
 export const PiClientType = 'Pi';
 export type ClientType = 'Pi' | 'NightDriver';
@@ -18,6 +19,7 @@ export interface ILedStripClient {
     lastSeenAt: number;
     status: ClientStatus;
     activeEffects: number;
+    powerLimit: number | null;
 }
 
 export const enum ClientStatus {
@@ -57,6 +59,7 @@ export async function getClients(): Promise<ILedStripClient[]> {
                 lastSeenAt: Date.now(),
                 status: ClientStatus.Idle,
                 activeEffects: 0,
+                powerLimit: 500,
             },
             {
                 name: 'NightDriver client',
@@ -69,6 +72,7 @@ export async function getClients(): Promise<ILedStripClient[]> {
                 lastSeenAt: Date.now() - 100000,
                 status: ClientStatus.SetupIncomplete,
                 activeEffects: 0,
+                powerLimit: null,
             },
             {
                 name: 'CC offline client',
@@ -81,6 +85,7 @@ export async function getClients(): Promise<ILedStripClient[]> {
                 lastSeenAt: Date.now() - 1000 * 60 * 60 * 24,
                 status: ClientStatus.Offline,
                 activeEffects: 0,
+                powerLimit: null,
             }
         ];
     }
