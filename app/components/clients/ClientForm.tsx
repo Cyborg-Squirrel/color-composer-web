@@ -1,5 +1,6 @@
-import { Button, Group, Modal, MultiSelect, NumberInput, Select, TextInput } from "@mantine/core";
+import { Button, Group, MultiSelect, NumberInput, Select, TextInput } from "@mantine/core";
 import { useForm } from "@mantine/form";
+import { forwardRef, useImperativeHandle } from "react";
 import { clientTypes, colorOrders, PiClientType, type ILedStripClient } from "~/api/clients_api";
 import type { ILedStrip } from "~/api/strips_api";
 
@@ -7,12 +8,14 @@ interface IClientFormProps {
     client: ILedStripClient | undefined;
     strips: ILedStrip[];
     isMobile: boolean;
-    title: string;
-    opened: boolean;
     closeForm: () => void;
 }
 
-function ClientForm(props: IClientFormProps) {
+export interface IClientFormHandle {
+    isDirty: () => boolean;
+}
+
+const ClientForm = forwardRef<IClientFormHandle, IClientFormProps>((props, ref) => {
     let client = props.client;
     let multipleStripsSupported = client?.clientType !== PiClientType;
     let clientStrips = client ? props.strips.filter(s => s.clientUuid == client.uuid) : [];
@@ -66,10 +69,13 @@ function ClientForm(props: IClientFormProps) {
         }
     });
 
+    useImperativeHandle(ref, () => ({
+        isDirty: () => form.isDirty(),
+    }));
+
     // Note: mobile needs size 16 font for inputs to prevent zoom on focus
     // in my testing on iOS you can't zoom out once zoomed in
-    return <Modal radius="md" size="lg" fullScreen={props.isMobile} opened={props.opened}
-        onClose={props.closeForm} closeButtonProps={{ size: 'lg' }} title={props.title}>
+    return (
         <form onSubmit={form.onSubmit((values) => { console.log(values); props.closeForm(); })}>
             <TextInput
                 withAsterisk
@@ -175,6 +181,7 @@ function ClientForm(props: IClientFormProps) {
             <Group justify="flex-end" mt="xl" grow={props.isMobile}>
                 <Button variant="default" type="button" onClick={() => {
                     if (form.isDirty()) {
+                        // TODO: Replace with a proper modal
                         if (confirm('Discard changes?')) {
                             props.closeForm();
                         }
@@ -185,7 +192,9 @@ function ClientForm(props: IClientFormProps) {
                 <Button type="submit">Submit</Button>
             </Group>
         </form>
-    </Modal>;
-}
+    );
+});
+
+// ClientForm.displayName = 'ClientForm';
 
 export default ClientForm;

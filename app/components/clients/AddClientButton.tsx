@@ -1,15 +1,28 @@
-import { Button } from "@mantine/core";
+import { Button, Modal } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
-import { useContext } from "react";
+import { useContext, useRef } from "react";
 import { IsMobileContext } from "~/context/IsMobileContext";
-import ClientForm from "./ClientForm";
+import ClientForm, { type IClientFormHandle } from "./ClientForm";
 
 function AddClientButton() {
     const [modalOpened, { open, close }] = useDisclosure(false);
     const isMobile = useContext(IsMobileContext);
+    const formRef = useRef<IClientFormHandle>(null);
 
     return (<>
-        <ClientForm client={undefined} strips={[]} isMobile={isMobile} title={"Add Client"} opened={modalOpened} closeForm={close}/>
+        <Modal radius="md" size="lg" fullScreen={isMobile} opened={modalOpened}
+            onClose={() => {
+                if (formRef.current?.isDirty() ?? false) {
+                    // TODO Mantine confirmation dialog
+                    if (confirm("You have unsaved changes. Are you sure you want to close?")) {
+                        close();
+                    }
+                } else {
+                    close();
+                }
+            }} closeButtonProps={{ size: 'lg' }} title='Add Client'>
+            <ClientForm strips={[]} isMobile={isMobile} closeForm={close} client={undefined} ref={formRef} />
+        </Modal>
         <Button onClick={open}>Add Client</Button>
     </>)
 }
