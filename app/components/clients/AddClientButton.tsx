@@ -13,6 +13,7 @@ function AddClientButton() {
         <Modal radius="md" size="lg" fullScreen={isMobile} opened={modalOpened}
             onClose={() => {
                 if (formRef.current?.isDirty() ?? false) {
+                    // TODO Mantine confirmation dialog
                     if (confirm("You have unsaved changes. Are you sure you want to close?")) {
                         close();
                     }
