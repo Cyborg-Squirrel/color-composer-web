@@ -1,13 +1,13 @@
 import { Center, Modal, SimpleGrid } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { getClients, type ILedStripClient } from "~/api/clients_api";
 import { getStrips, type ILedStrip } from "~/api/strips_api";
 import { IsLightModeContext } from "~/context/IsLightModeContext";
 import { IsMobileContext } from "~/context/IsMobileContext";
 import { BoundedLoadingOverlay } from "../BoundedLoadingOverlay";
 import ClientCard from "./ClientCard";
-import ClientForm from "./ClientForm";
+import ClientForm, { type IClientFormHandle } from "./ClientForm";
 
 interface IClientGridProps { }
 
@@ -22,7 +22,8 @@ export function ClientGrid(props: IClientGridProps) {
     const [error, setError] = useState(null);
     const [hoverUuid, setHoverUuid] = useState<string | null>(null);
     const [clickedUuid, setClickedUuid] = useState<string | null>(null);
-    const [drawerOpened, { open, close }] = useDisclosure(false);
+    const [modalOpened, { open, close }] = useDisclosure(false);
+    const formRef = useRef<IClientFormHandle>(null);
     let isLightMode = useContext(IsLightModeContext);
     let isMobile = useContext(IsMobileContext);
 
@@ -77,9 +78,17 @@ export function ClientGrid(props: IClientGridProps) {
     ));
 
     return (<>
-        <Modal radius="md" size="lg" fullScreen={isMobile} opened={drawerOpened}
-            onClose={close} closeButtonProps={{ size: 'lg' }} title='Edit client'>
-            <ClientForm client={getSelectedModel(uiModels, clickedUuid)?.client} strips={getSelectedModel(uiModels, clickedUuid)?.strips ?? []} isMobile={isMobile} onSubmit={close} />
+        <Modal radius="md" size="lg" fullScreen={isMobile} opened={modalOpened}
+            onClose={() => {
+                if (formRef.current?.isDirty() ?? false) {
+                    if (confirm("You have unsaved changes. Are you sure you want to close?")) {
+                        close();
+                    }
+                } else {
+                    close();
+                }
+            }} closeButtonProps={{ size: 'lg' }} title='Edit client'>
+            <ClientForm client={getSelectedModel(uiModels, clickedUuid)?.client} strips={getSelectedModel(uiModels, clickedUuid)?.strips ?? []} isMobile={isMobile} closeForm={close} ref={formRef} />
         </Modal>
         <SimpleGrid
             cols={{ base: 1, sm: 1, md: 2, lg: 2, xl: 3 }}
