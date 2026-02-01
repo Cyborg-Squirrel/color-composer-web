@@ -106,7 +106,6 @@ function StripForm(props: IStripFormProps) {
             <Group pt="sm" justify="center" grow>
                 <NumberInput
                     withAsterisk
-                    hideControls
                     label="Brightness"
                     suffix="%"
                     placeholder=""
