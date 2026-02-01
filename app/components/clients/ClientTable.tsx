@@ -1,4 +1,4 @@
-import { Center, Modal } from "@mantine/core";
+import { Center } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { useContext, useEffect, useState } from "react";
 import { ClientStatus, getClients, type ILedStripClient } from "~/api/clients_api";
@@ -18,7 +18,7 @@ function ClientTable() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<any>(null);
     const [selectedClientUuid, setClientUuid] = useState<string>("");
-    const [drawerOpened, { open, close }] = useDisclosure(false);
+    const [modalOpened, { open, close }] = useDisclosure(false);
 
     useEffect(() => {
         const fetchClients = async () => {
@@ -61,10 +61,7 @@ function ClientTable() {
     }));
 
     return (<>
-        <Modal radius="md" size="lg" fullScreen={isMobile} opened={drawerOpened}
-            onClose={close} closeButtonProps={{ size: 'lg' }} title='Edit Client'>
-            <ClientForm client={clients.find(c => c.uuid == selectedClientUuid)} strips={strips} isMobile={isMobile} onSubmit={close} />
-        </Modal>
+        <ClientForm client={clients.find(c => c.uuid == selectedClientUuid)} strips={strips} isMobile={isMobile} closeForm={close} title={'Edit Client'} opened={modalOpened} />
         <TableWithTrailingButton dataRows={dataRows} dataCols={['Name', 'Address', 'Type']} onClicked={(uuid) => {
             setClientUuid(uuid);
             open();
