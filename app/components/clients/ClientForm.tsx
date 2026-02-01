@@ -1,4 +1,4 @@
-import { Button, Group, Modal, MultiSelect, NumberInput, Select, TextInput } from "@mantine/core";
+import { Button, Group, MultiSelect, NumberInput, Select, TextInput } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { clientTypes, colorOrders, PiClientType, type ILedStripClient } from "~/api/clients_api";
 import type { ILedStrip } from "~/api/strips_api";
@@ -7,9 +7,7 @@ interface IClientFormProps {
     client: ILedStripClient | undefined;
     strips: ILedStrip[];
     isMobile: boolean;
-    title: string;
-    opened: boolean;
-    closeForm: () => void;
+    onSubmit: () => void;
 }
 
 function ClientForm(props: IClientFormProps) {
@@ -68,9 +66,8 @@ function ClientForm(props: IClientFormProps) {
 
     // Note: mobile needs size 16 font for inputs to prevent zoom on focus
     // in my testing on iOS you can't zoom out once zoomed in
-    return <Modal radius="md" size="lg" fullScreen={props.isMobile} opened={props.opened}
-        onClose={props.closeForm} closeButtonProps={{ size: 'lg' }} title={props.title}>
-        <form onSubmit={form.onSubmit((values) => { console.log(values); props.closeForm(); })}>
+    return (
+        <form onSubmit={form.onSubmit((values) => { console.log(values); props.onSubmit(); })}>
             <TextInput
                 withAsterisk
                 label="Name"
@@ -173,19 +170,10 @@ function ClientForm(props: IClientFormProps) {
             />
 
             <Group justify="flex-end" mt="xl" grow={props.isMobile}>
-                <Button variant="default" type="button" onClick={() => {
-                    if (form.isDirty()) {
-                        if (confirm('Discard changes?')) {
-                            props.closeForm();
-                        }
-                    } else {
-                        props.closeForm();
-                    }
-                }}>Cancel</Button>
                 <Button type="submit">Submit</Button>
             </Group>
         </form>
-    </Modal>;
+    );
 }
 
 export default ClientForm;

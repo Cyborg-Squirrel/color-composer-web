@@ -1,4 +1,4 @@
-import { Center, SimpleGrid } from "@mantine/core";
+import { Center, Modal, SimpleGrid } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { useContext, useEffect, useState } from "react";
 import { getClients, type ILedStripClient } from "~/api/clients_api";
@@ -22,7 +22,7 @@ export function ClientGrid(props: IClientGridProps) {
     const [error, setError] = useState(null);
     const [hoverUuid, setHoverUuid] = useState<string | null>(null);
     const [clickedUuid, setClickedUuid] = useState<string | null>(null);
-    const [modalOpened, { open, close }] = useDisclosure(false);
+    const [drawerOpened, { open, close }] = useDisclosure(false);
     let isLightMode = useContext(IsLightModeContext);
     let isMobile = useContext(IsMobileContext);
 
@@ -77,7 +77,10 @@ export function ClientGrid(props: IClientGridProps) {
     ));
 
     return (<>
-        <ClientForm client={getSelectedModel(uiModels, clickedUuid)?.client} strips={getSelectedModel(uiModels, clickedUuid)?.strips ?? []} isMobile={isMobile} closeForm={close} title={'Edit Client'} opened={modalOpened} />
+        <Modal radius="md" size="lg" fullScreen={isMobile} opened={drawerOpened}
+            onClose={close} closeButtonProps={{ size: 'lg' }} title='Edit client'>
+            <ClientForm client={getSelectedModel(uiModels, clickedUuid)?.client} strips={getSelectedModel(uiModels, clickedUuid)?.strips ?? []} isMobile={isMobile} onSubmit={close} />
+        </Modal>
         <SimpleGrid
             cols={{ base: 1, sm: 1, md: 2, lg: 2, xl: 3 }}
             spacing={{ base: 10, sm: 'md' }}
