@@ -36,7 +36,7 @@ function StripForm(props: IStripFormProps) {
                     }
                 } else if (client?.clientType == NightDriverType) {
                     const channel = Number(value);
-                    if (!isNaN(channel)) {
+                    if (isNaN(channel) || channel < 1 || channel > 16) {
                         return `For NightDriver strips the pin represents a channel, and must be a number from 1-16.`;
                     }
                 }
