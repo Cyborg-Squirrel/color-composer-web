@@ -1,6 +1,6 @@
-import { Center, Modal } from "@mantine/core";
+import { Center } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
-import { useContext, useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { ClientStatus, getClients, type ILedStripClient } from "~/api/clients_api";
 import { getStrips, type ILedStrip } from "~/api/strips_api";
 import { IsLightModeContext } from "~/context/IsLightModeContext";
@@ -8,7 +8,7 @@ import { IsMobileContext } from "~/context/IsMobileContext";
 import { BoundedLoadingOverlay } from "../BoundedLoadingOverlay";
 import { getClientStatusColor, getClientStatusText, getLastSeenAtString } from "../TextHelper";
 import TableWithTrailingButton from "../layouts/ThreeColumnTable";
-import ClientForm, { type IClientFormHandle } from "./ClientForm";
+import ClientFormModal from "./ClientFormModal";
 
 function ClientTable() {
     const isLightMode = useContext(IsLightModeContext);
@@ -19,7 +19,6 @@ function ClientTable() {
     const [error, setError] = useState<any>(null);
     const [selectedClientUuid, setClientUuid] = useState<string>("");
     const [modalOpened, { open, close }] = useDisclosure(false);
-    const formRef = useRef<IClientFormHandle>(null);
 
     useEffect(() => {
         const fetchClients = async () => {
@@ -62,19 +61,14 @@ function ClientTable() {
     }));
 
     return (<>
-        <Modal radius="md" size="lg" fullScreen={isMobile} opened={modalOpened}
-            onClose={() => {
-                if (formRef.current?.isDirty() ?? false) {
-                    // TODO Mantine confirmation dialog
-                    if (confirm("You have unsaved changes. Are you sure you want to close?")) {
-                        close();
-                    }
-                } else {
-                    close();
-                }
-            }} closeButtonProps={{ size: 'lg' }} title='Edit Client'>
-            <ClientForm client={clients.find(c => c.uuid == selectedClientUuid)} strips={strips} isMobile={isMobile} closeForm={close} ref={formRef} />
-        </Modal>
+        <ClientFormModal
+            opened={modalOpened}
+            onClose={close}
+            isMobile={isMobile}
+            client={clients.find(c => c.uuid == selectedClientUuid)}
+            strips={strips}
+            title='Edit Client'
+        />
         <TableWithTrailingButton dataRows={dataRows} dataCols={['Name', 'Address', 'Type']} onClicked={(uuid) => {
             setClientUuid(uuid);
             open();
