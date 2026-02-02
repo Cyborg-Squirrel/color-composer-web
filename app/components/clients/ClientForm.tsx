@@ -180,22 +180,11 @@ const ClientForm = forwardRef<IClientFormHandle, IClientFormProps>((props, ref) 
             />
 
             <Group justify="flex-end" mt="xl" grow={props.isMobile}>
-                <Button variant="default" type="button" onClick={() => {
-                    if (form.isDirty()) {
-                        // TODO: Replace with a proper modal
-                        if (confirm('Discard changes?')) {
-                            props.closeForm();
-                        }
-                    } else {
-                        props.closeForm();
-                    }
-                }}>Cancel</Button>
+                <Button variant="default" type="button" onClick={props.closeForm}>Cancel</Button>
                 <Button type="submit">Submit</Button>
             </Group>
         </form>
     );
 });
-
-// ClientForm.displayName = 'ClientForm';
 
 export default ClientForm;
