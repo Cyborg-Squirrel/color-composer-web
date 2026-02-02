@@ -18,6 +18,7 @@ export interface IClientFormHandle {
 const ClientForm = forwardRef<IClientFormHandle, IClientFormProps>((props, ref) => {
     let client = props.client;
     let multipleStripsSupported = client?.clientType !== PiClientType;
+    let customPowerLimitSupported = client?.clientType == PiClientType;
     let clientStrips = client ? props.strips.filter(s => s.clientUuid == client.uuid) : [];
     const form = useForm({
         mode: 'uncontrolled',
@@ -167,10 +168,10 @@ const ClientForm = forwardRef<IClientFormHandle, IClientFormProps>((props, ref) 
             <NumberInput
                 pt="sm"
                 withAsterisk
-                disabled={client?.clientType !== PiClientType}
+                disabled={customPowerLimitSupported ? false : true}
                 label="Power Limit"
                 suffix=" mA"
-                placeholder={client?.clientType === PiClientType ? "The client's power limit" : "NightDriver clients have built time defined power limits"}
+                placeholder={client?.clientType === PiClientType ? "The client's power limit" : "NightDriver power limits are set in the build config"}
                 key={form.key('powerLimit')}
                 {...form.getInputProps('powerLimit')}
                 size={props.isMobile ? "md" : "sm"}
