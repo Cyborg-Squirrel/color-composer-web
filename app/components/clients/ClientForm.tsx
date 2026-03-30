@@ -1,7 +1,7 @@
 import { Button, Group, MultiSelect, NumberInput, Select, TextInput } from "@mantine/core";
 import { useForm } from "@mantine/form";
-import { forwardRef, useImperativeHandle } from "react";
-import { clientTypes, colorOrders, PiClientType, type ILedStripClient } from "~/api/clients_api";
+import { forwardRef, useImperativeHandle, useState } from "react";
+import { clientTypes, colorOrders, PiClientType, type ClientType, type ILedStripClient } from "~/api/clients_api";
 import type { ILedStrip } from "~/api/strips_api";
 
 interface IClientFormProps {
@@ -9,6 +9,7 @@ interface IClientFormProps {
     strips: ILedStrip[];
     isMobile: boolean;
     closeForm: () => void;
+    onSuccess: () => void;
 }
 
 export interface IClientFormHandle {
@@ -17,9 +18,14 @@ export interface IClientFormHandle {
 
 const ClientForm = forwardRef<IClientFormHandle, IClientFormProps>((props, ref) => {
     let client = props.client;
-    let multipleStripsSupported = client?.clientType !== PiClientType;
-    let customPowerLimitSupported = client?.clientType == PiClientType;
+    let isNewClient = client == undefined;
     let clientStrips = client ? props.strips.filter(s => s.clientUuid == client.uuid) : [];
+    const [clientType, setClientType] = useState<ClientType>(client?.clientType || PiClientType);
+    const [typeChanged, setTypeChanged] = useState(false);
+    let multipleStripsSupported = clientType !== PiClientType;
+    let customPowerLimitSupported = clientType === PiClientType;
+    const initialLedStrips = clientStrips.map(s => s.uuid);
+    const [ledStripsValue, setLedStripsValue] = useState<string[]>(initialLedStrips);
     const form = useForm({
         mode: 'uncontrolled',
         initialValues: {
@@ -27,7 +33,7 @@ const ClientForm = forwardRef<IClientFormHandle, IClientFormProps>((props, ref) 
             address: client?.address || '',
             wsPort: client?.wsPort || '',
             apiPort: client?.apiPort || '',
-            ledStrips: multipleStripsSupported ? clientStrips?.map(s => s.uuid) : clientStrips?.[0]?.uuid || undefined,
+            ledStrips: initialLedStrips,
             colorOrder: client?.colorOrder || 'RGB',
             clientType: client?.clientType || PiClientType,
             powerLimit: client?.powerLimit || '',
@@ -70,6 +76,8 @@ const ClientForm = forwardRef<IClientFormHandle, IClientFormProps>((props, ref) 
         }
     });
 
+    form.watch('ledStrips', ({ value }) => setLedStripsValue(value as string[]));
+
     useImperativeHandle(ref, () => ({
         isDirty: () => form.isDirty(),
     }));
@@ -77,7 +85,7 @@ const ClientForm = forwardRef<IClientFormHandle, IClientFormProps>((props, ref) 
     // Note: mobile needs size 16 font for inputs to prevent zoom on focus
     // in my testing on iOS you can't zoom out once zoomed in
     return (
-        <form onSubmit={form.onSubmit((values) => { console.log(values); props.closeForm(); })}>
+        <form onSubmit={form.onSubmit((values) => { console.log(values); props.onSuccess(); })}>
             <TextInput
                 withAsterisk
                 label="Name"
@@ -100,13 +108,13 @@ const ClientForm = forwardRef<IClientFormHandle, IClientFormProps>((props, ref) 
             {multipleStripsSupported ?
                 <MultiSelect
                     pt="sm"
-                    label="LED Strip"
+                    label="LED Strips"
                     placeholder="Select the LED strips connected to this client"
                     data={props.strips.map(s => ({ value: s.uuid, label: s.name }))}
                     key={form.key('ledStrips')}
                     {...form.getInputProps('ledStrips')}
                     size={props.isMobile ? "md" : "sm"}
-                    disabled={props.strips.length == 0}
+                    disabled={typeChanged}
                 /> :
                 <Select
                     pt="sm"
@@ -114,9 +122,11 @@ const ClientForm = forwardRef<IClientFormHandle, IClientFormProps>((props, ref) 
                     placeholder="Select the LED strip connected to this client"
                     data={props.strips.map(s => ({ value: s.uuid, label: s.name }))}
                     key={form.key('ledStrips')}
-                    {...form.getInputProps('ledStrips')}
+                    defaultValue={ledStripsValue[0] ?? null}
+                    onChange={(value) => form.setFieldValue('ledStrips', value ? [value] : [])}
+                    error={form.errors.ledStrips}
                     size={props.isMobile ? "md" : "sm"}
-                    disabled={props.strips.length == 0}
+                    disabled={typeChanged}
                 />}
 
             <Group pt="sm" justify="center" grow>
@@ -161,6 +171,14 @@ const ClientForm = forwardRef<IClientFormHandle, IClientFormProps>((props, ref) 
                     data={clientTypes}
                     key={form.key('clientType')}
                     {...form.getInputProps('clientType')}
+                    onChange={(value) => {
+                        form.setFieldValue('clientType', value as ClientType);
+                        setClientType(value as ClientType);
+                        // Client changed flag is used to determine if the user can add/remove strips.
+                        // For new clients this is always allowed.
+                        setTypeChanged(!isNewClient && value != client?.clientType);
+                    }}
+                    disabled={ledStripsValue.length > 0}
                     size={props.isMobile ? "md" : "sm"}
                 />
             </Group>

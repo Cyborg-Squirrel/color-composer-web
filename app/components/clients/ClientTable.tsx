@@ -1,8 +1,8 @@
 import { Center } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
-import { useContext, useEffect, useState } from "react";
-import { ClientStatus, getClients, type ILedStripClient } from "~/api/clients_api";
-import { getStrips, type ILedStrip } from "~/api/strips_api";
+import { useContext, useState } from "react";
+import { ClientStatus, type ILedStripClient } from "~/api/clients_api";
+import type { ILedStrip } from "~/api/strips_api";
 import { IsLightModeContext } from "~/context/IsLightModeContext";
 import { IsMobileContext } from "~/context/IsMobileContext";
 import { BoundedLoadingOverlay } from "../BoundedLoadingOverlay";
@@ -10,48 +10,31 @@ import { getClientStatusColor, getClientStatusText, getLastSeenAtString } from "
 import TableWithTrailingButton from "../layouts/ThreeColumnTable";
 import ClientFormModal from "./ClientFormModal";
 
-function ClientTable() {
+interface IClientTableProps {
+    clients: ILedStripClient[] | undefined;
+    strips: ILedStrip[] | undefined;
+    onClientChanged?: () => void;
+}
+
+function ClientTable({ clients, strips, onClientChanged }: IClientTableProps) {
     const isLightMode = useContext(IsLightModeContext);
     const isMobile = useContext(IsMobileContext);
-    const [clients, setClients] = useState<ILedStripClient[]>([]);
-    const [strips, setStrips] = useState<ILedStrip[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<any>(null);
     const [selectedClientUuid, setClientUuid] = useState<string>("");
     const [modalOpened, { open, close }] = useDisclosure(false);
 
-    useEffect(() => {
-        const fetchClients = async () => {
-            try {
-                const [strips, clients] = await Promise.all([
-                    getStrips(),
-                    getClients()
-                ]);
-                setStrips(strips);
-                setClients(clients.sort((a, b) =>
-                    getClientStatusPrecedence(a.status) >= getClientStatusPrecedence(b.status) ? 1 : -1));
-                setLoading(false);
-            } catch (err) {
-                setError(err);
-                setLoading(false);
-            }
-        };
-
-        fetchClients();
-    }, []);
-
-    if (loading) {
+    if (clients === undefined || strips === undefined) {
         return <BoundedLoadingOverlay loading />;
-    } else if (error) {
-        console.log('Showing error ' + error);
-        return <Center>
-            <div>
-                Error fetching clients
-            </div>
-        </Center>;
     }
 
-    const dataRows = clients.map(c => ({
+    const handleEditSuccess = () => {
+        close();
+        onClientChanged?.();
+    };
+
+    const sortedClients = [...clients].sort((a, b) =>
+        getClientStatusPrecedence(a.status) >= getClientStatusPrecedence(b.status) ? 1 : -1);
+
+    const dataRows = sortedClients.map(c => ({
         name: c.name,
         uuid: c.uuid,
         status: c.status == ClientStatus.Offline ? 'Offline since ' + getLastSeenAtString(c.lastSeenAt) : getClientStatusText(c.status),
@@ -64,6 +47,7 @@ function ClientTable() {
         <ClientFormModal
             opened={modalOpened}
             onClose={close}
+            onSuccess={handleEditSuccess}
             isMobile={isMobile}
             client={clients.find(c => c.uuid == selectedClientUuid)}
             strips={strips}
