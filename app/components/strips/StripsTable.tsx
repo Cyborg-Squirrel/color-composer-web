@@ -1,18 +1,22 @@
-import { Center, Modal } from "@mantine/core";
+import { Center } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
-import { useContext, useEffect, useState } from "react";
-import { getClients, type ILedStripClient } from "~/api/clients_api";
+import { useCallback, useContext, useEffect, useState } from "react";
+import type { ILedStripClient } from "~/api/clients_api";
 import { getStrips, type ILedStrip } from "~/api/strips_api";
 import { IsLightModeContext } from "~/context/IsLightModeContext";
 import { IsMobileContext } from "~/context/IsMobileContext";
 import { BoundedLoadingOverlay } from "../BoundedLoadingOverlay";
 import { getStripStatusColor, getStripStatusText } from "../TextHelper";
 import TableWithTrailingButton from "../layouts/ThreeColumnTable";
-import StripForm from "./StripForm";
+import StripFormModal from "./StripFormModal";
 
-export function StripsTable() {
+interface IStripsTableProps {
+    clients: ILedStripClient[] | undefined;
+    refreshKey?: number;
+}
+
+export function StripsTable({ clients, refreshKey }: IStripsTableProps) {
     const [strips, setStrips] = useState<ILedStrip[]>([]);
-    const [clients, setClients] = useState<ILedStripClient[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<any>(null);
     const [selectedStripUuid, setStripUuid] = useState<string>("");
@@ -20,26 +24,21 @@ export function StripsTable() {
     const isLightMode = useContext(IsLightModeContext);
     const isMobile = useContext(IsMobileContext);
 
-    useEffect(() => {
-        const fetchStrips = async () => {
-            try {
-                const [strips, clients] = await Promise.all([
-                    getStrips(),
-                    getClients()
-                ]);
-                setStrips(strips);
-                setClients(clients);
-                setLoading(false);
-            } catch (err) {
-                setError(err);
-                setLoading(false);
-            }
-        };
-
-        fetchStrips();
+    const fetchStrips = useCallback(async () => {
+        try {
+            setStrips(await getStrips());
+            setLoading(false);
+        } catch (err) {
+            setError(err);
+            setLoading(false);
+        }
     }, []);
 
-    if (loading) {
+    useEffect(() => {
+        fetchStrips();
+    }, [fetchStrips, refreshKey]);
+
+    if (loading || clients === undefined) {
         return <BoundedLoadingOverlay loading />;
     } else if (error) {
         console.log('Showing error ' + error);
@@ -49,6 +48,11 @@ export function StripsTable() {
             </div>
         </Center>
     }
+
+    const handleEditSuccess = () => {
+        close();
+        fetchStrips();
+    };
 
     const dataRows = strips.map(s => ({
         name: s.name,
@@ -60,10 +64,15 @@ export function StripsTable() {
     }));
 
     return (<>
-        <Modal radius="md" size="lg" fullScreen={isMobile} opened={modalOpened}
-            onClose={close} closeButtonProps={{ size: 'lg' }} title='Edit Strip'>
-            <StripForm strip={strips.find(c => c.uuid == selectedStripUuid)} clients={clients} isMobile={isMobile} onSubmit={close} />
-        </Modal>
+        <StripFormModal
+            opened={modalOpened}
+            onClose={close}
+            isMobile={isMobile}
+            strip={strips.find(s => s.uuid === selectedStripUuid)}
+            clients={clients}
+            title='Edit Strip'
+            onSuccess={handleEditSuccess}
+        />
         <TableWithTrailingButton dataRows={dataRows} dataCols={['Name', 'Length', 'Brightness']} onClicked={(uuid) => {
             setStripUuid(uuid);
             open();

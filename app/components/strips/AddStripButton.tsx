@@ -1,14 +1,16 @@
 import { Button } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { useContext } from "react";
+import type { ILedStripClient } from "~/api/clients_api";
 import { IsMobileContext } from "~/context/IsMobileContext";
-import ClientFormModal from "./ClientFormModal";
+import StripFormModal from "./StripFormModal";
 
-interface IAddClientButtonProps {
+interface IAddStripButtonProps {
+    clients: ILedStripClient[];
     onSuccess?: () => void;
 }
 
-function AddClientButton({ onSuccess }: IAddClientButtonProps) {
+function AddStripButton({ clients, onSuccess }: IAddStripButtonProps) {
     const [modalOpened, { open, close }] = useDisclosure(false);
     const isMobile = useContext(IsMobileContext);
 
@@ -18,17 +20,17 @@ function AddClientButton({ onSuccess }: IAddClientButtonProps) {
     };
 
     return (<>
-        <ClientFormModal
+        <StripFormModal
             opened={modalOpened}
             onClose={close}
-            onSuccess={handleSuccess}
             isMobile={isMobile}
-            client={undefined}
-            strips={[]}
-            title='Add Client'
+            strip={undefined}
+            clients={clients}
+            title='Add Strip'
+            onSuccess={handleSuccess}
         />
-        <Button onClick={open}>Add Client</Button>
+        <Button onClick={open}>Add Strip</Button>
     </>)
 }
 
-export default AddClientButton;
+export default AddStripButton;

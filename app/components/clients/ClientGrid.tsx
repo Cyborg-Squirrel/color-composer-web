@@ -1,7 +1,7 @@
 import { Center, SimpleGrid } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { useContext, useEffect, useState } from "react";
-import { getClients, type ILedStripClient } from "~/api/clients_api";
+import type { ILedStripClient } from "~/api/clients_api";
 import { getStrips, type ILedStrip } from "~/api/strips_api";
 import { IsLightModeContext } from "~/context/IsLightModeContext";
 import { IsMobileContext } from "~/context/IsMobileContext";
@@ -9,15 +9,17 @@ import { BoundedLoadingOverlay } from "../BoundedLoadingOverlay";
 import ClientCard from "./ClientCard";
 import ClientFormModal from "./ClientFormModal";
 
-interface IClientGridProps { }
+interface IClientGridProps {
+    clients: ILedStripClient[] | undefined;
+}
 
 interface IClientUiModel {
     client: ILedStripClient;
     strips: ILedStrip[];
 }
 
-export function ClientGrid(props: IClientGridProps) {
-    const [uiModels, setUiModels] = useState<IClientUiModel[]>([]);
+export function ClientGrid({ clients }: IClientGridProps) {
+    const [strips, setStrips] = useState<ILedStrip[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [hoverUuid, setHoverUuid] = useState<string | null>(null);
@@ -27,28 +29,16 @@ export function ClientGrid(props: IClientGridProps) {
     let isMobile = useContext(IsMobileContext);
 
     useEffect(() => {
-        async function fetchData() {
-            let promise = Promise.all([getClients(), getStrips()]);
-            let result = await promise;
-            let models = result[0].map<IClientUiModel>((c) => ({
-                client: c,
-                strips: result[1].filter((s) => s.clientUuid == c.uuid)
-            }));
-            setUiModels(models);
-        }
-        if (loading) {
-            fetchData().then(() => {
-                setLoading(false);
-            }).catch((error) => {
-                setError(error);
-                setLoading(false);
-            });
-        }
-
-        return () => { };
+        getStrips().then(fetchedStrips => {
+            setStrips(fetchedStrips);
+            setLoading(false);
+        }).catch((err) => {
+            setError(err);
+            setLoading(false);
+        });
     }, []);
 
-    if (loading) {
+    if (loading || clients === undefined) {
         return <BoundedLoadingOverlay loading />
     } else if (error) {
         console.log('Showing error ' + error);
@@ -58,6 +48,11 @@ export function ClientGrid(props: IClientGridProps) {
             </div>
         </Center>
     }
+
+    const uiModels: IClientUiModel[] = clients.map(c => ({
+        client: c,
+        strips: strips.filter(s => s.clientUuid == c.uuid),
+    }));
 
     const gridItems = uiModels.map((m) => (
         <ClientCard
@@ -76,13 +71,16 @@ export function ClientGrid(props: IClientGridProps) {
         />
     ));
 
+    const selectedModel = uiModels.find(m => m.client.uuid == clickedUuid);
+
     return (<>
         <ClientFormModal
             opened={modalOpened}
             onClose={close}
+            onSuccess={close}
             isMobile={isMobile}
-            client={getSelectedModel(uiModels, clickedUuid)?.client}
-            strips={getSelectedModel(uiModels, clickedUuid)?.strips ?? []}
+            client={selectedModel?.client}
+            strips={selectedModel?.strips ?? []}
             title='Edit client'
         />
         <SimpleGrid
@@ -92,8 +90,4 @@ export function ClientGrid(props: IClientGridProps) {
             {gridItems}
         </SimpleGrid></>
     );
-}
-
-function getSelectedModel(uiModels: IClientUiModel[], selectedClientUuid: string | null) {
-    return uiModels.find(m => m.client.uuid == selectedClientUuid);
 }

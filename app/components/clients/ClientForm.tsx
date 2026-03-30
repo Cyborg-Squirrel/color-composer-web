@@ -1,7 +1,7 @@
 import { Button, Group, MultiSelect, NumberInput, Select, TextInput } from "@mantine/core";
 import { useForm } from "@mantine/form";
-import { forwardRef, useImperativeHandle } from "react";
-import { clientTypes, colorOrders, PiClientType, type ILedStripClient } from "~/api/clients_api";
+import { forwardRef, useImperativeHandle, useState } from "react";
+import { clientTypes, colorOrders, PiClientType, type ClientType, type ILedStripClient } from "~/api/clients_api";
 import type { ILedStrip } from "~/api/strips_api";
 
 interface IClientFormProps {
@@ -9,6 +9,7 @@ interface IClientFormProps {
     strips: ILedStrip[];
     isMobile: boolean;
     closeForm: () => void;
+    onSuccess: () => void;
 }
 
 export interface IClientFormHandle {
@@ -17,9 +18,10 @@ export interface IClientFormHandle {
 
 const ClientForm = forwardRef<IClientFormHandle, IClientFormProps>((props, ref) => {
     let client = props.client;
-    let multipleStripsSupported = client?.clientType !== PiClientType;
-    let customPowerLimitSupported = client?.clientType == PiClientType;
     let clientStrips = client ? props.strips.filter(s => s.clientUuid == client.uuid) : [];
+    const [clientType, setClientType] = useState<ClientType>(client?.clientType || PiClientType);
+    let multipleStripsSupported = clientType !== PiClientType;
+    let customPowerLimitSupported = clientType === PiClientType;
     const form = useForm({
         mode: 'uncontrolled',
         initialValues: {
@@ -77,7 +79,7 @@ const ClientForm = forwardRef<IClientFormHandle, IClientFormProps>((props, ref) 
     // Note: mobile needs size 16 font for inputs to prevent zoom on focus
     // in my testing on iOS you can't zoom out once zoomed in
     return (
-        <form onSubmit={form.onSubmit((values) => { console.log(values); props.closeForm(); })}>
+        <form onSubmit={form.onSubmit((values) => { console.log(values); props.onSuccess(); })}>
             <TextInput
                 withAsterisk
                 label="Name"
@@ -161,6 +163,10 @@ const ClientForm = forwardRef<IClientFormHandle, IClientFormProps>((props, ref) 
                     data={clientTypes}
                     key={form.key('clientType')}
                     {...form.getInputProps('clientType')}
+                    onChange={(value) => {
+                        form.setFieldValue('clientType', value as ClientType);
+                        setClientType(value as ClientType);
+                    }}
                     size={props.isMobile ? "md" : "sm"}
                 />
             </Group>

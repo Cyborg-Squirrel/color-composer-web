@@ -2,21 +2,21 @@ import { Button, Group, Modal, useModalsStack } from "@mantine/core";
 import { useRef } from "react";
 import type { ILedStripClient } from "~/api/clients_api";
 import type { ILedStrip } from "~/api/strips_api";
-import ClientForm, { type IClientFormHandle } from "./ClientForm";
+import StripForm, { type IStripFormHandle } from "./StripForm";
 
-interface IClientFormModalProps {
+interface IStripFormModalProps {
     opened: boolean;
     onClose: () => void;
-    onSuccess: () => void;
     isMobile: boolean;
-    client: ILedStripClient | undefined;
-    strips: ILedStrip[];
+    strip: ILedStrip | undefined;
+    clients: ILedStripClient[];
     title: string;
+    onSuccess: () => void;
 }
 
-function ClientFormModal(props: IClientFormModalProps) {
+function StripFormModal(props: IStripFormModalProps) {
     const stack = useModalsStack(['first', 'second']);
-    const formRef = useRef<IClientFormHandle>(null);
+    const formRef = useRef<IStripFormHandle>(null);
 
     const handleClose = () => {
         if (formRef.current?.isDirty() ?? false) {
@@ -45,9 +45,9 @@ function ClientFormModal(props: IClientFormModalProps) {
                 closeButtonProps={{ size: 'lg' }}
                 title={props.title}
             >
-                <ClientForm
-                    client={props.client}
-                    strips={props.strips}
+                <StripForm
+                    strip={props.strip}
+                    clients={props.clients}
                     isMobile={props.isMobile}
                     closeForm={handleClose}
                     onSuccess={props.onSuccess}
@@ -74,4 +74,4 @@ function ClientFormModal(props: IClientFormModalProps) {
     );
 }
 
-export default ClientFormModal;
+export default StripFormModal;
