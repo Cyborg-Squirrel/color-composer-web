@@ -91,6 +91,34 @@ export async function getClients(): Promise<ILedStripClient[]> {
     }
 }
 
+export async function updateClient(client: Partial<ILedStripClient> & { uuid: string }): Promise<void> {
+    let apiUrl = import.meta.env.VITE_API_URL;
+    let mockMode = import.meta.env.VITE_MOCK_MODE;
+    if (mockMode == 'false' && apiUrl != null) {
+        const res = await fetch(apiUrl + '/client/' + client.uuid, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                name: client.name,
+                address: client.address,
+                colorOrder: client.colorOrder,
+                apiPort: client.apiPort,
+                wsPort: client.wsPort,
+                powerLimit: client.powerLimit
+            })
+        });
+        
+        if (!res.ok) {
+            throw new Error(`Failed to update client: ${res.status} ${res.statusText}`);
+        }
+    } else {
+        // Mock mode, simulate the update
+        await delay(500);
+    }
+}
+
 function delay(ms: number): Promise<void> {
   return new Promise(resolve => setTimeout(resolve, ms));
 }

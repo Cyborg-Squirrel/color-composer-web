@@ -3,6 +3,7 @@ import { useForm } from "@mantine/form";
 import { forwardRef, useImperativeHandle, useState } from "react";
 import { NightDriverType, PiClientType, type ILedStripClient } from "~/api/clients_api";
 import { blendModes, createStrip, piPins, updateStrip, type BlendMode, type ILedStrip } from "~/api/strips_api";
+import { FormSubmitButton } from "~/components/forms/FormSubmitButton";
 
 interface IStripFormProps {
     clients: ILedStripClient[];
@@ -220,7 +221,7 @@ const StripForm = forwardRef<IStripFormHandle, IStripFormProps>((props, ref) => 
 
             <Group justify="flex-end" mt="xl" grow={props.isMobile}>
                 <Button variant="default" type="button" onClick={props.closeForm}>Cancel</Button>
-                <Button type="submit" loading={submitting}>Submit</Button>
+                <FormSubmitButton disabled={!form.isDirty()} loading={submitting} />
             </Group>
         </form>
     );

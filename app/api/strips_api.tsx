@@ -70,15 +70,29 @@ export async function createStrip(data: {
     brightness?: number;
     blendMode?: BlendMode;
 }): Promise<string> {
-    const apiUrl = import.meta.env.VITE_API_URL;
-    const res = await fetch(apiUrl + '/strip', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
-    });
-    if (!res.ok) throw new Error(`Failed to create strip: ${res.status}`);
-    const json = await res.json();
-    return json.uuid;
+    let apiUrl = import.meta.env.VITE_API_URL;
+    let mockMode = import.meta.env.VITE_MOCK_MODE;
+    if (mockMode == 'false' && apiUrl != null) {
+        const res = await fetch(apiUrl + '/strip', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data),
+        });
+        if (!res.ok) throw new Error(`Failed to create strip: ${res.status}`);
+        const json = await res.json();
+        return json.uuid;
+    } else {
+        if (!apiUrl) {
+            console.log('API_URL environment variable is not set. ' +
+                'See https://vite.dev/guide/env-and-mode ' +
+                'on how to configure environment variables.');
+        }
+
+        // Artificial delay before returning mock content
+        await delay(500);
+        // Return a mock UUID
+        return 'mock-uuid-' + Math.floor(Math.random() * 10000);
+    }
 }
 
 export async function updateStrip(uuid: string, data: {
@@ -90,13 +104,26 @@ export async function updateStrip(uuid: string, data: {
     blendMode?: BlendMode;
     clientUuid?: string;
 }): Promise<void> {
-    const apiUrl = import.meta.env.VITE_API_URL;
-    const res = await fetch(apiUrl + '/strip/' + uuid, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
-    });
-    if (!res.ok) throw new Error(`Failed to update strip: ${res.status}`);
+    let apiUrl = import.meta.env.VITE_API_URL;
+    let mockMode = import.meta.env.VITE_MOCK_MODE;
+    if (mockMode == 'false' && apiUrl != null) {
+        const res = await fetch(apiUrl + '/strip/' + uuid, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data),
+        });
+        if (!res.ok) throw new Error(`Failed to update strip: ${res.status}`);
+    } else {
+        if (!apiUrl) {
+            console.log('API_URL environment variable is not set. ' +
+                'See https://vite.dev/guide/env-and-mode ' +
+                'on how to configure environment variables.');
+        }
+
+        // Artificial delay before returning mock content
+        await delay(500);
+        // Mock success - no-op in mock mode
+    }
 }
 
 function delay(ms: number): Promise<void> {

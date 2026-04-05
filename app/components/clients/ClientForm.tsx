@@ -1,8 +1,10 @@
 import { Button, Group, MultiSelect, NumberInput, Select, TextInput } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { forwardRef, useImperativeHandle, useState } from "react";
-import { clientTypes, colorOrders, PiClientType, type ClientType, type ILedStripClient } from "~/api/clients_api";
+import { updateClient, clientTypes, colorOrders, PiClientType, type ClientType, type ILedStripClient } from "~/api/clients_api";
 import type { ILedStrip } from "~/api/strips_api";
+import { updateStrip } from "~/api/strips_api";
+import { FormSubmitButton } from "~/components/forms/FormSubmitButton";
 
 interface IClientFormProps {
     client: ILedStripClient | undefined;
@@ -14,18 +16,23 @@ interface IClientFormProps {
 
 export interface IClientFormHandle {
     isDirty: () => boolean;
+    isSubmitting: () => boolean;
 }
 
 const ClientForm = forwardRef<IClientFormHandle, IClientFormProps>((props, ref) => {
     let client = props.client;
     let isNewClient = client == undefined;
     let clientStrips = client ? props.strips.filter(s => s.clientUuid == client.uuid) : [];
+    const initialLedStrips = clientStrips.map(s => s.uuid);
+
     const [clientType, setClientType] = useState<ClientType>(client?.clientType || PiClientType);
     const [typeChanged, setTypeChanged] = useState(false);
+    const [submitting, setSubmitting] = useState(false);
+    const [ledStripsValue, setLedStripsValue] = useState<string[]>(initialLedStrips);
+
     let multipleStripsSupported = clientType !== PiClientType;
     let customPowerLimitSupported = clientType === PiClientType;
-    const initialLedStrips = clientStrips.map(s => s.uuid);
-    const [ledStripsValue, setLedStripsValue] = useState<string[]>(initialLedStrips);
+    
     const form = useForm({
         mode: 'uncontrolled',
         initialValues: {
@@ -80,12 +87,23 @@ const ClientForm = forwardRef<IClientFormHandle, IClientFormProps>((props, ref) 
 
     useImperativeHandle(ref, () => ({
         isDirty: () => form.isDirty(),
+        isSubmitting: () => submitting,
     }));
 
     // Note: mobile needs size 16 font for inputs to prevent zoom on focus
     // in my testing on iOS you can't zoom out once zoomed in
     return (
-        <form onSubmit={form.onSubmit((values) => { console.log(values); props.onSuccess(); })}>
+        <form onSubmit={form.onSubmit(async (values) => {
+            setSubmitting(true);
+            const updatePromise = updateClient(values, client?.uuid);
+            const currentStripUuids = values.ledStrips as string[];
+            const removedStrips = clientStrips.filter(strip => !currentStripUuids.includes(strip.uuid));
+            const stripUpdatePromises = removedStrips.map(strip => updateStrip(strip.uuid, { pin: null }));
+
+            await Promise.all([updatePromise, ...stripUpdatePromises]);
+            props.onSuccess();
+            setSubmitting(false);
+        })}>
             <TextInput
                 withAsterisk
                 label="Name"
@@ -198,8 +216,8 @@ const ClientForm = forwardRef<IClientFormHandle, IClientFormProps>((props, ref) 
             />
 
             <Group justify="flex-end" mt="xl" grow={props.isMobile}>
-                <Button variant="default" type="button" onClick={props.closeForm}>Cancel</Button>
-                <Button type="submit">Submit</Button>
+                <Button variant="default" type="button" onClick={props.closeForm} disabled={submitting}>Cancel</Button>
+                <FormSubmitButton disabled={!form.isDirty()} loading={submitting} />
             </Group>
         </form>
     );
