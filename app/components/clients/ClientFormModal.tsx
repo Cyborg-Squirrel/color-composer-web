@@ -19,6 +19,9 @@ function ClientFormModal(props: IClientFormModalProps) {
     const formRef = useRef<IClientFormHandle>(null);
 
     const handleClose = () => {
+        if (formRef.current?.isSubmitting() ?? false) {
+            return;
+        }
         if (formRef.current?.isDirty() ?? false) {
             stack.open('second');
         } else {
