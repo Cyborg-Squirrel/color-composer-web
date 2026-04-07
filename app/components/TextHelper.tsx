@@ -1,4 +1,4 @@
-import { ClientStatus } from "~/api/clients_api";
+import { ClientStatus } from "~/api/clients/clients_api";
 import { statusColors } from "./status";
 
 export function getLastSeenAtString(lastSeenAt: number) {

@@ -1,8 +1,8 @@
 import { Button, Group, NumberInput, Select, Text, TextInput } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { forwardRef, useImperativeHandle, useState } from "react";
-import { NightDriverType, PiClientType, type ILedStripClient } from "~/api/clients_api";
-import { blendModes, piPins, type BlendMode, type ILedStrip } from "~/api/strips_api";
+import { NightDriverType, PiClientType, type ILedStripClient } from "~/api/clients/clients_api";
+import { blendModes, piPins, type BlendMode, type ILedStrip } from "~/api/strips/strips_api";
 import { FormSubmitButton } from "~/components/forms/FormSubmitButton";
 import { useStripApi } from "~/context/api/StripApiContext";
 

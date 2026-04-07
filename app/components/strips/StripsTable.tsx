@@ -1,8 +1,8 @@
 import { Center } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { useCallback, useContext, useEffect, useState } from "react";
-import type { ILedStripClient } from "~/api/clients_api";
-import type { ILedStrip } from "~/api/strips_api";
+import type { ILedStripClient } from "~/api/clients/clients_api";
+import type { ILedStrip } from "~/api/strips/strips_api";
 import { useStripApi } from "~/context/api/StripApiContext";
 import { IsLightModeContext } from "~/context/ui/IsLightModeContext";
 import { IsMobileContext } from "~/context/ui/IsMobileContext";

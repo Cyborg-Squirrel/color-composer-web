@@ -1,6 +1,6 @@
 import { ActionIcon, Card, Divider, Space, Text } from "@mantine/core";
-import { ClientStatus, type ILedStripClient } from "~/api/clients_api";
-import { type ILedStrip } from "~/api/strips_api";
+import { ClientStatus, type ILedStripClient } from "~/api/clients/clients_api";
+import { type ILedStrip } from "~/api/strips/strips_api";
 import { getClientStatusColor, getClientStatusText, getLastSeenAtString } from "../TextHelper";
 import classes from './ClientGrid.module.css';
 

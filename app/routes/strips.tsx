@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import type { ILedStripClient } from "~/api/clients_api";
+import type { ILedStripClient } from "~/api/clients/clients_api";
 import BasicAppShell from "~/components/layouts/BasicAppShell";
 import AddStripButton from "~/components/strips/AddStripButton";
 import { StripsTable } from "~/components/strips/StripsTable";

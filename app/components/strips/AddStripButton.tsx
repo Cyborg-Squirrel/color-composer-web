@@ -1,7 +1,7 @@
 import { Button } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { useContext } from "react";
-import type { ILedStripClient } from "~/api/clients_api";
+import type { ILedStripClient } from "~/api/clients/clients_api";
 import { IsMobileContext } from "~/context/ui/IsMobileContext";
 import StripFormModal from "./StripFormModal";
 

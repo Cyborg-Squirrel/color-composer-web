@@ -1,7 +1,7 @@
 import { useDisclosure } from "@mantine/hooks";
 import { useContext, useEffect, useState } from "react";
-import { ClientStatus, type ILedStripClient } from "~/api/clients_api";
-import type { ILedStrip } from "~/api/strips_api";
+import { ClientStatus, type ILedStripClient } from "~/api/clients/clients_api";
+import type { ILedStrip } from "~/api/strips/strips_api";
 import { useClientApi } from "~/context/api/ClientApiContext";
 import { useStripApi } from "~/context/api/StripApiContext";
 import { IsLightModeContext } from "~/context/ui/IsLightModeContext";
