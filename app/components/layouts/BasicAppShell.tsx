@@ -1,7 +1,7 @@
 import { AppShell, Box, Burger, Code, Divider, Group, Space, Text, Title } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { useContext, type ReactElement, type ReactNode } from 'react';
-import { IsMobileContext } from '~/context/IsMobileContext';
+import { IsMobileContext } from '~/context/ui/IsMobileContext';
 import { ColorSchemeToggle } from '../ColorSchemeToggle';
 import Navbar from './Navbar';
 

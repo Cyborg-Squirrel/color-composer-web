@@ -1,6 +1,6 @@
 import { ActionIcon, useMantineColorScheme } from '@mantine/core';
 import { useContext } from 'react';
-import { IsLightModeContext } from '~/context/IsLightModeContext';
+import { IsLightModeContext } from '~/context/ui/IsLightModeContext';
 
 export function ColorSchemeToggle(props: {hidden: boolean}) {
   const { setColorScheme } = useMantineColorScheme();

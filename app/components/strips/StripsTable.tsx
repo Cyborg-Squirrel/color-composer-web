@@ -2,9 +2,10 @@ import { Center } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { useCallback, useContext, useEffect, useState } from "react";
 import type { ILedStripClient } from "~/api/clients_api";
-import { getStrips, type ILedStrip } from "~/api/strips_api";
-import { IsLightModeContext } from "~/context/IsLightModeContext";
-import { IsMobileContext } from "~/context/IsMobileContext";
+import type { ILedStrip } from "~/api/strips_api";
+import { useStripApi } from "~/context/api/StripApiContext";
+import { IsLightModeContext } from "~/context/ui/IsLightModeContext";
+import { IsMobileContext } from "~/context/ui/IsMobileContext";
 import { BoundedLoadingOverlay } from "../BoundedLoadingOverlay";
 import { getStripStatusColor, getStripStatusText } from "../TextHelper";
 import TableWithTrailingButton from "../layouts/ThreeColumnTable";
@@ -16,6 +17,7 @@ interface IStripsTableProps {
 }
 
 export function StripsTable({ clients, refreshKey }: IStripsTableProps) {
+    const stripApi = useStripApi().stripApi!;
     const [strips, setStrips] = useState<ILedStrip[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<any>(null);
@@ -26,7 +28,7 @@ export function StripsTable({ clients, refreshKey }: IStripsTableProps) {
 
     const fetchStrips = useCallback(async () => {
         try {
-            setStrips(await getStrips());
+            setStrips(await stripApi.getStrips());
             setLoading(false);
         } catch (err) {
             setError(err);

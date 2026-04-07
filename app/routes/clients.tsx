@@ -1,10 +1,8 @@
-import { useEffect, useState } from "react";
-import { getClients, type ILedStripClient } from "~/api/clients_api";
-import { getStrips, type ILedStrip } from "~/api/strips_api";
+import { useState } from "react";
 import AddClientButton from "~/components/clients/AddClientButton";
 import ClientTable from "~/components/clients/ClientTable";
 import BasicAppShell from "~/components/layouts/BasicAppShell";
-import UiContext from "~/context/UiContext";
+import { Layout } from "~/root";
 import type { Route } from "./+types/home";
 
 export function meta({ }: Route.MetaArgs) {
@@ -15,27 +13,13 @@ export function meta({ }: Route.MetaArgs) {
 }
 
 export default function Clients() {
-  const [clients, setClients] = useState<ILedStripClient[] | undefined>(undefined);
-  const [strips, setStrips] = useState<ILedStrip[] | undefined>(undefined);
   const [refreshKey, setRefreshKey] = useState(0);
-
-  useEffect(() => {
-    Promise.all([getClients(), getStrips()])
-      .then(([fetchedClients, fetchedStrips]) => {
-        setClients(fetchedClients);
-        setStrips(fetchedStrips);
-      })
-      .catch(err => {
-        console.error('Error fetching data', err);
-      });
-  }, [refreshKey]);
-
   const handleClientMutated = () => setRefreshKey(k => k + 1);
 
-  return <UiContext>
+  return <Layout>
     <BasicAppShell title="Color Composer" pageName="Clients" topPadding={"sm"}
       boxCssEnabled={true} addButton={<AddClientButton onSuccess={handleClientMutated} />}>
-      <ClientTable clients={clients} strips={strips} onClientChanged={handleClientMutated} />
+      <ClientTable refreshKey={refreshKey} onClientChanged={handleClientMutated} />
     </BasicAppShell>
-  </UiContext>;
+  </Layout>;
 }

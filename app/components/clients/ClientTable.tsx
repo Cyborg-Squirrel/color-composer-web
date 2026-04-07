@@ -1,26 +1,43 @@
-import { Center } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { ClientStatus, type ILedStripClient } from "~/api/clients_api";
 import type { ILedStrip } from "~/api/strips_api";
-import { IsLightModeContext } from "~/context/IsLightModeContext";
-import { IsMobileContext } from "~/context/IsMobileContext";
+import { useClientApi } from "~/context/api/ClientApiContext";
+import { useStripApi } from "~/context/api/StripApiContext";
+import { IsLightModeContext } from "~/context/ui/IsLightModeContext";
+import { IsMobileContext } from "~/context/ui/IsMobileContext";
 import { BoundedLoadingOverlay } from "../BoundedLoadingOverlay";
 import { getClientStatusColor, getClientStatusText, getLastSeenAtString } from "../TextHelper";
 import TableWithTrailingButton from "../layouts/ThreeColumnTable";
 import ClientFormModal from "./ClientFormModal";
 
 interface IClientTableProps {
-    clients: ILedStripClient[] | undefined;
-    strips: ILedStrip[] | undefined;
     onClientChanged?: () => void;
+    refreshKey: number;
 }
 
-function ClientTable({ clients, strips, onClientChanged }: IClientTableProps) {
+function ClientTable({ onClientChanged, refreshKey }: IClientTableProps) {
+    const clientApi = useClientApi();
+    const stripsApiContext = useStripApi();
+    const [clients, setClients] = useState<ILedStripClient[] | undefined>(undefined);
+    const [strips, setStrips] = useState<ILedStrip[] | undefined>(undefined);
     const isLightMode = useContext(IsLightModeContext);
     const isMobile = useContext(IsMobileContext);
     const [selectedClientUuid, setClientUuid] = useState<string>("");
     const [modalOpened, { open, close }] = useDisclosure(false);
+
+    useEffect(() => {
+        setClients(undefined);
+        setStrips(undefined);
+        Promise.all([clientApi.getClients(), stripsApiContext.stripApi?.getStrips()])
+            .then(([fetchedClients, fetchedStrips]) => {
+                setClients(fetchedClients);
+                setStrips(fetchedStrips);
+            })
+            .catch(err => {
+                console.error('Error fetching data', err);
+            });
+    }, [refreshKey]);
 
     if (clients === undefined || strips === undefined) {
         return <BoundedLoadingOverlay loading />;

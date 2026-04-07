@@ -1,6 +1,6 @@
 import { Container, Table, Text } from "@mantine/core";
 import { useContext } from "react";
-import { IsMobileContext } from "~/context/IsMobileContext";
+import { IsMobileContext } from "~/context/ui/IsMobileContext";
 
 interface IDataRow {
     name: string;

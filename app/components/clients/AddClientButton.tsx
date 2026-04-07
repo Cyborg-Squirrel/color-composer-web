@@ -1,7 +1,7 @@
 import { Button } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { useContext } from "react";
-import { IsMobileContext } from "~/context/IsMobileContext";
+import { IsMobileContext } from "~/context/ui/IsMobileContext";
 import ClientFormModal from "./ClientFormModal";
 
 interface IAddClientButtonProps {
