@@ -1,7 +1,8 @@
 import BasicAppShell from "~/components/layouts/BasicAppShell";
+import { Layout } from "~/root";
 import type { Route } from "./+types/home";
 
-export function meta({}: Route.MetaArgs) {
+export function meta({ }: Route.MetaArgs) {
   return [
     { title: "Effects | Color Composer" },
     { name: "description", content: "Effects" },
@@ -9,5 +10,7 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export default function Effects() {
-  return <BasicAppShell title="Color Composer" pageName="Effects" topPadding={"sm"} boxCssEnabled={true}/>;
+  return <Layout>
+    <BasicAppShell title="Color Composer" pageName="Effects" topPadding={"sm"} boxCssEnabled={true} />
+  </Layout>;
 }

@@ -1,11 +1,9 @@
-import { useEffect, useState } from "react";
-import { getClients, type ILedStripClient } from "~/api/clients_api";
 import { ClientGrid } from "~/components/clients/ClientGrid";
 import BasicAppShell from "~/components/layouts/BasicAppShell";
-import UiContext from "~/context/UiContext";
+import { Layout } from "~/root";
 import type { Route } from "./+types/home";
 
-export function meta({}: Route.MetaArgs) {
+export function meta({ }: Route.MetaArgs) {
   return [
     { title: "Home | Color Composer" },
     { name: "description", content: "Home" },
@@ -13,18 +11,9 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export default function Home() {
-  const [clients, setClients] = useState<ILedStripClient[] | undefined>(undefined);
-
-  useEffect(() => {
-    getClients().then(setClients).catch(err => {
-      console.error('Error fetching clients', err);
-      setClients([]);
-    });
-  }, []);
-
-  return <UiContext>
+  return <Layout>
     <BasicAppShell title="Color Composer" pageName="Home" topPadding={"lg"} boxCssEnabled={false} contentMarginTop={0}>
-      <ClientGrid clients={clients} />
+      <ClientGrid />
     </BasicAppShell>
-  </UiContext>;
+  </Layout>;
 }

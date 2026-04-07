@@ -1,7 +1,7 @@
 import { Button, Group, Modal, useModalsStack } from "@mantine/core";
 import { useRef } from "react";
-import type { ILedStripClient } from "~/api/clients_api";
-import type { ILedStrip } from "~/api/strips_api";
+import type { ILedStripClient } from "~/api/clients/clients_api";
+import type { ILedStrip } from "~/api/strips/strips_api";
 import ClientForm, { type IClientFormHandle } from "./ClientForm";
 
 interface IClientFormModalProps {
@@ -14,7 +14,7 @@ interface IClientFormModalProps {
     title: string;
 }
 
-function ClientFormModal(props: IClientFormModalProps) {
+function ClientFormModal({ opened, onClose, onSuccess, isMobile, client, strips, title }: IClientFormModalProps) {
     const stack = useModalsStack(['first', 'second']);
     const formRef = useRef<IClientFormHandle>(null);
 
@@ -25,14 +25,14 @@ function ClientFormModal(props: IClientFormModalProps) {
         if (formRef.current?.isDirty() ?? false) {
             stack.open('second');
         } else {
-            props.onClose();
+            onClose();
         }
     };
 
     const closePendingChangesModal = (closeForm: boolean) => {
         stack.close('second');
         if (closeForm) {
-            props.onClose();
+            onClose();
         }
     };
 
@@ -42,18 +42,18 @@ function ClientFormModal(props: IClientFormModalProps) {
                 {...stack.register('first')}
                 radius="md"
                 size="lg"
-                fullScreen={props.isMobile}
-                opened={props.opened}
+                fullScreen={isMobile}
+                opened={opened}
                 onClose={handleClose}
                 closeButtonProps={{ size: 'lg' }}
-                title={props.title}
+                title={title}
             >
                 <ClientForm
-                    client={props.client}
-                    strips={props.strips}
-                    isMobile={props.isMobile}
+                    client={client}
+                    strips={strips}
+                    isMobile={isMobile}
                     closeForm={handleClose}
-                    onSuccess={props.onSuccess}
+                    onSuccess={onSuccess}
                     ref={formRef}
                 />
             </Modal>
@@ -61,7 +61,7 @@ function ClientFormModal(props: IClientFormModalProps) {
                 {...stack.register('second')}
                 radius="md"
                 size="lg"
-                fullScreen={props.isMobile}
+                fullScreen={isMobile}
                 opened={stack.state.second}
                 onClose={() => closePendingChangesModal(false)}
                 closeButtonProps={{ size: 'lg' }}

@@ -1,5 +1,5 @@
 import BasicAppShell from "~/components/layouts/BasicAppShell";
-import UiContext from "~/context/UiContext";
+import { Layout } from "~/root";
 import type { Route } from "./+types/home";
 
 export function meta({}: Route.MetaArgs) {
@@ -10,7 +10,7 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export default function About() {
-  return <UiContext>
-      <BasicAppShell title="Color Composer" pageName="About" topPadding={"sm"} boxCssEnabled={true}/>
-  </UiContext>;
+  return <Layout>
+    <BasicAppShell title="Color Composer" pageName="About" topPadding={"sm"} boxCssEnabled={true}/>
+  </Layout>;
 }

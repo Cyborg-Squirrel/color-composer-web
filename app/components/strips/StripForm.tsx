@@ -1,9 +1,10 @@
 import { Button, Group, NumberInput, Select, Text, TextInput } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { forwardRef, useImperativeHandle, useState } from "react";
-import { NightDriverType, PiClientType, type ILedStripClient } from "~/api/clients_api";
-import { blendModes, createStrip, piPins, updateStrip, type BlendMode, type ILedStrip } from "~/api/strips_api";
+import { NightDriverType, PiClientType, type ILedStripClient } from "~/api/clients/clients_api";
+import { blendModes, piPins, type BlendMode, type ILedStrip } from "~/api/strips/strips_api";
 import { FormSubmitButton } from "~/components/forms/FormSubmitButton";
+import { useStripApi } from "~/provider/StripApiContext";
 
 interface IStripFormProps {
     clients: ILedStripClient[];
@@ -19,6 +20,7 @@ export interface IStripFormHandle {
 
 const StripForm = forwardRef<IStripFormHandle, IStripFormProps>((props, ref) => {
     let strip = props.strip;
+    const stripApi = useStripApi().stripApi!;
     const [submitting, setSubmitting] = useState(false);
     const [submitError, setSubmitError] = useState<string | null>(null);
     const [selectedClientUuid, setSelectedClientUuid] = useState<string>(strip?.clientUuid || '');
@@ -74,7 +76,7 @@ const StripForm = forwardRef<IStripFormHandle, IStripFormProps>((props, ref) => 
         setSubmitError(null);
         try {
             if (strip) {
-                await updateStrip(strip.uuid, {
+                await stripApi.updateStrip(strip.uuid, {
                     name: values.name,
                     clientUuid: values.clientUuid,
                     pin: values.pin,
@@ -84,7 +86,7 @@ const StripForm = forwardRef<IStripFormHandle, IStripFormProps>((props, ref) => 
                     blendMode: values.blendMode,
                 });
             } else {
-                await createStrip({
+                await stripApi.createStrip({
                     clientUuid: values.clientUuid,
                     name: values.name,
                     pin: values.pin,

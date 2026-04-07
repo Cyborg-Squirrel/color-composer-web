@@ -1,10 +1,11 @@
 import { Button, Group, MultiSelect, NumberInput, Select, TextInput } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { forwardRef, useImperativeHandle, useState } from "react";
-import { updateClient, clientTypes, colorOrders, PiClientType, type ClientType, type ILedStripClient } from "~/api/clients_api";
-import type { ILedStrip } from "~/api/strips_api";
-import { updateStrip } from "~/api/strips_api";
+import { clientTypes, colorOrders, PiClientType, type ClientType, type ILedStripClient } from "~/api/clients/clients_api";
+import type { ILedStrip } from "~/api/strips/strips_api";
 import { FormSubmitButton } from "~/components/forms/FormSubmitButton";
+import { useClientApi } from "~/provider/ClientApiContext";
+import { useStripApi } from "~/provider/StripApiContext";
 
 interface IClientFormProps {
     client: ILedStripClient | undefined;
@@ -20,7 +21,10 @@ export interface IClientFormHandle {
 }
 
 const ClientForm = forwardRef<IClientFormHandle, IClientFormProps>((props, ref) => {
+    const clientApi = useClientApi();
+    const stripApi = useStripApi().stripApi!;
     let client = props.client;
+
     let isNewClient = client == undefined;
     let clientStrips = client ? props.strips.filter(s => s.clientUuid == client.uuid) : [];
     const initialLedStrips = clientStrips.map(s => s.uuid);
@@ -32,7 +36,7 @@ const ClientForm = forwardRef<IClientFormHandle, IClientFormProps>((props, ref) 
 
     let multipleStripsSupported = clientType !== PiClientType;
     let customPowerLimitSupported = clientType === PiClientType;
-    
+
     const form = useForm({
         mode: 'uncontrolled',
         initialValues: {
@@ -95,12 +99,26 @@ const ClientForm = forwardRef<IClientFormHandle, IClientFormProps>((props, ref) 
     return (
         <form onSubmit={form.onSubmit(async (values) => {
             setSubmitting(true);
-            const updatePromise = updateClient(values, client?.uuid);
-            const currentStripUuids = values.ledStrips as string[];
-            const removedStrips = clientStrips.filter(strip => !currentStripUuids.includes(strip.uuid));
-            const stripUpdatePromises = removedStrips.map(strip => updateStrip(strip.uuid, { pin: null }));
+            const clientData = {
+                ...values,
+                apiPort: Number(values.apiPort),
+                wsPort: Number(values.wsPort),
+                powerLimit: Number(values.powerLimit),
+            };
 
-            await Promise.all([updatePromise, ...stripUpdatePromises]);
+            if (client != undefined) {
+                await clientApi.updateClient({ ...clientData, uuid: client.uuid });
+            } else {
+                await clientApi.createClient(clientData);
+            }
+
+            const formStripUuids = values.ledStrips as string[];
+            const removedStrips = clientStrips.filter(strip => !formStripUuids.includes(strip.uuid));
+            const addedStrips = formStripUuids.filter(uuid => !clientStrips.some(s => s.uuid === uuid));
+            const removeStripPromises = removedStrips.map(strip => stripApi.updateStrip(strip.uuid, { pin: null }));
+            const addStripPromises = addedStrips.map(uuid => stripApi.updateStrip(uuid, { clientUuid: client?.uuid, pin: null }));
+
+            await Promise.all([...removeStripPromises, ...addStripPromises]);
             props.onSuccess();
             setSubmitting(false);
         })}>

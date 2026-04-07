@@ -1,6 +1,5 @@
 import { Container, Table, Text } from "@mantine/core";
-import { useContext } from "react";
-import { IsMobileContext } from "~/context/IsMobileContext";
+import { isMobileUi } from "~/util/IsMobile";
 
 interface IDataRow {
     name: string;
@@ -18,7 +17,7 @@ interface ITableProps {
 }
 
 function TableWithTrailingButton(props: ITableProps) {
-    let isMobile = useContext(IsMobileContext);
+    let isMobile = isMobileUi();
 
     const rows = props.dataRows.map((d) => (
         <Table.Tr key={d.uuid} onClick={() => props.onClicked(d.uuid)}>

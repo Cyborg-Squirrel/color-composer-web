@@ -1,10 +1,10 @@
 import { Center } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
-import { useCallback, useContext, useEffect, useState } from "react";
-import type { ILedStripClient } from "~/api/clients_api";
-import { getStrips, type ILedStrip } from "~/api/strips_api";
-import { IsLightModeContext } from "~/context/IsLightModeContext";
-import { IsMobileContext } from "~/context/IsMobileContext";
+import { useCallback, useEffect, useState } from "react";
+import type { ILedStripClient } from "~/api/clients/clients_api";
+import type { ILedStrip } from "~/api/strips/strips_api";
+import { useStripApi } from "~/provider/StripApiContext";
+import { isMobileUi } from "~/util/IsMobile";
 import { BoundedLoadingOverlay } from "../BoundedLoadingOverlay";
 import { getStripStatusColor, getStripStatusText } from "../TextHelper";
 import TableWithTrailingButton from "../layouts/ThreeColumnTable";
@@ -16,17 +16,17 @@ interface IStripsTableProps {
 }
 
 export function StripsTable({ clients, refreshKey }: IStripsTableProps) {
+    const stripApi = useStripApi().stripApi!;
     const [strips, setStrips] = useState<ILedStrip[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<any>(null);
     const [selectedStripUuid, setStripUuid] = useState<string>("");
     const [modalOpened, { open, close }] = useDisclosure(false);
-    const isLightMode = useContext(IsLightModeContext);
-    const isMobile = useContext(IsMobileContext);
+    const isMobile = isMobileUi();
 
     const fetchStrips = useCallback(async () => {
         try {
-            setStrips(await getStrips());
+            setStrips(await stripApi.getStrips());
             setLoading(false);
         } catch (err) {
             setError(err);
@@ -58,7 +58,7 @@ export function StripsTable({ clients, refreshKey }: IStripsTableProps) {
         name: s.name,
         uuid: s.uuid,
         status: getStripStatusText(s.activeEffects),
-        statusColor: getStripStatusColor(s.activeEffects, isLightMode),
+        statusColor: getStripStatusColor(s.activeEffects),
         secondColString: s.length.toString(),
         thirdColString: s.brightness + '%',
     }));

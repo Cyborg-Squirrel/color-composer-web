@@ -1,5 +1,4 @@
-import { ClientStatus } from "~/api/clients_api";
-import { statusColors } from "./status";
+import { ClientStatus } from "~/api/clients/clients_api";
 
 export function getLastSeenAtString(lastSeenAt: number) {
     let now = new Date();
@@ -59,26 +58,26 @@ export function getStripStatusText(activeEffects: number) {
     return activeEffects > 0 ? 'Active': 'Inactive';
 }
 
-export function getStripStatusColor(activeEffects: number, isLightMode: boolean) {
+export function getStripStatusColor(activeEffects: number) {
     if (activeEffects > 0) {
-        return statusColors.ok;
+        return 'var(--mantine-color-green-8)';
     } else {
-        return isLightMode ? statusColors.offlineLight : statusColors.offlineDark;
+        return 'light-dark(var(--mantine-color-text), var(--mantine-color-dimmed))';
     }
 }
 
-export function getClientStatusColor(status: ClientStatus, isLightMode: boolean) {
+export function getClientStatusColor(status: ClientStatus) {
     switch (status) {
         case ClientStatus.SetupIncomplete:
-            return isLightMode ? statusColors.warningLight : statusColors.warningDark;
+            return 'light-dark(var(--mantine-color-yellow-8), var(--mantine-color-yellow-6))';
         case ClientStatus.Idle:
         case ClientStatus.Active:
-            return statusColors.ok;
+            return 'var(--mantine-color-green-8)';
         case ClientStatus.Offline:
-            return isLightMode ? statusColors.offlineLight : statusColors.offlineDark;
+            return 'light-dark(var(--mantine-color-text), var(--mantine-color-dimmed))';
         case ClientStatus.Error:
-            return statusColors.error;
+            return 'var(--mantine-color-red-8)';
         default:
-            return statusColors.error;
+            return 'var(--mantine-color-red-8)';
     }
 }

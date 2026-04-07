@@ -1,26 +1,41 @@
-import { Center } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
-import { useContext, useState } from "react";
-import { ClientStatus, type ILedStripClient } from "~/api/clients_api";
-import type { ILedStrip } from "~/api/strips_api";
-import { IsLightModeContext } from "~/context/IsLightModeContext";
-import { IsMobileContext } from "~/context/IsMobileContext";
+import { useEffect, useState } from "react";
+import { ClientStatus, type ILedStripClient } from "~/api/clients/clients_api";
+import type { ILedStrip } from "~/api/strips/strips_api";
+import { useClientApi } from "~/provider/ClientApiContext";
+import { useStripApi } from "~/provider/StripApiContext";
+import { isMobileUi } from "~/util/IsMobile";
 import { BoundedLoadingOverlay } from "../BoundedLoadingOverlay";
 import { getClientStatusColor, getClientStatusText, getLastSeenAtString } from "../TextHelper";
 import TableWithTrailingButton from "../layouts/ThreeColumnTable";
 import ClientFormModal from "./ClientFormModal";
 
 interface IClientTableProps {
-    clients: ILedStripClient[] | undefined;
-    strips: ILedStrip[] | undefined;
     onClientChanged?: () => void;
+    refreshKey: number;
 }
 
-function ClientTable({ clients, strips, onClientChanged }: IClientTableProps) {
-    const isLightMode = useContext(IsLightModeContext);
-    const isMobile = useContext(IsMobileContext);
+function ClientTable({ onClientChanged, refreshKey }: IClientTableProps) {
+    const clientApi = useClientApi();
+    const stripsApiContext = useStripApi();
+    const [clients, setClients] = useState<ILedStripClient[] | undefined>(undefined);
+    const [strips, setStrips] = useState<ILedStrip[] | undefined>(undefined);
+    const isMobile = isMobileUi();
     const [selectedClientUuid, setClientUuid] = useState<string>("");
     const [modalOpened, { open, close }] = useDisclosure(false);
+
+    useEffect(() => {
+        setClients(undefined);
+        setStrips(undefined);
+        Promise.all([clientApi.getClients(), stripsApiContext.stripApi?.getStrips()])
+            .then(([fetchedClients, fetchedStrips]) => {
+                setClients(fetchedClients);
+                setStrips(fetchedStrips);
+            })
+            .catch(err => {
+                console.error('Error fetching data', err);
+            });
+    }, [refreshKey]);
 
     if (clients === undefined || strips === undefined) {
         return <BoundedLoadingOverlay loading />;
@@ -38,7 +53,7 @@ function ClientTable({ clients, strips, onClientChanged }: IClientTableProps) {
         name: c.name,
         uuid: c.uuid,
         status: c.status == ClientStatus.Offline ? 'Offline since ' + getLastSeenAtString(c.lastSeenAt) : getClientStatusText(c.status),
-        statusColor: getClientStatusColor(c.status, isLightMode),
+        statusColor: getClientStatusColor(c.status),
         secondColString: c.address,
         thirdColString: c.clientType,
     }));

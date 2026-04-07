@@ -1,7 +1,6 @@
 import { Button } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
-import { useContext } from "react";
-import { IsMobileContext } from "~/context/IsMobileContext";
+import { isMobileUi } from "~/util/IsMobile";
 import ClientFormModal from "./ClientFormModal";
 
 interface IAddClientButtonProps {
@@ -10,7 +9,7 @@ interface IAddClientButtonProps {
 
 function AddClientButton({ onSuccess }: IAddClientButtonProps) {
     const [modalOpened, { open, close }] = useDisclosure(false);
-    const isMobile = useContext(IsMobileContext);
+    const isMobile = isMobileUi();
 
     const handleSuccess = () => {
         close();

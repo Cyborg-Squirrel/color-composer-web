@@ -1,7 +1,7 @@
 import { Button, Group, Modal, useModalsStack } from "@mantine/core";
 import { useRef } from "react";
-import type { ILedStripClient } from "~/api/clients_api";
-import type { ILedStrip } from "~/api/strips_api";
+import type { ILedStripClient } from "~/api/clients/clients_api";
+import type { ILedStrip } from "~/api/strips/strips_api";
 import StripForm, { type IStripFormHandle } from "./StripForm";
 
 interface IStripFormModalProps {
