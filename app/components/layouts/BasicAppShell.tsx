@@ -1,7 +1,7 @@
 import { AppShell, Box, Burger, Code, Divider, Group, Space, Text, Title } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
-import { useContext, type ReactElement, type ReactNode } from 'react';
-import { IsMobileContext } from '~/context/ui/IsMobileContext';
+import { type ReactElement, type ReactNode } from 'react';
+import { isMobileUi } from '~/util/IsMobile';
 import { ColorSchemeToggle } from '../ColorSchemeToggle';
 import Navbar from './Navbar';
 
@@ -17,7 +17,7 @@ interface IAppShellProps {
 }
 
 function BasicAppShell(props: IAppShellProps) {
-  const isMobile = useContext(IsMobileContext);
+  const isMobile = isMobileUi();
   const [opened, { toggle }] = useDisclosure();
   let contentMarginTop = props.contentMarginTop ?? 1.5;
   let titlePadding = isMobile ? '.33em' : undefined;

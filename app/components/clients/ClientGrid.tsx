@@ -1,12 +1,11 @@
 import { Center, SimpleGrid } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
-import { useContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import type { ILedStripClient } from "~/api/clients/clients_api";
 import type { ILedStrip } from "~/api/strips/strips_api";
-import { useClientApi } from "~/context/api/ClientApiContext";
-import { useStripApi } from "~/context/api/StripApiContext";
-import { IsLightModeContext } from "~/context/ui/IsLightModeContext";
-import { IsMobileContext } from "~/context/ui/IsMobileContext";
+import { useClientApi } from "~/provider/ClientApiContext";
+import { useStripApi } from "~/provider/StripApiContext";
+import { isMobileUi } from "~/util/IsMobile";
 import { BoundedLoadingOverlay } from "../BoundedLoadingOverlay";
 import ClientCard from "./ClientCard";
 import ClientFormModal from "./ClientFormModal";
@@ -27,8 +26,7 @@ export function ClientGrid() {
     const [hoverUuid, setHoverUuid] = useState<string | null>(null);
     const [clickedUuid, setClickedUuid] = useState<string | null>(null);
     const [modalOpened, { open, close }] = useDisclosure(false);
-    let isLightMode = useContext(IsLightModeContext);
-    let isMobile = useContext(IsMobileContext);
+    let isMobile = isMobileUi();
 
     useEffect(() => {
         setClients(undefined);
@@ -67,7 +65,6 @@ export function ClientGrid() {
             key={m.client.uuid}
             client={m.client}
             strips={m.strips}
-            isLightMode={isLightMode}
             isMobile={isMobile}
             isHovered={m.client.uuid === hoverUuid}
             onHoverEnter={() => setHoverUuid(m.client.uuid)}

@@ -1,11 +1,10 @@
 import { Center } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
-import { useCallback, useContext, useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import type { ILedStripClient } from "~/api/clients/clients_api";
 import type { ILedStrip } from "~/api/strips/strips_api";
-import { useStripApi } from "~/context/api/StripApiContext";
-import { IsLightModeContext } from "~/context/ui/IsLightModeContext";
-import { IsMobileContext } from "~/context/ui/IsMobileContext";
+import { useStripApi } from "~/provider/StripApiContext";
+import { isMobileUi } from "~/util/IsMobile";
 import { BoundedLoadingOverlay } from "../BoundedLoadingOverlay";
 import { getStripStatusColor, getStripStatusText } from "../TextHelper";
 import TableWithTrailingButton from "../layouts/ThreeColumnTable";
@@ -23,8 +22,7 @@ export function StripsTable({ clients, refreshKey }: IStripsTableProps) {
     const [error, setError] = useState<any>(null);
     const [selectedStripUuid, setStripUuid] = useState<string>("");
     const [modalOpened, { open, close }] = useDisclosure(false);
-    const isLightMode = useContext(IsLightModeContext);
-    const isMobile = useContext(IsMobileContext);
+    const isMobile = isMobileUi();
 
     const fetchStrips = useCallback(async () => {
         try {
@@ -60,7 +58,7 @@ export function StripsTable({ clients, refreshKey }: IStripsTableProps) {
         name: s.name,
         uuid: s.uuid,
         status: getStripStatusText(s.activeEffects),
-        statusColor: getStripStatusColor(s.activeEffects, isLightMode),
+        statusColor: getStripStatusColor(s.activeEffects),
         secondColString: s.length.toString(),
         thirdColString: s.brightness + '%',
     }));

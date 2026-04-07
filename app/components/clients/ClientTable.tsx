@@ -1,11 +1,10 @@
 import { useDisclosure } from "@mantine/hooks";
-import { useContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { ClientStatus, type ILedStripClient } from "~/api/clients/clients_api";
 import type { ILedStrip } from "~/api/strips/strips_api";
-import { useClientApi } from "~/context/api/ClientApiContext";
-import { useStripApi } from "~/context/api/StripApiContext";
-import { IsLightModeContext } from "~/context/ui/IsLightModeContext";
-import { IsMobileContext } from "~/context/ui/IsMobileContext";
+import { useClientApi } from "~/provider/ClientApiContext";
+import { useStripApi } from "~/provider/StripApiContext";
+import { isMobileUi } from "~/util/IsMobile";
 import { BoundedLoadingOverlay } from "../BoundedLoadingOverlay";
 import { getClientStatusColor, getClientStatusText, getLastSeenAtString } from "../TextHelper";
 import TableWithTrailingButton from "../layouts/ThreeColumnTable";
@@ -21,8 +20,7 @@ function ClientTable({ onClientChanged, refreshKey }: IClientTableProps) {
     const stripsApiContext = useStripApi();
     const [clients, setClients] = useState<ILedStripClient[] | undefined>(undefined);
     const [strips, setStrips] = useState<ILedStrip[] | undefined>(undefined);
-    const isLightMode = useContext(IsLightModeContext);
-    const isMobile = useContext(IsMobileContext);
+    const isMobile = isMobileUi();
     const [selectedClientUuid, setClientUuid] = useState<string>("");
     const [modalOpened, { open, close }] = useDisclosure(false);
 
@@ -55,7 +53,7 @@ function ClientTable({ onClientChanged, refreshKey }: IClientTableProps) {
         name: c.name,
         uuid: c.uuid,
         status: c.status == ClientStatus.Offline ? 'Offline since ' + getLastSeenAtString(c.lastSeenAt) : getClientStatusText(c.status),
-        statusColor: getClientStatusColor(c.status, isLightMode),
+        statusColor: getClientStatusColor(c.status),
         secondColString: c.address,
         thirdColString: c.clientType,
     }));

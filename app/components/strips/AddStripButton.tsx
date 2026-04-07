@@ -1,8 +1,7 @@
 import { Button } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
-import { useContext } from "react";
 import type { ILedStripClient } from "~/api/clients/clients_api";
-import { IsMobileContext } from "~/context/ui/IsMobileContext";
+import { isMobileUi } from "~/util/IsMobile";
 import StripFormModal from "./StripFormModal";
 
 interface IAddStripButtonProps {
@@ -12,7 +11,7 @@ interface IAddStripButtonProps {
 
 function AddStripButton({ clients, onSuccess }: IAddStripButtonProps) {
     const [modalOpened, { open, close }] = useDisclosure(false);
-    const isMobile = useContext(IsMobileContext);
+    const isMobile = isMobileUi();
 
     const handleSuccess = () => {
         close();

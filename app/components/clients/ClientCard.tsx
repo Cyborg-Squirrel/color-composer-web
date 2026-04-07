@@ -7,7 +7,6 @@ import classes from './ClientGrid.module.css';
 interface IClientCardProps {
     client: ILedStripClient;
     strips: ILedStrip[];
-    isLightMode: boolean;
     isMobile: boolean;
     isHovered: boolean;
     onHoverEnter: () => void;
@@ -53,7 +52,7 @@ function ClientCard(props: IClientCardProps) {
             <Text fw={700} span>
                 {props.client.name}
             </Text>
-            <Text c={getClientStatusColor(props.client.status, props.isLightMode)} span>
+            <Text c={getClientStatusColor(props.client.status)} span>
                 {getStatusText(props.client.status, props.client.lastSeenAt)}
             </Text>
             <Space h={6}></Space>

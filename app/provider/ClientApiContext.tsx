@@ -1,6 +1,6 @@
 import React, { createContext, type ReactNode, useContext } from 'react';
 import { ClientsApiFactory } from '~/api/clients/clients_api.factory';
-import type { IClientsApi } from '../../api/clients/clients_api';
+import type { IClientsApi } from '../api/clients/clients_api';
 
 const ClientApiContext = createContext<IClientsApi | undefined>(undefined);
 const api = ClientsApiFactory.create();

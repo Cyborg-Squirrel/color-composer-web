@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import { ClientApiProvider } from "./ClientApiContext";
 import { StripApiProvider } from "./StripApiContext";
 
-function ApiContext({ children }: { children: ReactNode }) {
+function ApiProvider({ children }: { children: ReactNode }) {
     return <ClientApiProvider>
         <StripApiProvider>
             {children}
@@ -10,4 +10,4 @@ function ApiContext({ children }: { children: ReactNode }) {
     </ClientApiProvider>
 }
 
-export default ApiContext;
+export default ApiProvider;

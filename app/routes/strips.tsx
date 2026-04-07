@@ -3,7 +3,7 @@ import type { ILedStripClient } from "~/api/clients/clients_api";
 import BasicAppShell from "~/components/layouts/BasicAppShell";
 import AddStripButton from "~/components/strips/AddStripButton";
 import { StripsTable } from "~/components/strips/StripsTable";
-import { useClientApi } from "~/context/api/ClientApiContext";
+import { useClientApi } from "~/provider/ClientApiContext";
 import { Layout } from "~/root";
 import type { Route } from "./+types/home";
 

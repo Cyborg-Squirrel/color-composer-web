@@ -4,8 +4,8 @@ import { forwardRef, useImperativeHandle, useState } from "react";
 import { clientTypes, colorOrders, PiClientType, type ClientType, type ILedStripClient } from "~/api/clients/clients_api";
 import type { ILedStrip } from "~/api/strips/strips_api";
 import { FormSubmitButton } from "~/components/forms/FormSubmitButton";
-import { useClientApi } from "~/context/api/ClientApiContext";
-import { useStripApi } from "~/context/api/StripApiContext";
+import { useClientApi } from "~/provider/ClientApiContext";
+import { useStripApi } from "~/provider/StripApiContext";
 
 interface IClientFormProps {
     client: ILedStripClient | undefined;

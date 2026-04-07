@@ -11,8 +11,7 @@ import '@mantine/core/styles.css';
 import { StrictMode } from "react";
 import type { Route } from "./+types/root";
 import "./app.css";
-import ApiContext from "./context/api/ApiContext";
-import UiContext from "./context/ui/UiContext";
+import ApiProvider from "./provider/ApiContext";
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -41,24 +40,22 @@ export function Layout({ children }: { children: React.ReactNode }) {
   return (
     <StrictMode>
       <MantineProvider defaultColorScheme="auto" theme={DEFAULT_THEME} cssVariablesResolver={resolver}>
-        <UiContext>
-          <ApiContext>
-            <html lang="en">
-              <head>
-                <meta charSet="utf-8" />
-                <meta name="viewport" content="width=device-width, initial-scale=1" />
-                <Meta />
-                <Links />
-                <ColorSchemeScript defaultColorScheme="auto" />
-              </head>
-              <body>
-                {children}
-                <ScrollRestoration />
-                <Scripts />
-              </body>
-            </html>
-          </ApiContext>
-        </UiContext>
+        <ApiProvider>
+          <html lang="en">
+            <head>
+              <meta charSet="utf-8" />
+              <meta name="viewport" content="width=device-width, initial-scale=1" />
+              <Meta />
+              <Links />
+              <ColorSchemeScript defaultColorScheme="auto" />
+            </head>
+            <body>
+              {children}
+              <ScrollRestoration />
+              <Scripts />
+            </body>
+          </html>
+        </ApiProvider>
       </MantineProvider>
     </StrictMode>
   );

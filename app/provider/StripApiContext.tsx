@@ -1,6 +1,6 @@
 import React, { createContext, type ReactNode, useContext } from 'react';
 import { StripsApiFactory } from '~/api/strips/strips_api.factory';
-import type { IStripsApi } from '../../api/strips/strips_api.interface';
+import type { IStripsApi } from '../api/strips/strips_api.interface';
 
 interface StripApiContextType {
   stripApi: IStripsApi | null;
