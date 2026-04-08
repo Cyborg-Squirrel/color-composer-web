@@ -18,7 +18,7 @@ export class MockStripsApi implements IStripsApi {
       name: 'LED Lamp Strip',
       uuid: '99d53b59-cb0d-449f-a9e9-bf6cb7bf391a',
       clientUuid: '99d53b59-cb0d-449f-a9e9-bf6cb7bf3911',
-      pin: 'D12',
+      pin: '1',
       length: 80,
       height: 1,
       brightness: 34,
