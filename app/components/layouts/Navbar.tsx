@@ -1,16 +1,17 @@
 import { AppShell, NavLink } from '@mantine/core';
 import { useState } from 'react';
+import { Link } from 'react-router';
 import classes from './Navbar.module.css';
 
 const navItems = [
   { key: 'nav-0', link: '/', label: 'Home', emoji: '🏠' },
-  { key: 'nav-1', link: 'clients', label: 'Clients', emoji: '🛜' },
-  { key: 'nav-2', link: 'strips', label: 'LED Strips', emoji: '💡' },
-  { key: 'nav-3', link: 'effects', label: 'Effects', emoji: '✨' },
-  { key: 'nav-4', link: 'palettes', label: 'Palettes', emoji: '🎨' },
-  { key: 'nav-5', link: 'triggers', label: 'Triggers', emoji: '⏲️' },
-  { key: 'nav-6', link: 'settings', label: 'Settings', emoji: '⚙️' },
-  { key: 'nav-7', link: 'about', label: 'About', emoji: 'ℹ' }
+  { key: 'nav-1', link: '/clients', label: 'Clients', emoji: '🛜' },
+  { key: 'nav-2', link: '/strips', label: 'LED Strips', emoji: '💡' },
+  { key: 'nav-3', link: '/effects', label: 'Effects', emoji: '✨' },
+  { key: 'nav-4', link: '/palettes', label: 'Palettes', emoji: '🎨' },
+  { key: 'nav-5', link: '/triggers', label: 'Triggers', emoji: '⏲️' },
+  { key: 'nav-6', link: '/settings', label: 'Settings', emoji: '⚙️' },
+  { key: 'nav-7', link: '/about', label: 'About', emoji: 'ℹ' }
 ];
 
 const bottomNavItems: any[] = [];
@@ -29,7 +30,8 @@ function Navbar({ selectedNavItemText }: { selectedNavItemText: string }) {
     <NavLink
       id={item.key}
       key={item.key}
-      href={item.link}
+      component={Link}
+      to={item.link}
       label={item.label}
       leftSection={<span className={item.label === active ? classes.linkIcon : classes.grayscale}>{item.emoji}</span>}
       active={item.label === active}
@@ -40,7 +42,8 @@ function Navbar({ selectedNavItemText }: { selectedNavItemText: string }) {
     <NavLink
       id={item.key}
       key={item.key}
-      href={item.link}
+      component={Link}
+      to={item.link}
       label={item.label}
       leftSection={<span className={item.label === active ? classes.linkIcon : classes.greyScaleIcon}>{item.emoji}</span>}
       active={item.label === active}
