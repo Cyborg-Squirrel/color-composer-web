@@ -1,6 +1,5 @@
 import { AppShell, NavLink } from '@mantine/core';
-import { useState } from 'react';
-import { Link } from 'react-router';
+import { Link, useLocation } from 'react-router';
 import classes from './Navbar.module.css';
 
 const navItems = [
@@ -16,15 +15,8 @@ const navItems = [
 
 const bottomNavItems: any[] = [];
 
-const allNavItems = [...navItems, ...bottomNavItems];
-
-function Navbar({ selectedNavItemText }: { selectedNavItemText: string }) {
-  const selectedNavItem = selectedNavItemText?.trim()
-    ? allNavItems.find(item => item.link.toLowerCase() === selectedNavItemText.trim().toLowerCase() ||
-      item.label.toLowerCase() === selectedNavItemText.trim().toLowerCase())?.label
-    : '';
-
-  const [active, setActive] = useState(selectedNavItem);
+function Navbar() {
+  const { pathname } = useLocation();
 
   const navComponents = navItems.map((item) => (
     <NavLink
@@ -33,8 +25,8 @@ function Navbar({ selectedNavItemText }: { selectedNavItemText: string }) {
       component={Link}
       to={item.link}
       label={item.label}
-      leftSection={<span className={item.label === active ? classes.linkIcon : classes.grayscale}>{item.emoji}</span>}
-      active={item.label === active}
+      leftSection={<span className={pathname === item.link ? classes.linkIcon : classes.grayscale}>{item.emoji}</span>}
+      active={pathname === item.link}
     />
   ));
 
@@ -45,8 +37,8 @@ function Navbar({ selectedNavItemText }: { selectedNavItemText: string }) {
       component={Link}
       to={item.link}
       label={item.label}
-      leftSection={<span className={item.label === active ? classes.linkIcon : classes.greyScaleIcon}>{item.emoji}</span>}
-      active={item.label === active}
+      leftSection={<span className={pathname === item.link ? classes.linkIcon : classes.greyScaleIcon}>{item.emoji}</span>}
+      active={pathname === item.link}
     />
   ));
 
