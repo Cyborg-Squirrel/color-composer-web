@@ -1,8 +1,9 @@
-import { ActionIcon, Button, Group } from "@mantine/core";
-import { NotePencilIcon, PauseIcon, PlayIcon, StopIcon, TrashIcon } from '@phosphor-icons/react';
+import { ActionIcon, Button, Group, Tooltip } from "@mantine/core";
+import { FastForwardIcon, PlayIcon, RewindIcon, StopIcon, TrashIcon } from '@phosphor-icons/react';
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useAppShellRef } from "~/provider/AppShellContext";
+import styles from "./MediaControlAffix.module.css";
 
 function TooltipPortal({ anchorRef, parentRef, children }) {
   const [coords, setCoords] = useState({ top: 0, left: 0 });
@@ -10,7 +11,7 @@ function TooltipPortal({ anchorRef, parentRef, children }) {
   useEffect(() => {
     if (!parentRef.current) return;
     if (!anchorRef.current) return;
-    
+
     const updateCoords = () => {
       const parent = parentRef.current?.getBoundingClientRect();
       setCoords({
@@ -26,15 +27,10 @@ function TooltipPortal({ anchorRef, parentRef, children }) {
 
   return createPortal(
     <div
+      className={styles.portalContainer}
       style={{
-        position: "absolute",
         top: coords.top,
         left: coords.left,
-        transform: "translate(-50%)",
-        padding: "6px 12px",
-        borderRadius: "4px",
-        whiteSpace: "nowrap",
-        zIndex: 2,
       }}
     >
       {children}
@@ -45,20 +41,21 @@ function TooltipPortal({ anchorRef, parentRef, children }) {
 
 function SwitchesCard() {
   return <Group justify="center" onClick={(e) => e.stopPropagation()}>
-    <ActionIcon variant="default" size="xl" aria-label="Edit">
-      <NotePencilIcon />
+    <ActionIcon variant="default" size="xl" aria-label="Rewind">
+      <RewindIcon />
     </ActionIcon>
-    <ActionIcon variant="default" size="xl" aria-label="Play" disabled={true}>
+    <ActionIcon id="play-button" variant="default" size="xl" aria-label="Play" disabled={true}>
+      <Tooltip target="#play-button" label="All selected effects are playing" />
       <PlayIcon />
     </ActionIcon>
-    <ActionIcon variant="default" size="xl" aria-label="Pause">
-      <PauseIcon />
+    <ActionIcon variant="default" size="xl" aria-label="Fast forward">
+      <FastForwardIcon />
     </ActionIcon>
     <ActionIcon variant="default" size="xl" aria-label="Stop">
       <StopIcon />
     </ActionIcon>
     <ActionIcon variant="default" bg="var(--mantine-color-error)" size="xl" aria-label="Delete">
-      <TrashIcon/>
+      <TrashIcon />
     </ActionIcon>
   </Group>;
 }

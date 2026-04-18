@@ -1,0 +1,19 @@
+@keyframes portal-slide-up {
+  from {
+    transform: translate(-50%, +3vh);
+    opacity: 0;
+  }
+  to {
+    transform: translate(-50%, 0vh);
+    opacity: 1;
+  }
+}
+
+.portalContainer {
+  position: absolute;
+  padding: 6px 12px;
+  border-radius: 4px;
+  white-space: nowrap;
+  z-index: 2;
+  animation: portal-slide-up 0.25s ease-out forwards;
+}
