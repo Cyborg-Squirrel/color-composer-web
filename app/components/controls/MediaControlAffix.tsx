@@ -68,7 +68,7 @@ function SwitchesCard() {
 
 export default function MediaControlAffix() {
   const [show, setShow] = useState(false);
-  const ref = useRef(null);
+  const ref = useRef<HTMLButtonElement>(null);
   const parentRef = useAppShellRef();
 
   return (
