@@ -69,7 +69,7 @@ export default function BasicAppShell(props: IAppShellProps) {
   );
 }
 
-function getBox(isMobile: boolean, childElements: ReactNode, enableBoxClasses: boolean | undefined, cmt: number, ref) {
+function getBox(isMobile: boolean, childElements: ReactNode, enableBoxClasses: boolean | undefined, cmt: number, ref: React.RefObject<HTMLElement>) {
   let boxStyle = enableBoxClasses ? { backgroundColor: "light-dark(var(--mantine-color-white), var(--mantine-color-dark-7))", outline: "1px solid var(--app-shell-border-color)" } : undefined;
   if (isMobile) {
     return <Box style={boxStyle} p="1em">{childElements}</Box>

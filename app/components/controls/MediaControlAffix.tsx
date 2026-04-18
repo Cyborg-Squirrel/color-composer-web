@@ -73,7 +73,7 @@ export default function MediaControlAffix() {
 
   return (
     <Button ref={ref} onClick={() => setShow(s => !s)}>
-      <div>{show ? "Hide" : "Show"} Media Controls</div>
+      {show ? "Hide" : "Show"} Media Controls
       {show && (
         <MediaControlPortal anchorRef={ref} parentRef={parentRef}>
           <SwitchesCard />
