@@ -5,7 +5,13 @@ import { createPortal } from "react-dom";
 import { useAppShellRef } from "~/provider/AppShellContext";
 import styles from "./MediaControlAffix.module.css";
 
-function TooltipPortal({ anchorRef, parentRef, children }) {
+interface MediaControlPortalProps {
+  anchorRef: React.RefObject<HTMLElement>;
+  parentRef: React.RefObject<HTMLElement>;
+  children: React.ReactNode;
+}
+
+function MediaControlPortal({ anchorRef, parentRef, children }: MediaControlPortalProps) {
   const [coords, setCoords] = useState({ top: 0, left: 0 });
 
   useEffect(() => {
@@ -69,9 +75,9 @@ export default function MediaControlAffix() {
     <Button ref={ref} onClick={() => setShow(s => !s)}>
       <div>{show ? "Hide" : "Show"} Media Controls</div>
       {show && (
-        <TooltipPortal anchorRef={ref} parentRef={parentRef}>
+        <MediaControlPortal anchorRef={ref} parentRef={parentRef}>
           <SwitchesCard />
-        </TooltipPortal>
+        </MediaControlPortal>
       )}
     </Button>
   );
