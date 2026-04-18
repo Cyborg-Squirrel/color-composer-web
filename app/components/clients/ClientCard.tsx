@@ -1,7 +1,8 @@
 import { ActionIcon, Card, Divider, Space, Text } from "@mantine/core";
+import { PencilSimpleIcon } from "@phosphor-icons/react";
 import { ClientStatus, type ILedStripClient } from "~/api/clients/clients_api";
 import { type ILedStrip } from "~/api/strips/strips_api";
-import { getClientStatusColor, getClientStatusText, getLastSeenAtString } from "../TextHelper";
+import { getClientStatusColor, getClientStatusText, getLastSeenAtString } from "../util/TextHelper";
 import classes from './ClientGrid.module.css';
 
 interface IClientCardProps {
@@ -21,32 +22,20 @@ function ClientCard(props: IClientCardProps) {
         <Card
             key={props.client.uuid}
             h='14em'
-            className={classes.grid_card}
-            style={{
-                padding: '12px',
-                outline: props.isHovered ? '3px solid var(--app-shell-border-color)' : '1px solid var(--app-shell-border-color)',
-                backgroundColor: 'light-dark(var(--mantine-color-white), var(--mantine-color-dark-7))',
-                transition: 'transform .2s'
-            }}
+            className={`${classes.card} ${props.isHovered ? classes.grid_card_hovered : classes.grid_card}`}
             onMouseEnter={props.onHoverEnter}
             onMouseLeave={props.onHoverLeave}
             onClick={() => {
                 props.onClick(props.client.uuid);
             }}
         >
-            <span
-                style={{
-                    position: "absolute",
-                    top: '.25em',
-                    right: '.25em',
-                }}>
+            <span className={classes.icon_container}>
                 <ActionIcon
                     variant="transparent"
                     size="lg"
                     c={shouldShowIcon ? undefined : 'transparent'}
-                    style={{ transform: 'scaleX(-1)', filter: 'grayscale(100%)' }}
                 >
-                    ✏️
+                    <PencilSimpleIcon size={24} />
                 </ActionIcon>
             </span>
             <Text fw={700} span>

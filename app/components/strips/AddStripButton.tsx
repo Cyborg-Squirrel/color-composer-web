@@ -1,7 +1,7 @@
 import { Button } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import type { ILedStripClient } from "~/api/clients/clients_api";
-import { isMobileUi } from "~/util/IsMobile";
+import { isMobileUi } from "~/components/util/IsMobile";
 import StripFormModal from "./StripFormModal";
 
 interface IAddStripButtonProps {

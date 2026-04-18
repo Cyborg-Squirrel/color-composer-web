@@ -1,6 +1,6 @@
 import { Button } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
-import { isMobileUi } from "~/util/IsMobile";
+import { isMobileUi } from "~/components/util/IsMobile";
 import ClientFormModal from "./ClientFormModal";
 
 interface IAddClientButtonProps {

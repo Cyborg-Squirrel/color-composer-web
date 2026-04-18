@@ -49,9 +49,6 @@ export class MockClientsApi implements IClientsApi {
     }
 
     async getClients(): Promise<ILedStripClient[]> {
-        for (var i in this.clients) {
-            console.log(this.clients[i]);
-        }
         // Artificial delay before returning mock content
         await this.delay(500);
         return [...this.clients];
