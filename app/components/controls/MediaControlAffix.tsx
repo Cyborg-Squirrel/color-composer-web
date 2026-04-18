@@ -66,13 +66,13 @@ export default function MediaControlAffix() {
   const parentRef = useAppShellRef();
 
   return (
-    <button ref={ref} onClick={() => setShow(s => !s)}>
-      <Button>{show ? "Hide" : "Show"} Media Controls</Button>
+    <Button ref={ref} onClick={() => setShow(s => !s)}>
+      <div>{show ? "Hide" : "Show"} Media Controls</div>
       {show && (
         <TooltipPortal anchorRef={ref} parentRef={parentRef}>
           <SwitchesCard />
         </TooltipPortal>
       )}
-    </button>
+    </Button>
   );
 }
