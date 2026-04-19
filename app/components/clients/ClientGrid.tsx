@@ -3,10 +3,10 @@ import { useDisclosure } from "@mantine/hooks";
 import { useEffect, useState } from "react";
 import type { ILedStripClient } from "~/api/clients/clients_api";
 import type { ILedStrip } from "~/api/strips/strips_api";
+import { isMobileUi } from "~/components/util/IsMobile";
 import { useClientApi } from "~/provider/ClientApiContext";
 import { useStripApi } from "~/provider/StripApiContext";
-import { isMobileUi } from "~/util/IsMobile";
-import { BoundedLoadingOverlay } from "../BoundedLoadingOverlay";
+import BoundedLoadingOverlay from "../controls/BoundedLoadingOverlay";
 import ClientCard from "./ClientCard";
 import ClientFormModal from "./ClientFormModal";
 

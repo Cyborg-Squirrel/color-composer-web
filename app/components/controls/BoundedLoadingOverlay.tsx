@@ -4,7 +4,7 @@ interface ILoadingOverlayProps {
     loading: boolean;
 }
 
-export function BoundedLoadingOverlay(props: ILoadingOverlayProps) {
+export default function BoundedLoadingOverlay(props: ILoadingOverlayProps) {
     return <Box
     style={{
         backgroundColor: 'transparent',

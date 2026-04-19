@@ -1,5 +1,5 @@
 import { Container, Table, Text } from "@mantine/core";
-import { isMobileUi } from "~/util/IsMobile";
+import { isMobileUi } from "~/components/util/IsMobile";
 
 interface IDataRow {
     name: string;

@@ -3,6 +3,21 @@
   background-color: light-dark(var(--mantine-color-white), var(--mantine-color-dark-7));
 }
 
+.grid_card_hovered {
+  outline: 3px solid var(--app-shell-border-color);
+}
+
+.card {
+  padding: 12px;
+  transition: transform 0.2s;
+}
+
+.icon_container {
+  position: absolute;
+  top: 0.25em;
+  right: 0.25em;
+}
+
 .subtle_text {
   color: light-dark(black, #aaaaaa);
 }

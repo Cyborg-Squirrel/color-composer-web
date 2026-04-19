@@ -3,11 +3,11 @@ import { useDisclosure } from "@mantine/hooks";
 import { useCallback, useEffect, useState } from "react";
 import type { ILedStripClient } from "~/api/clients/clients_api";
 import type { ILedStrip } from "~/api/strips/strips_api";
+import { isMobileUi } from "~/components/util/IsMobile";
 import { useStripApi } from "~/provider/StripApiContext";
-import { isMobileUi } from "~/util/IsMobile";
-import { BoundedLoadingOverlay } from "../BoundedLoadingOverlay";
-import { getStripStatusColor, getStripStatusText } from "../TextHelper";
+import BoundedLoadingOverlay from "../controls/BoundedLoadingOverlay";
 import TableWithTrailingButton from "../layouts/ThreeColumnTable";
+import { getStripStatusColor, getStripStatusText } from "../util/TextHelper";
 import StripFormModal from "./StripFormModal";
 
 interface IStripsTableProps {

@@ -2,12 +2,12 @@ import { useDisclosure } from "@mantine/hooks";
 import { useEffect, useState } from "react";
 import { ClientStatus, type ILedStripClient } from "~/api/clients/clients_api";
 import type { ILedStrip } from "~/api/strips/strips_api";
+import { isMobileUi } from "~/components/util/IsMobile";
 import { useClientApi } from "~/provider/ClientApiContext";
 import { useStripApi } from "~/provider/StripApiContext";
-import { isMobileUi } from "~/util/IsMobile";
-import { BoundedLoadingOverlay } from "../BoundedLoadingOverlay";
-import { getClientStatusColor, getClientStatusText, getLastSeenAtString } from "../TextHelper";
+import BoundedLoadingOverlay from "../controls/BoundedLoadingOverlay";
 import TableWithTrailingButton from "../layouts/ThreeColumnTable";
+import { getClientStatusColor, getClientStatusText, getLastSeenAtString } from "../util/TextHelper";
 import ClientFormModal from "./ClientFormModal";
 
 interface IClientTableProps {
@@ -38,7 +38,7 @@ function ClientTable({ onClientChanged, refreshKey }: IClientTableProps) {
     }, [refreshKey]);
 
     if (clients === undefined || strips === undefined) {
-        return <BoundedLoadingOverlay loading />;
+        return <BoundedLoadingOverlay loading={true} />;
     }
 
     const handleEditSuccess = () => {

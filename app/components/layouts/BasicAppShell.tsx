@@ -1,8 +1,9 @@
 import { AppShell, Box, Burger, Code, Divider, Group, Space, Text, Title } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
-import { type ReactElement, type ReactNode } from 'react';
-import { isMobileUi } from '~/util/IsMobile';
-import { ColorSchemeToggle } from '../ColorSchemeToggle';
+import { useRef, type ReactNode } from 'react';
+import { isMobileUi } from '~/components/util/IsMobile';
+import { AppShellRefContext } from '~/provider/AppShellContext';
+import { ColorSchemeToggle } from '../controls/ColorSchemeToggle';
 import Navbar from './Navbar';
 
 interface IAppShellProps {
@@ -16,12 +17,13 @@ interface IAppShellProps {
   contentMarginTop?: number;
 }
 
-function BasicAppShell(props: IAppShellProps) {
+export default function BasicAppShell(props: IAppShellProps) {
   const isMobile = isMobileUi();
   const [opened, { toggle }] = useDisclosure();
   let contentMarginTop = props.contentMarginTop ?? 1.5;
   let titlePadding = isMobile ? '.33em' : undefined;
   let boxCssEnabled = props.boxCssEnabled ?? true;
+  const ref = useRef<HTMLElement>(null);
 
   let box = getBox(isMobile, (
     <>
@@ -36,42 +38,42 @@ function BasicAppShell(props: IAppShellProps) {
     </>
   ),
     boxCssEnabled,
-    contentMarginTop);
+    contentMarginTop, ref);
 
   return (
-    <AppShell
-      padding="md"
-      header={{ height: { base: 60, md: 65, lg: 70 } }}
-      navbar={{
-        width: { base: 200, md: 250, lg: 300 },
-        breakpoint: 'sm',
-        collapsed: { mobile: !opened },
-      }}>
-      <AppShell.Header>
-        <Group h="100%" pl="md">
-          <Burger opened={opened} onClick={toggle} hiddenFrom="sm" size="sm" />
-          <Group justify="space-between">
-            <Text id="title" fw={700} span>{props.title}</Text>
-            <Code id="version" fw={700}>v0.0.1</Code>
+    <AppShellRefContext.Provider value={ref}>
+      <AppShell
+        padding="md"
+        header={{ height: { base: 60, md: 65, lg: 70 } }}
+        navbar={{
+          width: { base: 200, md: 250, lg: 300 },
+          breakpoint: 'sm',
+          collapsed: { mobile: !opened },
+        }}>
+        <AppShell.Header>
+          <Group h="100%" pl="md">
+            <Burger opened={opened} onClick={toggle} hiddenFrom="sm" size="sm" />
+            <Group justify="space-between">
+              <Text id="title" fw={700} span>{props.title}</Text>
+              <Code id="version" fw={700}>v0.0.1</Code>
+            </Group>
+            <ColorSchemeToggle hidden={import.meta.env.VITE_COLOR_SCHEME_TOGGLE_ENABLED !== 'true'} />
           </Group>
-          <ColorSchemeToggle hidden={import.meta.env.VITE_COLOR_SCHEME_TOGGLE_ENABLED !== 'true'} />
-        </Group>
-      </AppShell.Header>
-      <Navbar selectedNavItemText={props.pageName} />
-      <AppShell.Main>
-        {box}
-      </AppShell.Main>
-    </AppShell>
+        </AppShell.Header>
+        <Navbar />
+        <AppShell.Main>
+          {box}
+        </AppShell.Main>
+      </AppShell>
+    </AppShellRefContext.Provider>
   );
 }
 
-function getBox(isMobile: boolean, childElements: ReactNode, enableBoxClasses: boolean | undefined, cmt: number): ReactElement {
+function getBox(isMobile: boolean, childElements: ReactNode, enableBoxClasses: boolean | undefined, cmt: number, ref: React.RefObject<HTMLElement>) {
   let boxStyle = enableBoxClasses ? { backgroundColor: "light-dark(var(--mantine-color-white), var(--mantine-color-dark-7))", outline: "1px solid var(--app-shell-border-color)" } : undefined;
   if (isMobile) {
     return <Box style={boxStyle} p="1em">{childElements}</Box>
   } else {
-    return <Box style={boxStyle} p="1em" mt={cmt + 'em'} ml='.5em' mr='.5em'>{childElements}</Box>
+    return <Box style={boxStyle} p="1em" mt={cmt + 'em'} ml='.5em' mr='.5em' ref={ref}>{childElements}</Box>
   }
 }
-
-export default BasicAppShell;
