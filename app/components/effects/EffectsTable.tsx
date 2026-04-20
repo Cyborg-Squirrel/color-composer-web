@@ -43,7 +43,7 @@ function EffectsTable({ }: IEffectsTableProps) {
     const handlePlayPause = async (effectUuid: string, currentStatus: string) => {
         const command: LightEffectStatusCommand = currentStatus === 'Playing' ? 'Pause' : 'Play';
         try {
-            await effectApi.effectApi?.updateEffectStatus([effectUuid], command);
+            await effectApi.updateEffectStatus([effectUuid], command);
             // Update local state
             setEffects(prevEffects => prevEffects?.map(e =>
                 e.uuid === effectUuid
@@ -68,7 +68,7 @@ function EffectsTable({ }: IEffectsTableProps) {
     const handleBulkPlay = async () => {
         if (checkedEffects.size === 0) return;
         try {
-            await effectApi.effectApi?.updateEffectStatus(Array.from(checkedEffects), 'Play');
+            await effectApi.updateEffectStatus(Array.from(checkedEffects), 'Play');
             setEffects(prevEffects => prevEffects?.map(e =>
                 checkedEffects.has(e.uuid) ? { ...e, status: 'Playing' } : e
             ));
@@ -80,7 +80,7 @@ function EffectsTable({ }: IEffectsTableProps) {
     const handleBulkPause = async () => {
         if (checkedEffects.size === 0) return;
         try {
-            await effectApi.effectApi?.updateEffectStatus(Array.from(checkedEffects), 'Pause');
+            await effectApi.updateEffectStatus(Array.from(checkedEffects), 'Pause');
             setEffects(prevEffects => prevEffects?.map(e =>
                 checkedEffects.has(e.uuid) ? { ...e, status: 'Paused' } : e
             ));
@@ -91,7 +91,7 @@ function EffectsTable({ }: IEffectsTableProps) {
 
     const handleDelete = async (effectUuid: string) => {
         try {
-            await effectApi.effectApi?.deleteEffect(effectUuid);
+            await effectApi.deleteEffect(effectUuid);
             setEffects(prevEffects => prevEffects?.filter(e => e.uuid !== effectUuid));
             setCheckedEffects(prev => {
                 const newChecked = new Set(prev);
