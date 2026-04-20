@@ -30,7 +30,7 @@ function StripsContainer() {
     clientApi.getClients().then(setClients).catch(err => {
       console.error('Error fetching clients', err);
     });
-  }, []);
+  }, [refreshKey]);
 
   return <BasicAppShell title="Color Composer" pageName="Strips" topPadding={"sm"} boxCssEnabled={true}
     addButton={<AddStripButton clients={clients ?? []} onSuccess={() => setRefreshKey(k => k + 1)} />}>

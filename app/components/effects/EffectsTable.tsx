@@ -23,8 +23,8 @@ function EffectsTable({ }: IEffectsTableProps) {
     useEffect(() => {
         setEffects(undefined);
         Promise.all([
-            effectApi.effectApi?.getEffects() || Promise.resolve([]),
-            paletteApi.paletteApi?.getPalettes() || Promise.resolve([])
+            effectApi.getEffects() || Promise.resolve([]),
+            paletteApi.getPalettes() || Promise.resolve([])
         ])
             .then(([fetchedEffects, fetchedPalettes]) => {
                 setEffects(fetchedEffects);

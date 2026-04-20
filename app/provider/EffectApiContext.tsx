@@ -1,13 +1,8 @@
-import { createContext, useContext, type FC, type ReactNode } from 'react';
+import { createContext, useContext, useMemo, type FC, type ReactNode } from 'react';
 import { EffectsApiFactory } from '~/api/effects/effects_api.factory';
 import type { IEffectsApi } from '../api/effects/effects_api.interface';
 
-interface EffectApiContextType {
-  effectApi: IEffectsApi | null;
-}
-
-const EffectApiContext = createContext<EffectApiContextType | undefined>(undefined);
-const api = EffectsApiFactory.create();
+const EffectApiContext = createContext<IEffectsApi | undefined>(undefined);
 
 export const useEffectApi = () => {
   const context = useContext(EffectApiContext);
@@ -22,8 +17,9 @@ interface EffectApiProviderProps {
 }
 
 export const EffectApiProvider: FC<EffectApiProviderProps> = ({ children }) => {
+  const api = useMemo(() => EffectsApiFactory.create(), []);
   return (
-    <EffectApiContext.Provider value={{ effectApi: api }}>
+    <EffectApiContext.Provider value={api}>
       {children}
     </EffectApiContext.Provider>
   );

@@ -26,13 +26,14 @@ export function StripsTable({ clients, refreshKey }: IStripsTableProps) {
 
     const fetchStrips = useCallback(async () => {
         try {
+            setLoading(true);
             setStrips(await stripApi.getStrips());
             setLoading(false);
         } catch (err) {
             setError(err);
             setLoading(false);
         }
-    }, []);
+    }, [stripApi]);
 
     useEffect(() => {
         fetchStrips();

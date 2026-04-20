@@ -1,13 +1,8 @@
-import { createContext, useContext, type FC, type ReactNode } from 'react';
+import { createContext, useContext, useMemo, type FC, type ReactNode } from 'react';
 import { PalettesApiFactory } from '~/api/palettes/palettes_api.factory';
 import type { IPalettesApi } from '../api/palettes/palettes_api.interface';
 
-interface PaletteApiContextType {
-  paletteApi: IPalettesApi | null;
-}
-
-const PaletteApiContext = createContext<PaletteApiContextType | undefined>(undefined);
-const api = PalettesApiFactory.create();
+const PaletteApiContext = createContext<IPalettesApi | undefined>(undefined);
 
 export const usePaletteApi = () => {
   const context = useContext(PaletteApiContext);
@@ -22,8 +17,9 @@ interface PaletteApiProviderProps {
 }
 
 export const PaletteApiProvider: FC<PaletteApiProviderProps> = ({ children }) => {
+  const api = useMemo(() => PalettesApiFactory.create(), []);
   return (
-    <PaletteApiContext.Provider value={{ paletteApi: api }}>
+    <PaletteApiContext.Provider value={api}>
       {children}
     </PaletteApiContext.Provider>
   );
