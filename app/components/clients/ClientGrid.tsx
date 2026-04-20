@@ -17,7 +17,7 @@ interface IClientUiModel {
 
 export function ClientGrid() {
     const clientApi = useClientApi();
-    const stripsApi = useStripApi().stripApi!;
+    const stripsApi = useStripApi();
     const [refreshKey, setRefreshKey] = useState(0);
     const [clients, setClients] = useState<ILedStripClient[] | undefined>(undefined);
     const [strips, setStrips] = useState<ILedStrip[]>([]);

@@ -16,6 +16,7 @@ export class RealStripsApi implements IStripsApi {
       return [];
     }
     
+    console.log('Fetching strips from API at ' + this.apiUrl);
     const res = await fetch(this.apiUrl + '/strip');
     const json = await res.json();
     const stripList = json.strips.map((s: ILedStrip) => s);

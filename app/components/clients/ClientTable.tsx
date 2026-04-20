@@ -17,7 +17,7 @@ interface IClientTableProps {
 
 function ClientTable({ onClientChanged, refreshKey }: IClientTableProps) {
     const clientApi = useClientApi();
-    const stripsApiContext = useStripApi();
+    const stripsApi = useStripApi();
     const [clients, setClients] = useState<ILedStripClient[] | undefined>(undefined);
     const [strips, setStrips] = useState<ILedStrip[] | undefined>(undefined);
     const isMobile = isMobileUi();
@@ -27,7 +27,7 @@ function ClientTable({ onClientChanged, refreshKey }: IClientTableProps) {
     useEffect(() => {
         setClients(undefined);
         setStrips(undefined);
-        Promise.all([clientApi.getClients(), stripsApiContext.stripApi?.getStrips()])
+        Promise.all([clientApi.getClients(), stripsApi.getStrips()])
             .then(([fetchedClients, fetchedStrips]) => {
                 setClients(fetchedClients);
                 setStrips(fetchedStrips);

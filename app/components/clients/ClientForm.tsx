@@ -22,7 +22,7 @@ export interface IClientFormHandle {
 
 const ClientForm = forwardRef<IClientFormHandle, IClientFormProps>((props, ref) => {
     const clientApi = useClientApi();
-    const stripApi = useStripApi().stripApi!;
+    const stripApi = useStripApi();
     let client = props.client;
 
     let isNewClient = client == undefined;

@@ -1,4 +1,4 @@
-import React, { createContext, type ReactNode, useContext } from 'react';
+import { createContext, useContext, type FC, type ReactNode } from 'react';
 import { ClientsApiFactory } from '~/api/clients/clients_api.factory';
 import type { IClientsApi } from '../api/clients/clients_api';
 
@@ -17,7 +17,7 @@ interface ClientApiProviderProps {
   children: ReactNode;
 }
 
-export const ClientApiProvider: React.FC<ClientApiProviderProps> = ({ children }) => {
+export const ClientApiProvider: FC<ClientApiProviderProps> = ({ children }) => {
   return (
     <ClientApiContext.Provider value={api}>
       {children}

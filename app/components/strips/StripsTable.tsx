@@ -16,7 +16,7 @@ interface IStripsTableProps {
 }
 
 export function StripsTable({ clients, refreshKey }: IStripsTableProps) {
-    const stripApi = useStripApi().stripApi!;
+    const stripApi = useStripApi();
     const [strips, setStrips] = useState<ILedStrip[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<any>(null);
