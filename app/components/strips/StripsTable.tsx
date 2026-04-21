@@ -38,7 +38,7 @@ export function StripsTable({ clients, refreshKey, onClientChanged }: IStripsTab
 
     useEffect(() => {
         fetchStrips();
-    }, [fetchStrips, refreshKey]);
+    }, [refreshKey]);
 
     if (loading || clients === undefined) {
         return <BoundedLoadingOverlay loading />;

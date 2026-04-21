@@ -42,7 +42,7 @@ export function ClientGrid() {
                 setError(err);
                 setLoading(false);
             });
-    }, [stripsApi, clientApi, refreshKey]);
+    }, [refreshKey]);
 
     if (loading || clients === undefined) {
         return <BoundedLoadingOverlay loading />

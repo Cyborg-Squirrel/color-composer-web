@@ -35,7 +35,7 @@ function ClientTable({ onClientChanged, refreshKey }: IClientTableProps) {
             .catch(err => {
                 console.error('Error fetching data', err);
             });
-    }, [clientApi, stripsApi, refreshKey]);
+    }, [refreshKey]);
 
     if (clients === undefined || strips === undefined) {
         return <BoundedLoadingOverlay loading={true} />;
