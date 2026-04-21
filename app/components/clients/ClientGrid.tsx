@@ -83,7 +83,7 @@ export function ClientGrid() {
         setRefreshKey(k => k + 1);
     };
 
-    return (<>
+    return <>
         <ClientFormModal
             opened={modalOpened}
             onClose={close}
@@ -99,6 +99,5 @@ export function ClientGrid() {
             verticalSpacing={{ base: 'md', sm: 'md' }}>
             {gridItems}
         </SimpleGrid>
-    </>
-    );
+    </>;
 }

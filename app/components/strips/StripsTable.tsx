@@ -12,10 +12,11 @@ import StripFormModal from "./StripFormModal";
 
 interface IStripsTableProps {
     clients: ILedStripClient[] | undefined;
-    refreshKey?: number;
+    refreshKey: number;
+    onClientChanged: () => void;
 }
 
-export function StripsTable({ clients, refreshKey }: IStripsTableProps) {
+export function StripsTable({ clients, refreshKey, onClientChanged }: IStripsTableProps) {
     const stripApi = useStripApi();
     const [strips, setStrips] = useState<ILedStrip[]>([]);
     const [loading, setLoading] = useState(true);
@@ -52,7 +53,7 @@ export function StripsTable({ clients, refreshKey }: IStripsTableProps) {
 
     const handleEditSuccess = () => {
         close();
-        fetchStrips();
+        onClientChanged();
     };
 
     const dataRows = strips.map(s => ({
