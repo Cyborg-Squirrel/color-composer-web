@@ -12,11 +12,12 @@ import StripFormModal from "./StripFormModal";
 
 interface IStripsTableProps {
     clients: ILedStripClient[] | undefined;
-    refreshKey?: number;
+    refreshKey: number;
+    onClientChanged: () => void;
 }
 
-export function StripsTable({ clients, refreshKey }: IStripsTableProps) {
-    const stripApi = useStripApi().stripApi!;
+export function StripsTable({ clients, refreshKey, onClientChanged }: IStripsTableProps) {
+    const stripApi = useStripApi();
     const [strips, setStrips] = useState<ILedStrip[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<any>(null);
@@ -26,17 +27,18 @@ export function StripsTable({ clients, refreshKey }: IStripsTableProps) {
 
     const fetchStrips = useCallback(async () => {
         try {
+            setLoading(true);
             setStrips(await stripApi.getStrips());
             setLoading(false);
         } catch (err) {
             setError(err);
             setLoading(false);
         }
-    }, []);
+    }, [stripApi]);
 
     useEffect(() => {
         fetchStrips();
-    }, [fetchStrips, refreshKey]);
+    }, [refreshKey]);
 
     if (loading || clients === undefined) {
         return <BoundedLoadingOverlay loading />;
@@ -51,7 +53,7 @@ export function StripsTable({ clients, refreshKey }: IStripsTableProps) {
 
     const handleEditSuccess = () => {
         close();
-        fetchStrips();
+        onClientChanged();
     };
 
     const dataRows = strips.map(s => ({

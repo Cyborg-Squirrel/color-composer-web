@@ -25,15 +25,16 @@ function StripsContainer() {
   const clientApi = useClientApi();
   const [clients, setClients] = useState<ILedStripClient[]>([]);
   const [refreshKey, setRefreshKey] = useState(0);
+  const handleDataChanged = () => setRefreshKey(k => k + 1);
 
   useEffect(() => {
     clientApi.getClients().then(setClients).catch(err => {
       console.error('Error fetching clients', err);
     });
-  }, []);
+  }, [refreshKey]);
 
   return <BasicAppShell title="Color Composer" pageName="Strips" topPadding={"sm"} boxCssEnabled={true}
     addButton={<AddStripButton clients={clients ?? []} onSuccess={() => setRefreshKey(k => k + 1)} />}>
-    <StripsTable clients={clients} refreshKey={refreshKey} />
+    <StripsTable clients={clients} refreshKey={refreshKey} onClientChanged={handleDataChanged}/>
   </BasicAppShell>;
 }

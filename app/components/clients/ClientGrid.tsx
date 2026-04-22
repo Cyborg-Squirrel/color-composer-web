@@ -17,7 +17,7 @@ interface IClientUiModel {
 
 export function ClientGrid() {
     const clientApi = useClientApi();
-    const stripsApi = useStripApi().stripApi!;
+    const stripsApi = useStripApi();
     const [refreshKey, setRefreshKey] = useState(0);
     const [clients, setClients] = useState<ILedStripClient[] | undefined>(undefined);
     const [strips, setStrips] = useState<ILedStrip[]>([]);
@@ -83,7 +83,7 @@ export function ClientGrid() {
         setRefreshKey(k => k + 1);
     };
 
-    return (<>
+    return <>
         <ClientFormModal
             opened={modalOpened}
             onClose={close}
@@ -94,11 +94,10 @@ export function ClientGrid() {
             title='Edit client'
         />
         <SimpleGrid
-            cols={{ base: 1, sm: 1, md: 2, lg: 2, xl: 3 }}
+            cols={{ base: 1, xs: 1, sm: 2, md: 2, lg: 3, xl: 3 }}
             spacing={{ base: 10, sm: 'md' }}
             verticalSpacing={{ base: 'md', sm: 'md' }}>
             {gridItems}
         </SimpleGrid>
-    </>
-    );
+    </>;
 }

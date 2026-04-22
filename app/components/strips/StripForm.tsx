@@ -20,7 +20,7 @@ export interface IStripFormHandle {
 
 const StripForm = forwardRef<IStripFormHandle, IStripFormProps>((props, ref) => {
     let strip = props.strip;
-    const stripApi = useStripApi().stripApi!;
+    const stripApi = useStripApi();
     const [submitting, setSubmitting] = useState(false);
     const [submitError, setSubmitError] = useState<string | null>(null);
     const [selectedClientUuid, setSelectedClientUuid] = useState<string>(strip?.clientUuid || '');

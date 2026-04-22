@@ -16,6 +16,7 @@ export class RealClientsApi implements IClientsApi {
       return [];
     }
     
+    console.log('Fetching clients from API at ' + this.apiUrl);
     const res = await fetch(this.apiUrl + '/client');
     const json = await res.json();
     const clientList = json.clients.map((c: ILedStripClient) => c);

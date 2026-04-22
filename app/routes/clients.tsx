@@ -15,6 +15,7 @@ export function meta({ }: Route.MetaArgs) {
 export default function Clients() {
   const [refreshKey, setRefreshKey] = useState(0);
   const handleClientMutated = () => setRefreshKey(k => k + 1);
+  console.log('Clients page rendered with refreshKey ' + refreshKey);
 
   return <Layout>
     <BasicAppShell title="Color Composer" pageName="Clients" topPadding={"sm"}

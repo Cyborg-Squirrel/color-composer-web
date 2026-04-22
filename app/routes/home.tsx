@@ -12,7 +12,7 @@ export function meta({ }: Route.MetaArgs) {
 
 export default function Home() {
   return <Layout>
-    <BasicAppShell title="Color Composer" pageName="Home" topPadding={"lg"} boxCssEnabled={false} contentMarginTop={0}>
+    <BasicAppShell title="Color Composer" pageName="Home" topPadding={"sm"} boxCssEnabled={false}>
       <ClientGrid />
     </BasicAppShell>
   </Layout>;

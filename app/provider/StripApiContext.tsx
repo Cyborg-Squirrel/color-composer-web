@@ -1,13 +1,8 @@
-import React, { createContext, type ReactNode, useContext } from 'react';
+import { createContext, useContext, useMemo, type FC, type ReactNode } from 'react';
 import { StripsApiFactory } from '~/api/strips/strips_api.factory';
 import type { IStripsApi } from '../api/strips/strips_api.interface';
 
-interface StripApiContextType {
-  stripApi: IStripsApi | null;
-}
-
-const StripApiContext = createContext<StripApiContextType | undefined>(undefined);
-const api = StripsApiFactory.create();
+const StripApiContext = createContext<IStripsApi | undefined>(undefined);
 
 export const useStripApi = () => {
   const context = useContext(StripApiContext);
@@ -21,9 +16,10 @@ interface StripApiProviderProps {
   children: ReactNode;
 }
 
-export const StripApiProvider: React.FC<StripApiProviderProps> = ({ children }) => {
+export const StripApiProvider: FC<StripApiProviderProps> = ({ children }) => {
+  const api = useMemo(() => StripsApiFactory.create(), []);
   return (
-    <StripApiContext.Provider value={{ stripApi: api }}>
+    <StripApiContext.Provider value={api}>
       {children}
     </StripApiContext.Provider>
   );

@@ -1,4 +1,4 @@
-import { ActionIcon, Button, Group, Tooltip } from "@mantine/core";
+import { ActionIcon, Group, Tooltip } from "@mantine/core";
 import { FastForwardIcon, PlayIcon, RewindIcon, StopIcon, TrashIcon } from '@phosphor-icons/react';
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
@@ -66,19 +66,22 @@ function SwitchesCard() {
   </Group>;
 }
 
-export default function MediaControlAffix() {
-  const [show, setShow] = useState(false);
-  const ref = useRef<HTMLButtonElement>(null);
+interface MediaControlAffixProps {
+  show: boolean;
+}
+
+export default function MediaControlAffix({ show }: MediaControlAffixProps) {
+  const ref = useRef<HTMLDivElement>(null);
   const parentRef = useAppShellRef();
 
   return (
-    <Button ref={ref} onClick={() => setShow(s => !s)}>
-      {show ? "Hide" : "Show"} Media Controls
+    <>
       {show && (
-        <MediaControlPortal anchorRef={ref} parentRef={parentRef}>
+        <MediaControlPortal anchorRef={ref as any} parentRef={parentRef}>
           <SwitchesCard />
         </MediaControlPortal>
       )}
-    </Button>
+      <div ref={ref} style={{ display: 'none' }} />
+    </>
   );
 }
