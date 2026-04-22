@@ -178,7 +178,7 @@ function EffectsTable({ }: IEffectsTableProps) {
 
     return (
         <>
-            <MediaControlAffix show={hasAnyChecked} />
+            <MediaControlAffix show={hasAnyChecked} isMobile={isMobile} />
             {table}
         </>
     );

@@ -9,26 +9,31 @@ interface MediaControlPortalProps {
   anchorRef: React.RefObject<HTMLElement>;
   parentRef: React.RefObject<HTMLElement>;
   children: React.ReactNode;
+  isMobile: boolean;
 }
 
-function MediaControlPortal({ anchorRef, parentRef, children }: MediaControlPortalProps) {
+function MediaControlPortal({ anchorRef, parentRef, children, isMobile }: MediaControlPortalProps) {
   const [coords, setCoords] = useState({ top: 0, left: 0 });
 
   useEffect(() => {
     if (!parentRef.current) return;
     if (!anchorRef.current) return;
-
+    
     const updateCoords = () => {
       const parent = parentRef.current?.getBoundingClientRect();
       setCoords({
-        top: (window.innerHeight * 0.9) + window.scrollY,
+        top: (window.innerHeight * (isMobile ? 0.8 : 0.9)) + window.scrollY,
         left: parent.left + (parent.width / 2),
       });
     };
 
     updateCoords();
     window.addEventListener("resize", updateCoords);
-    return () => window.removeEventListener("resize", updateCoords);
+    window.addEventListener("scroll", updateCoords);
+    return () => {
+      window.removeEventListener("resize", updateCoords);
+      window.removeEventListener("scroll", updateCoords);
+    };
   }, [anchorRef, parentRef]);
 
   return createPortal(
@@ -46,7 +51,7 @@ function MediaControlPortal({ anchorRef, parentRef, children }: MediaControlPort
 }
 
 function SwitchesCard() {
-  return <Group justify="center" onClick={(e) => e.stopPropagation()}>
+  return <Group grow justify="center" onClick={(e) => e.stopPropagation()}>
     <ActionIcon variant="default" size="xl" aria-label="Rewind">
       <RewindIcon />
     </ActionIcon>
@@ -68,16 +73,17 @@ function SwitchesCard() {
 
 interface MediaControlAffixProps {
   show: boolean;
+  isMobile: boolean;
 }
 
-export default function MediaControlAffix({ show }: MediaControlAffixProps) {
+export default function MediaControlAffix({ show, isMobile }: MediaControlAffixProps) {
   const ref = useRef<HTMLDivElement>(null);
   const parentRef = useAppShellRef();
 
   return (
     <>
       {show && (
-        <MediaControlPortal anchorRef={ref as any} parentRef={parentRef}>
+        <MediaControlPortal anchorRef={ref} parentRef={parentRef} isMobile={isMobile}>
           <SwitchesCard />
         </MediaControlPortal>
       )}
