@@ -1,0 +1,14 @@
+.box {
+  background-color: light-dark(var(--mantine-color-white), var(--mantine-color-dark-7));
+  outline: 1px solid var(--app-shell-border-color);
+}
+
+.container {
+  padding-top: 2em;
+}
+
+@media (max-width: 576px) {
+  .container {
+    padding-top: 0;
+  }
+}

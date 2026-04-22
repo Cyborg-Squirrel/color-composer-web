@@ -1,4 +1,4 @@
-import { ActionIcon, Checkbox, Container, Table, Text, Tooltip } from "@mantine/core";
+import { ActionIcon, Checkbox, Table, Text, Tooltip } from "@mantine/core";
 import { PauseIcon, PlayIcon, TrashIcon } from '@phosphor-icons/react';
 import { useEffect, useState } from "react";
 import type { ILightEffect, LightEffectStatusCommand } from "~/api/effects/effects_api";
@@ -179,7 +179,7 @@ function EffectsTable({ }: IEffectsTableProps) {
     return (
         <>
             <MediaControlAffix show={hasAnyChecked} />
-            {isMobile ? table : <Container>{table}</Container>}
+            {table}
         </>
     );
 }

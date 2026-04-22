@@ -1,4 +1,4 @@
-import { Container, Table, Text } from "@mantine/core";
+import { Table, Text } from "@mantine/core";
 import { isMobileUi } from "~/components/util/IsMobile";
 
 interface IDataRow {
@@ -27,7 +27,7 @@ function TableWithTrailingButton(props: ITableProps) {
         </Table.Tr>
     ));
 
-    const table = <Table verticalSpacing="xs" highlightOnHover={true}>
+    return <Table verticalSpacing="sm" horizontalSpacing="lg" highlightOnHover={true}>
         <Table.Thead>
             <Table.Tr>
                 <Table.Th>{props.dataCols[0]}</Table.Th>
@@ -38,13 +38,7 @@ function TableWithTrailingButton(props: ITableProps) {
         <Table.Tbody>
             {rows}
         </Table.Tbody>
-    </Table>;
-    
-    if (isMobile) {
-        return table;
-    } else {
-        return <Container>{table}</Container>;
-    }
+    </Table>
 }
 
 function getNameTd(name: string, status: string, statusColor: string) {

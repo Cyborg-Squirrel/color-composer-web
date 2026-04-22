@@ -94,7 +94,7 @@ export function ClientGrid() {
             title='Edit client'
         />
         <SimpleGrid
-            cols={{ base: 1, sm: 1, md: 2, lg: 2, xl: 3 }}
+            cols={{ base: 1, xs: 1, sm: 2, md: 2, lg: 3, xl: 3 }}
             spacing={{ base: 10, sm: 'md' }}
             verticalSpacing={{ base: 'md', sm: 'md' }}>
             {gridItems}
