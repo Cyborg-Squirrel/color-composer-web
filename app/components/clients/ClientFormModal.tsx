@@ -2,6 +2,7 @@ import { Button, Group, Modal, useModalsStack } from "@mantine/core";
 import { useRef } from "react";
 import type { ILedStripClient } from "~/api/clients/clients_api";
 import type { ILedStrip } from "~/api/strips/strips_api";
+import { useClientApi } from "~/provider/ClientApiContext";
 import ClientForm, { type IClientFormHandle } from "./ClientForm";
 
 interface IClientFormModalProps {
@@ -17,6 +18,18 @@ interface IClientFormModalProps {
 function ClientFormModal({ opened, onClose, onSuccess, isMobile, client, strips, title }: IClientFormModalProps) {
     const stack = useModalsStack(['first', 'second']);
     const formRef = useRef<IClientFormHandle>(null);
+    const clientApi = useClientApi();
+
+    const handleDelete = async () => {
+        if (!client) return;
+        try {
+            await clientApi.deleteClient(client.uuid);
+            onClose();
+            onSuccess();
+        } catch (err) {
+            console.error('Error deleting client', err);
+        }
+    };
 
     const handleClose = () => {
         if (formRef.current?.isSubmitting() ?? false) {
@@ -54,6 +67,7 @@ function ClientFormModal({ opened, onClose, onSuccess, isMobile, client, strips,
                     isMobile={isMobile}
                     closeForm={handleClose}
                     onSuccess={onSuccess}
+                    onDelete={client ? handleDelete : undefined}
                     ref={formRef}
                 />
             </Modal>

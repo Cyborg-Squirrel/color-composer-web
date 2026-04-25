@@ -2,6 +2,7 @@ import { Button, Group, Modal, useModalsStack } from "@mantine/core";
 import { useRef } from "react";
 import type { ILedStripClient } from "~/api/clients/clients_api";
 import type { ILedStrip } from "~/api/strips/strips_api";
+import { useStripApi } from "~/provider/StripApiContext";
 import StripForm, { type IStripFormHandle } from "./StripForm";
 
 interface IStripFormModalProps {
@@ -17,6 +18,18 @@ interface IStripFormModalProps {
 function StripFormModal(props: IStripFormModalProps) {
     const stack = useModalsStack(['first', 'second']);
     const formRef = useRef<IStripFormHandle>(null);
+    const stripApi = useStripApi();
+
+    const handleDelete = async () => {
+        if (!props.strip) return;
+        try {
+            await stripApi.deleteStrip(props.strip.uuid);
+            props.onClose();
+            props.onSuccess();
+        } catch (err) {
+            console.error('Error deleting strip', err);
+        }
+    };
 
     const handleClose = () => {
         if (formRef.current?.isDirty() ?? false) {
@@ -51,6 +64,7 @@ function StripFormModal(props: IStripFormModalProps) {
                     isMobile={props.isMobile}
                     closeForm={handleClose}
                     onSuccess={props.onSuccess}
+                    onDelete={props.strip ? handleDelete : undefined}
                     ref={formRef}
                 />
             </Modal>

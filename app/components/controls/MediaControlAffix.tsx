@@ -1,4 +1,4 @@
-import { ActionIcon, Group, Tooltip } from "@mantine/core";
+import { ActionIcon, Group } from "@mantine/core";
 import { FastForwardIcon, PlayIcon, RewindIcon, StopIcon, TrashIcon } from '@phosphor-icons/react';
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
@@ -18,7 +18,7 @@ function MediaControlPortal({ anchorRef, parentRef, children, isMobile }: MediaC
   useEffect(() => {
     if (!parentRef.current) return;
     if (!anchorRef.current) return;
-    
+
     const updateCoords = () => {
       const parent = parentRef.current?.getBoundingClientRect();
       setCoords({
@@ -50,41 +50,51 @@ function MediaControlPortal({ anchorRef, parentRef, children, isMobile }: MediaC
   );
 }
 
-function SwitchesCard() {
-  return <Group grow justify="center" onClick={(e) => e.stopPropagation()}>
-    <ActionIcon variant="default" size="xl" aria-label="Rewind">
-      <RewindIcon />
-    </ActionIcon>
-    <ActionIcon id="play-button" variant="default" size="xl" aria-label="Play" disabled={true}>
-      <Tooltip target="#play-button" label="All selected effects are playing" />
-      <PlayIcon />
-    </ActionIcon>
-    <ActionIcon variant="default" size="xl" aria-label="Fast forward">
-      <FastForwardIcon />
-    </ActionIcon>
-    <ActionIcon variant="default" size="xl" aria-label="Stop">
-      <StopIcon />
-    </ActionIcon>
-    <ActionIcon variant="default" bg="var(--mantine-color-error)" size="xl" aria-label="Delete">
-      <TrashIcon />
-    </ActionIcon>
-  </Group>;
+interface SwitchesCardProps {
+  onPlay?: () => void;
+  onPause?: () => void;
+  onDelete?: () => void;
+}
+
+function SwitchesCard({ onPlay, onPause, onDelete }: SwitchesCardProps) {
+  return (
+    <Group grow justify="center" onClick={(e) => e.stopPropagation()}>
+      <ActionIcon variant="default" size="xl" aria-label="Rewind">
+        <RewindIcon />
+      </ActionIcon>
+      <ActionIcon variant="default" size="xl" aria-label="Play" onClick={onPlay}>
+        <PlayIcon />
+      </ActionIcon>
+      <ActionIcon variant="default" size="xl" aria-label="Fast forward">
+        <FastForwardIcon />
+      </ActionIcon>
+      <ActionIcon variant="default" size="xl" aria-label="Stop" onClick={onPause}>
+        <StopIcon />
+      </ActionIcon>
+      <ActionIcon variant="default" bg="var(--mantine-color-error)" size="xl" aria-label="Delete" onClick={onDelete}>
+        <TrashIcon />
+      </ActionIcon>
+    </Group>
+  );
 }
 
 interface MediaControlAffixProps {
   show: boolean;
   isMobile: boolean;
+  onPlay?: () => void;
+  onPause?: () => void;
+  onDelete?: () => void;
 }
 
-export default function MediaControlAffix({ show, isMobile }: MediaControlAffixProps) {
+export default function MediaControlAffix({ show, isMobile, onPlay, onPause, onDelete }: MediaControlAffixProps) {
   const ref = useRef<HTMLDivElement>(null);
   const parentRef = useAppShellRef();
 
   return (
     <>
       {show && (
-        <MediaControlPortal anchorRef={ref} parentRef={parentRef} isMobile={isMobile}>
-          <SwitchesCard />
+        <MediaControlPortal anchorRef={ref as any} parentRef={parentRef as any} isMobile={isMobile}>
+          <SwitchesCard onPlay={onPlay} onPause={onPause} onDelete={onDelete} />
         </MediaControlPortal>
       )}
       <div ref={ref} style={{ display: 'none' }} />

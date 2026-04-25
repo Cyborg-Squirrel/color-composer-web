@@ -1,18 +1,20 @@
-import { ActionIcon, useMantineColorScheme } from '@mantine/core';
+import { Switch, useMantineColorScheme } from '@mantine/core';
+import { MoonIcon, SunIcon } from '@phosphor-icons/react';
 
-export function ColorSchemeToggle(props: {hidden: boolean}) {
+export function ColorSchemeToggle(props: { hidden: boolean }) {
   const { colorScheme, setColorScheme } = useMantineColorScheme();
-  const isLightMode = colorScheme === 'light';
+  const isDark = colorScheme === 'dark';
+
+  if (props.hidden) return null;
 
   return (
-    <ActionIcon
-      onClick={() => setColorScheme(isLightMode ? 'dark' : 'light')}
-      variant="default"
-      size="xl"
+    <Switch
+      size="md"
+      checked={isDark}
+      onChange={() => setColorScheme(isDark ? 'light' : 'dark')}
+      onLabel={<SunIcon size={14} color="var(--mantine-color-yellow-4)" />}
+      offLabel={<MoonIcon size={14} color="var(--mantine-color-blue-5)" />}
       aria-label="Toggle color scheme"
-      hidden={props.hidden}
-    >
-      {isLightMode ? '🌛' : '☀️'}
-    </ActionIcon>
+    />
   );
 }

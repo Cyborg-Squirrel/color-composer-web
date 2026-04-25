@@ -51,6 +51,12 @@ export class RealClientsApi implements IClientsApi {
     }
   }
 
+  async deleteClient(uuid: string): Promise<void> {
+    if (!this.apiUrl) return;
+    const res = await fetch(this.apiUrl + '/client/' + uuid, { method: 'DELETE' });
+    if (!res.ok) throw new Error(`Failed to delete client: ${res.status}`);
+  }
+
   async createClient(client: ILedStripClientMutation): Promise<string> {
     if (!this.apiUrl) {
       console.log('API_URL environment variable is not set. ' +

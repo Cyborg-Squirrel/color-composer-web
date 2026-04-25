@@ -65,6 +65,11 @@ export class MockStripsApi implements IStripsApi {
     return newStrip.uuid;
   }
 
+  async deleteStrip(uuid: string): Promise<void> {
+    await this.delay(500);
+    this.strips = this.strips.filter(s => s.uuid !== uuid);
+  }
+
   async updateStrip(uuid: string, data: {
     name?: string;
     pin?: string;

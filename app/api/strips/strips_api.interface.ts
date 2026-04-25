@@ -20,4 +20,5 @@ export interface IStripsApi {
     blendMode?: BlendMode;
     clientUuid?: string;
   }): Promise<void>;
+  deleteStrip(uuid: string): Promise<void>;
 }

@@ -13,6 +13,7 @@ interface IClientFormProps {
     isMobile: boolean;
     closeForm: () => void;
     onSuccess: () => void;
+    onDelete?: () => void;
 }
 
 export interface IClientFormHandle {
@@ -234,6 +235,18 @@ const ClientForm = forwardRef<IClientFormHandle, IClientFormProps>((props, ref) 
             />
 
             <Group justify="flex-end" mt="xl" grow={props.isMobile}>
+                {!isNewClient && props.onDelete && (
+                    <Button
+                        variant="light"
+                        color="red"
+                        type="button"
+                        onClick={props.onDelete}
+                        disabled={submitting}
+                        mr="auto"
+                    >
+                        Delete
+                    </Button>
+                )}
                 <Button variant="default" type="button" onClick={props.closeForm} disabled={submitting}>Cancel</Button>
                 <FormSubmitButton disabled={!form.isDirty()} loading={submitting} />
             </Group>

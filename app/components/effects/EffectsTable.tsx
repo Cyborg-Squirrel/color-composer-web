@@ -1,17 +1,14 @@
-import { ActionIcon, Checkbox, Table, Text, Tooltip } from "@mantine/core";
-import { PauseIcon, PlayIcon, TrashIcon } from '@phosphor-icons/react';
+import { ActionIcon, Checkbox, Table, Text } from "@mantine/core";
+import { PauseIcon, PlayIcon } from '@phosphor-icons/react';
 import { useEffect, useState } from "react";
 import type { ILightEffect, LightEffectStatusCommand } from "~/api/effects/effects_api";
 import { isMobileUi } from "~/components/util/IsMobile";
 import { useEffectApi } from "~/provider/EffectApiContext";
 import { usePaletteApi } from "~/provider/PaletteApiContext";
-import BoundedLoadingOverlay from "../controls/BoundedLoadingOverlay";
 import MediaControlAffix from "../controls/MediaControlAffix";
+import { TableSkeletonRows } from "../util/TableSkeletonRows";
 
-interface IEffectsTableProps {
-}
-
-function EffectsTable({ }: IEffectsTableProps) {
+function EffectsTable() {
     const effectApi = useEffectApi();
     const paletteApi = usePaletteApi();
     const [effects, setEffects] = useState<ILightEffect[] | undefined>(undefined);
@@ -36,15 +33,12 @@ function EffectsTable({ }: IEffectsTableProps) {
             });
     }, [effectApi, paletteApi]);
 
-    if (effects === undefined) {
-        return <BoundedLoadingOverlay loading={true} />;
-    }
+    const loading = effects === undefined;
 
     const handlePlayPause = async (effectUuid: string, currentStatus: string) => {
         const command: LightEffectStatusCommand = currentStatus === 'Playing' ? 'Pause' : 'Play';
         try {
             await effectApi.updateEffectStatus([effectUuid], command);
-            // Update local state
             setEffects(prevEffects => prevEffects?.map(e =>
                 e.uuid === effectUuid
                     ? { ...e, status: command === 'Play' ? 'Playing' : 'Paused' }
@@ -89,97 +83,86 @@ function EffectsTable({ }: IEffectsTableProps) {
         }
     };
 
-    const handleDelete = async (effectUuid: string) => {
+    const handleBulkDelete = async () => {
+        if (checkedEffects.size === 0) return;
         try {
-            await effectApi.deleteEffect(effectUuid);
-            setEffects(prevEffects => prevEffects?.filter(e => e.uuid !== effectUuid));
-            setCheckedEffects(prev => {
-                const newChecked = new Set(prev);
-                newChecked.delete(effectUuid);
-                return newChecked;
-            });
+            await Promise.all(Array.from(checkedEffects).map(uuid => effectApi.deleteEffect(uuid)));
+            setEffects(prevEffects => prevEffects?.filter(e => !checkedEffects.has(e.uuid)));
+            setCheckedEffects(new Set());
         } catch (err) {
-            console.error('Error deleting effect', err);
+            console.error('Error deleting effects', err);
         }
     };
 
     const hasAnyChecked = checkedEffects.size > 0;
 
-    const rows = effects.map((effect) => (
-        <Table.Tr
-            key={effect.uuid}
-            onMouseEnter={() => setHoveredRowUuid(effect.uuid)}
-            onMouseLeave={() => setHoveredRowUuid(null)}
-        >
-            <Table.Td width="60px">
-                <ActionIcon
-                    variant="subtle"
-                    onClick={() => handlePlayPause(effect.uuid, effect.status)}
-                    opacity={isMobile || checkedEffects.has(effect.uuid) || hoveredRowUuid === effect.uuid ? 1 : 0}
-                >
-                    {effect.status === 'Playing' ? <PauseIcon size={16} /> : <PlayIcon size={16} />}
-                </ActionIcon>
-            </Table.Td>
-            <Table.Td>
-                <Text fw={500}>{effect.name}</Text>
-                <Text size="sm" c="dimmed">{effect.type}</Text>
-            </Table.Td>
-            {!isMobile && <Table.Td>{palettes.get(effect.paletteUuid ?? '') || 'None'}</Table.Td>}
-            <Table.Td width="60px" style={{ textAlign: 'center' }}>
-                <Tooltip label="Delete effect">
-                    <ActionIcon
-                        variant="light"
-                        color="red"
-                        size="sm"
-                        onClick={() => handleDelete(effect.uuid)}
-                    >
-                        <TrashIcon size={16} />
-                    </ActionIcon>
-                </Tooltip>
-            </Table.Td>
-            <Table.Td
-                width="60px"
-                style={{
-                    textAlign: 'center',
-                    opacity: isMobile || checkedEffects.has(effect.uuid) || hoveredRowUuid === effect.uuid ? 1 : 0,
-                }}
-            >
-                <Checkbox
-                    checked={checkedEffects.has(effect.uuid)}
-                    onChange={() => handleCheckboxChange(effect.uuid)}
-                    aria-label={`Select ${effect.name}`}
-                    size="md"
-                    styles={{
-                        input: {
-                            borderWidth: '3px',
-                        }
-                    }}
-                />
-            </Table.Td>
-        </Table.Tr>
-    ));
-
-    const table = (
-        <Table verticalSpacing="xs" highlightOnHover={true}>
-            <Table.Thead>
-                <Table.Tr>
-                    <Table.Th />
-                    <Table.Th>Name</Table.Th>
-                    {!isMobile && <Table.Th>Palette</Table.Th>}
-                    <Table.Th />
-                    <Table.Th />
-                </Table.Tr>
-            </Table.Thead>
-            <Table.Tbody>
-                {rows}
-            </Table.Tbody>
-        </Table>
-    );
-
     return (
         <>
-            <MediaControlAffix show={hasAnyChecked} isMobile={isMobile} />
-            {table}
+            <MediaControlAffix
+                show={hasAnyChecked}
+                isMobile={isMobile}
+                onPlay={handleBulkPlay}
+                onPause={handleBulkPause}
+                onDelete={handleBulkDelete}
+            />
+            <Table verticalSpacing="xs" highlightOnHover={true}>
+                <Table.Thead>
+                    <Table.Tr>
+                        <Table.Th />
+                        <Table.Th>Name</Table.Th>
+                        {!isMobile && <Table.Th>Palette</Table.Th>}
+                        <Table.Th />
+                    </Table.Tr>
+                </Table.Thead>
+                <Table.Tbody>
+                    {loading ? (
+                        <TableSkeletonRows widths={isMobile ? [0, 140, 0] : [0, 140, 100, 0]} />
+                    ) : effects!.map((effect) => (
+                        <Table.Tr
+                            key={effect.uuid}
+                            onMouseEnter={() => setHoveredRowUuid(effect.uuid)}
+                            onMouseLeave={() => setHoveredRowUuid(null)}
+                        >
+                            <Table.Td width="60px">
+                                <ActionIcon
+                                    variant="subtle"
+                                    onClick={() => handlePlayPause(effect.uuid, effect.status)}
+                                    opacity={isMobile || checkedEffects.has(effect.uuid) || hoveredRowUuid === effect.uuid ? 1 : 0}
+                                >
+                                    {effect.status === 'Playing' ? <PauseIcon size={16} /> : <PlayIcon size={16} />}
+                                </ActionIcon>
+                            </Table.Td>
+                            <Table.Td>
+                                <Text fw={500}>{effect.name}</Text>
+                                <Text size="sm" c="dimmed">{effect.type}</Text>
+                            </Table.Td>
+                            {!isMobile && <Table.Td>{palettes.get(effect.paletteUuid ?? '') || 'None'}</Table.Td>}
+                            <Table.Td
+                                width="60px"
+                                style={{
+                                    textAlign: 'center',
+                                    opacity: isMobile || checkedEffects.has(effect.uuid) || hoveredRowUuid === effect.uuid ? 1 : 0,
+                                }}
+                            >
+                                <Checkbox
+                                    checked={checkedEffects.has(effect.uuid)}
+                                    onChange={() => handleCheckboxChange(effect.uuid)}
+                                    aria-label={`Select ${effect.name}`}
+                                    size="md"
+                                    styles={{ input: { borderWidth: '3px' } }}
+                                />
+                            </Table.Td>
+                        </Table.Tr>
+                    ))}
+                    {!loading && effects!.length === 0 && (
+                        <Table.Tr>
+                            <Table.Td colSpan={isMobile ? 3 : 4} ta="center" py="xl" c="dimmed">
+                                No effects configured
+                            </Table.Td>
+                        </Table.Tr>
+                    )}
+                </Table.Tbody>
+            </Table>
         </>
     );
 }
