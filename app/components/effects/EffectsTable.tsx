@@ -1,4 +1,4 @@
-import { ActionIcon, Checkbox, Table, Text } from "@mantine/core";
+import { ActionIcon, Button, Checkbox, Group, Modal, Table, Text } from "@mantine/core";
 import { PauseIcon, PlayIcon } from '@phosphor-icons/react';
 import { useEffect, useState } from "react";
 import type { ILightEffect, LightEffectStatusCommand } from "~/api/effects/effects_api";
@@ -15,6 +15,7 @@ function EffectsTable() {
     const [palettes, setPalettes] = useState<Map<string, string>>(new Map());
     const [checkedEffects, setCheckedEffects] = useState<Set<string>>(new Set());
     const [hoveredRowUuid, setHoveredRowUuid] = useState<string | null>(null);
+    const [confirmDelete, setConfirmDelete] = useState(false);
     const isMobile = isMobileUi();
 
     useEffect(() => {
@@ -83,6 +84,18 @@ function EffectsTable() {
         }
     };
 
+    const handleBulkStop = async () => {
+        if (checkedEffects.size === 0) return;
+        try {
+            await effectApi.updateEffectStatus(Array.from(checkedEffects), 'Stop');
+            setEffects(prevEffects => prevEffects?.map(e =>
+                checkedEffects.has(e.uuid) ? { ...e, status: 'Stopped' } : e
+            ));
+        } catch (err) {
+            console.error('Error stopping effects', err);
+        }
+    };
+
     const handleBulkDelete = async () => {
         if (checkedEffects.size === 0) return;
         try {
@@ -96,14 +109,32 @@ function EffectsTable() {
 
     const hasAnyChecked = checkedEffects.size > 0;
 
+    const count = checkedEffects.size;
+
     return (
         <>
+            <Modal
+                opened={confirmDelete}
+                onClose={() => setConfirmDelete(false)}
+                title="Delete effects"
+                radius="md"
+                size="sm"
+            >
+                <Text size="sm" mb="xl">
+                    Delete {count} {count === 1 ? 'effect' : 'effects'}? This cannot be undone.
+                </Text>
+                <Group justify="flex-end">
+                    <Button variant="default" onClick={() => setConfirmDelete(false)}>Cancel</Button>
+                    <Button color="red" onClick={() => { setConfirmDelete(false); handleBulkDelete(); }}>Delete</Button>
+                </Group>
+            </Modal>
             <MediaControlAffix
                 show={hasAnyChecked}
                 isMobile={isMobile}
                 onPlay={handleBulkPlay}
                 onPause={handleBulkPause}
-                onDelete={handleBulkDelete}
+                onStop={handleBulkStop}
+                onDelete={() => setConfirmDelete(true)}
             />
             <Table verticalSpacing="xs" highlightOnHover={true}>
                 <Table.Thead>

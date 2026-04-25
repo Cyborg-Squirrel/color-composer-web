@@ -53,10 +53,11 @@ function MediaControlPortal({ anchorRef, parentRef, children, isMobile }: MediaC
 interface SwitchesCardProps {
   onPlay?: () => void;
   onPause?: () => void;
+  onStop?: () => void;
   onDelete?: () => void;
 }
 
-function SwitchesCard({ onPlay, onPause, onDelete }: SwitchesCardProps) {
+function SwitchesCard({ onPlay, onPause, onStop, onDelete }: SwitchesCardProps) {
   return (
     <Group grow justify="center" onClick={(e) => e.stopPropagation()}>
       <ActionIcon variant="default" size="xl" aria-label="Rewind">
@@ -68,7 +69,7 @@ function SwitchesCard({ onPlay, onPause, onDelete }: SwitchesCardProps) {
       <ActionIcon variant="default" size="xl" aria-label="Fast forward">
         <FastForwardIcon />
       </ActionIcon>
-      <ActionIcon variant="default" size="xl" aria-label="Stop" onClick={onPause}>
+      <ActionIcon variant="default" size="xl" aria-label="Stop" onClick={onStop}>
         <StopIcon />
       </ActionIcon>
       <ActionIcon variant="default" bg="var(--mantine-color-error)" size="xl" aria-label="Delete" onClick={onDelete}>
@@ -83,10 +84,11 @@ interface MediaControlAffixProps {
   isMobile: boolean;
   onPlay?: () => void;
   onPause?: () => void;
+  onStop?: () => void;
   onDelete?: () => void;
 }
 
-export default function MediaControlAffix({ show, isMobile, onPlay, onPause, onDelete }: MediaControlAffixProps) {
+export default function MediaControlAffix({ show, isMobile, onPlay, onPause, onStop, onDelete }: MediaControlAffixProps) {
   const ref = useRef<HTMLDivElement>(null);
   const parentRef = useAppShellRef();
 
@@ -94,7 +96,7 @@ export default function MediaControlAffix({ show, isMobile, onPlay, onPause, onD
     <>
       {show && (
         <MediaControlPortal anchorRef={ref as any} parentRef={parentRef as any} isMobile={isMobile}>
-          <SwitchesCard onPlay={onPlay} onPause={onPause} onDelete={onDelete} />
+          <SwitchesCard onPlay={onPlay} onPause={onPause} onStop={onStop} onDelete={onDelete} />
         </MediaControlPortal>
       )}
       <div ref={ref} style={{ display: 'none' }} />
