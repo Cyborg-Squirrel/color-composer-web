@@ -11,6 +11,7 @@ export function ColorSchemeToggle(props: { hidden: boolean }) {
     <Switch
       size="md"
       checked={isDark}
+      color="dark.4"
       onChange={() => setColorScheme(isDark ? 'light' : 'dark')}
       onLabel={<SunIcon size={14} color="var(--mantine-color-yellow-4)" />}
       offLabel={<MoonIcon size={14} color="var(--mantine-color-blue-5)" />}
