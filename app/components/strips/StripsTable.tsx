@@ -5,8 +5,8 @@ import type { ILedStripClient } from "~/api/clients/clients_api";
 import type { ILedStrip } from "~/api/strips/strips_api";
 import { isMobileUi } from "~/components/util/IsMobile";
 import { useStripApi } from "~/provider/StripApiContext";
-import { getStripStatusColor, getStripStatusText } from "../util/TextHelper";
 import { TableSkeletonRows } from "../util/TableSkeletonRows";
+import { getStripStatusColor, getStripStatusText } from "../util/TextHelper";
 import StripFormModal from "./StripFormModal";
 
 interface IStripsTableProps {
@@ -59,8 +59,8 @@ export function StripsTable({ clients, refreshKey, onClientChanged }: IStripsTab
                     <Table.Tr>
                         <Table.Th>Name</Table.Th>
                         {!isMobile && <Table.Th>Client</Table.Th>}
-                        <Table.Th>Length</Table.Th>
-                        <Table.Th>Brightness</Table.Th>
+                        {!isMobile && <Table.Th>Length</Table.Th>}
+                        {!isMobile && <Table.Th>Brightness</Table.Th>}
                         <Table.Th>Status</Table.Th>
                     </Table.Tr>
                 </Table.Thead>
@@ -77,8 +77,8 @@ export function StripsTable({ clients, refreshKey, onClientChanged }: IStripsTab
                             >
                                 <Table.Td><Text fw={500}>{s.name}</Text></Table.Td>
                                 {!isMobile && <Table.Td>{clientName}</Table.Td>}
-                                <Table.Td>{s.length}</Table.Td>
-                                <Table.Td>{s.brightness}%</Table.Td>
+                                {!isMobile && <Table.Td>{s.length}</Table.Td>}
+                                {!isMobile && <Table.Td>{s.brightness}%</Table.Td>}
                                 <Table.Td>
                                     <Text size="sm" fw={500} c={getStripStatusColor(s.activeEffects)}>
                                         {getStripStatusText(s.activeEffects)}
