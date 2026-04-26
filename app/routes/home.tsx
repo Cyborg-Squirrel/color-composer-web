@@ -102,7 +102,12 @@ function HomeContent() {
     });
   }, []);
 
-  const activeEffects = effects.filter(e => e.status === 'Playing');
+  const activeEffects = effects.filter(e => {
+    if (e.status !== 'Playing') return false;
+    const strip = strips.find(s => s.uuid === e.stripUuid);
+    const client = clients.find(c => c.uuid === strip?.clientUuid);
+    return client?.status !== ClientStatus.Offline;
+  });
 
   const statValues = [clients.length, strips.length, effects.length, palettes.length];
 

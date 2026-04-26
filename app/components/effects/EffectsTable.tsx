@@ -1,5 +1,5 @@
-import { ActionIcon, Button, Checkbox, Group, Modal, Table, Text } from "@mantine/core";
-import { PauseIcon, PlayIcon } from '@phosphor-icons/react';
+import { ActionIcon, Button, Checkbox, Group, Modal, Pagination, Table, Text } from "@mantine/core";
+import { ArrowDownIcon, ArrowUpIcon, PauseIcon, PlayIcon } from '@phosphor-icons/react';
 import { useEffect, useState } from "react";
 import type { ILightEffect, LightEffectStatusCommand } from "~/api/effects/effects_api";
 import { isMobileUi } from "~/components/util/IsMobile";
@@ -16,6 +16,10 @@ function EffectsTable() {
     const [checkedEffects, setCheckedEffects] = useState<Set<string>>(new Set());
     const [hoveredRowUuid, setHoveredRowUuid] = useState<string | null>(null);
     const [confirmDelete, setConfirmDelete] = useState(false);
+    const [sortKey, setSortKey] = useState<'name' | 'palette'>('name');
+    const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc');
+    const [page, setPage] = useState(1);
+    const PAGE_SIZE = 10;
     const isMobile = isMobileUi();
 
     useEffect(() => {
@@ -107,6 +111,26 @@ function EffectsTable() {
         }
     };
 
+    const handleSort = (key: 'name' | 'palette') => {
+        if (key === sortKey) {
+            setSortDir(d => d === 'asc' ? 'desc' : 'asc');
+        } else {
+            setSortKey(key);
+            setSortDir('asc');
+        }
+    };
+
+    const sortedEffects = effects ? [...effects].sort((a, b) => {
+        const dir = sortDir === 'asc' ? 1 : -1;
+        if (sortKey === 'name') return a.name.localeCompare(b.name) * dir;
+        const pa = palettes.get(a.paletteUuid ?? '') ?? '';
+        const pb = palettes.get(b.paletteUuid ?? '') ?? '';
+        return pa.localeCompare(pb) * dir;
+    }) : undefined;
+
+    const totalPages = sortedEffects ? Math.ceil(sortedEffects.length / PAGE_SIZE) : 1;
+    const pagedEffects = sortedEffects?.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+
     const hasAnyChecked = checkedEffects.size > 0;
 
     const count = checkedEffects.size;
@@ -140,15 +164,37 @@ function EffectsTable() {
                 <Table.Thead>
                     <Table.Tr>
                         <Table.Th />
-                        <Table.Th>Name</Table.Th>
-                        {!isMobile && <Table.Th>Palette</Table.Th>}
+                        <Table.Th
+                            onClick={() => handleSort('name')}
+                            style={{ cursor: 'pointer', userSelect: 'none' }}
+                        >
+                            <Group gap={4} wrap="nowrap">
+                                Name
+                                {sortKey === 'name'
+                                    ? (sortDir === 'asc' ? <ArrowUpIcon size={14} /> : <ArrowDownIcon size={14} />)
+                                    : <ArrowUpIcon size={14} opacity={0.3} />}
+                            </Group>
+                        </Table.Th>
+                        {!isMobile && (
+                            <Table.Th
+                                onClick={() => handleSort('palette')}
+                                style={{ cursor: 'pointer', userSelect: 'none' }}
+                            >
+                                <Group gap={4} wrap="nowrap">
+                                    Palette
+                                    {sortKey === 'palette'
+                                        ? (sortDir === 'asc' ? <ArrowUpIcon size={14} /> : <ArrowDownIcon size={14} />)
+                                        : <ArrowUpIcon size={14} opacity={0.3} />}
+                                </Group>
+                            </Table.Th>
+                        )}
                         <Table.Th />
                     </Table.Tr>
                 </Table.Thead>
                 <Table.Tbody>
                     {loading ? (
                         <TableSkeletonRows widths={isMobile ? [0, 140, 0] : [0, 140, 100, 0]} />
-                    ) : effects!.map((effect) => (
+                    ) : pagedEffects!.map((effect) => (
                         <Table.Tr
                             key={effect.uuid}
                             onMouseEnter={() => setHoveredRowUuid(effect.uuid)}
@@ -185,7 +231,7 @@ function EffectsTable() {
                             </Table.Td>
                         </Table.Tr>
                     ))}
-                    {!loading && effects!.length === 0 && (
+                    {!loading && pagedEffects!.length === 0 && (
                         <Table.Tr>
                             <Table.Td colSpan={isMobile ? 3 : 4} ta="center" py="xl" c="dimmed">
                                 No effects configured
@@ -194,6 +240,11 @@ function EffectsTable() {
                     )}
                 </Table.Tbody>
             </Table>
+            {!loading && (effects?.length ?? 0) > PAGE_SIZE && (
+                <Group justify="center" mt="md">
+                    <Pagination total={totalPages} value={page} onChange={setPage} size="sm" />
+                </Group>
+            )}
         </>
     );
 }
