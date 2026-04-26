@@ -1,7 +1,8 @@
 import { ActionIcon, Group } from "@mantine/core";
-import { FastForwardIcon, PlayIcon, RewindIcon, StopIcon, TrashIcon } from '@phosphor-icons/react';
+import { FastForwardIcon, PauseIcon, PlayIcon, RewindIcon, StopIcon, TrashIcon } from '@phosphor-icons/react';
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
+import { LightEffectStatus } from "~/api/effects/effects_api";
 import { useAppShellRef } from "~/provider/AppShellContext";
 import styles from "./MediaControlAffix.module.css";
 
@@ -51,21 +52,30 @@ function MediaControlPortal({ anchorRef, parentRef, children, isMobile }: MediaC
 }
 
 interface SwitchesCardProps {
+  statuses: LightEffectStatus[];
   onPlay?: () => void;
   onPause?: () => void;
   onStop?: () => void;
   onDelete?: () => void;
 }
 
-function SwitchesCard({ onPlay, onPause, onStop, onDelete }: SwitchesCardProps) {
+function SwitchesCard({ statuses, onPlay, onPause, onStop, onDelete }: SwitchesCardProps) {
+  const showPause = !statuses.includes(LightEffectStatus.Paused) && !statuses.includes(LightEffectStatus.Stopped);
+
   return (
     <Group grow justify="center" onClick={(e) => e.stopPropagation()}>
       <ActionIcon variant="default" size="xl" aria-label="Rewind">
         <RewindIcon />
       </ActionIcon>
-      <ActionIcon variant="default" size="xl" aria-label="Play" onClick={onPlay}>
-        <PlayIcon />
-      </ActionIcon>
+      {showPause ? (
+        <ActionIcon variant="default" size="xl" aria-label="Pause" onClick={onPause}>
+          <PauseIcon />
+        </ActionIcon>
+      ) : (
+        <ActionIcon variant="default" size="xl" aria-label="Play" onClick={onPlay}>
+          <PlayIcon />
+        </ActionIcon>
+      )}
       <ActionIcon variant="default" size="xl" aria-label="Fast forward">
         <FastForwardIcon />
       </ActionIcon>
@@ -82,13 +92,14 @@ function SwitchesCard({ onPlay, onPause, onStop, onDelete }: SwitchesCardProps) 
 interface MediaControlAffixProps {
   show: boolean;
   isMobile: boolean;
+  selectedStatuses?: LightEffectStatus[];
   onPlay?: () => void;
   onPause?: () => void;
   onStop?: () => void;
   onDelete?: () => void;
 }
 
-export default function MediaControlAffix({ show, isMobile, onPlay, onPause, onStop, onDelete }: MediaControlAffixProps) {
+export default function MediaControlAffix({ show, isMobile, selectedStatuses, onPlay, onPause, onStop, onDelete }: MediaControlAffixProps) {
   const ref = useRef<HTMLDivElement>(null);
   const parentRef = useAppShellRef();
 
@@ -96,7 +107,7 @@ export default function MediaControlAffix({ show, isMobile, onPlay, onPause, onS
     <>
       {show && (
         <MediaControlPortal anchorRef={ref as any} parentRef={parentRef as any} isMobile={isMobile}>
-          <SwitchesCard onPlay={onPlay} onPause={onPause} onStop={onStop} onDelete={onDelete} />
+          <SwitchesCard statuses={selectedStatuses} onPlay={onPlay} onPause={onPause} onStop={onStop} onDelete={onDelete} />
         </MediaControlPortal>
       )}
       <div ref={ref} style={{ display: 'none' }} />

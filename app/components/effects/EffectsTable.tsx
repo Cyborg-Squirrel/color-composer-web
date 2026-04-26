@@ -135,6 +135,10 @@ function EffectsTable() {
 
     const count = checkedEffects.size;
 
+    const selectedStatuses = [...new Set(
+        effects?.filter(e => checkedEffects.has(e.uuid)).map(e => e.status) ?? []
+    )];
+
     return (
         <>
             <Modal
@@ -155,6 +159,7 @@ function EffectsTable() {
             <MediaControlAffix
                 show={hasAnyChecked}
                 isMobile={isMobile}
+                selectedStatuses={selectedStatuses}
                 onPlay={handleBulkPlay}
                 onPause={handleBulkPause}
                 onStop={handleBulkStop}

@@ -1,4 +1,9 @@
-export type LightEffectStatus = 'Idle' | 'Playing' | 'Paused' | 'Stopped';
+export enum LightEffectStatus {
+    Idle = 'Idle',
+    Playing = 'Playing',
+    Paused = 'Paused',
+    Stopped = 'Stopped',
+}
 export type LightEffectStatusCommand = 'Play' | 'Pause' | 'Stop';
 
 export interface ILightEffect {

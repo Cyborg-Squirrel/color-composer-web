@@ -16,12 +16,18 @@ interface IClientFormModalProps {
 }
 
 function ClientFormModal({ opened, onClose, onSuccess, isMobile, client, strips, title }: IClientFormModalProps) {
-    const stack = useModalsStack(['first', 'second']);
+    const stack = useModalsStack(['first', 'second', 'third']);
     const formRef = useRef<IClientFormHandle>(null);
     const clientApi = useClientApi();
 
-    const handleDelete = async () => {
+    const handleDelete = () => {
         if (!client) return;
+        stack.open('third');
+    };
+
+    const confirmDelete = async () => {
+        if (!client) return;
+        stack.close('third');
         try {
             await clientApi.deleteClient(client.uuid);
             onClose();
@@ -85,6 +91,20 @@ function ClientFormModal({ opened, onClose, onSuccess, isMobile, client, strips,
                 <Group mt="lg" justify="flex-end">
                     <Button variant="default" onClick={() => closePendingChangesModal(true)}>Discard</Button>
                     <Button variant="primary" onClick={() => closePendingChangesModal(false)}>Keep Editing</Button>
+                </Group>
+            </Modal>
+            <Modal
+                {...stack.register('third')}
+                radius="md"
+                size="sm"
+                opened={stack.state.third}
+                onClose={() => stack.close('third')}
+                title={<div style={{ fontWeight: 'bold' }}>Delete client</div>}
+            >
+                Are you sure you want to delete this client? This cannot be undone.
+                <Group mt="lg" justify="flex-end">
+                    <Button variant="default" onClick={() => stack.close('third')}>Cancel</Button>
+                    <Button color="red" onClick={confirmDelete}>Delete</Button>
                 </Group>
             </Modal>
         </>
