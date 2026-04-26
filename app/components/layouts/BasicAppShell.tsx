@@ -13,6 +13,7 @@ interface IAppShellProps {
   title: string;
   pageName: string;
   addButton?: ReactNode,
+  searchBar?: ReactNode;
   children?: ReactNode;
   topPadding: 'xl' | 'lg' | 'md' | 'sm' | 'xs';
   hideDivider?: boolean;
@@ -86,11 +87,13 @@ export default function BasicAppShell(props: IAppShellProps) {
           <Containerize isMobile={isMobile}>
             <Group justify='space-between'>
               <Title pl={titlePadding} pt={titlePadding} order={2}>{props.pageName}</Title>
+              {!isMobile && props.searchBar}
               {props.addButton}
             </Group>
             <Space h="xs"></Space>
             <Divider hidden={props.hideDivider}></Divider>
             <Space h={props.topPadding}></Space>
+            {isMobile && <Group justify="center" pt="sm">{props.searchBar}</Group>}
             {box}
           </Containerize>
         </AppShell.Main>
@@ -105,5 +108,5 @@ function Containerize({ children, isMobile }: { children: ReactNode; isMobile: b
 
 function getBox(childElements: ReactNode, enableBoxClasses: boolean | undefined, ref: React.RefObject<HTMLElement>) {
   const boxClass = enableBoxClasses ? styles.box : '';
-  return <Box className={boxClass} mt={'1.5em'} ref={ref}>{childElements}</Box>
+  return <Box className={boxClass} mt={'1em'} ref={ref}>{childElements}</Box>
 }

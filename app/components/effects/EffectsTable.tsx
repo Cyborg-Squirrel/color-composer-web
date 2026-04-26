@@ -1,18 +1,30 @@
 import { ActionIcon, Button, Checkbox, Group, Modal, Pagination, Table, Text } from "@mantine/core";
 import { ArrowDownIcon, ArrowUpIcon, PauseIcon, PlayIcon } from '@phosphor-icons/react';
 import { useEffect, useState } from "react";
-import type { ILightEffect, LightEffectStatusCommand } from "~/api/effects/effects_api";
+import type { ILedStripClient } from "~/api/clients/clients_api";
+import { LightEffectStatus, type ILightEffect, type LightEffectStatusCommand } from "~/api/effects/effects_api";
+import type { ILedStrip } from "~/api/strips/strips_api";
 import { isMobileUi } from "~/components/util/IsMobile";
+import { useClientApi } from "~/provider/ClientApiContext";
 import { useEffectApi } from "~/provider/EffectApiContext";
 import { usePaletteApi } from "~/provider/PaletteApiContext";
+import { useStripApi } from "~/provider/StripApiContext";
 import MediaControlAffix from "../controls/MediaControlAffix";
 import { TableSkeletonRows } from "../util/TableSkeletonRows";
 
-function EffectsTable() {
+interface IEffectsTableProps {
+    search?: string;
+}
+
+function EffectsTable({ search = '' }: IEffectsTableProps) {
     const effectApi = useEffectApi();
     const paletteApi = usePaletteApi();
+    const stripApi = useStripApi();
+    const clientApi = useClientApi();
     const [effects, setEffects] = useState<ILightEffect[] | undefined>(undefined);
     const [palettes, setPalettes] = useState<Map<string, string>>(new Map());
+    const [strips, setStrips] = useState<ILedStrip[]>([]);
+    const [clients, setClients] = useState<ILedStripClient[]>([]);
     const [checkedEffects, setCheckedEffects] = useState<Set<string>>(new Set());
     const [hoveredRowUuid, setHoveredRowUuid] = useState<string | null>(null);
     const [confirmDelete, setConfirmDelete] = useState(false);
@@ -26,17 +38,24 @@ function EffectsTable() {
         setEffects(undefined);
         Promise.all([
             effectApi.getEffects() || Promise.resolve([]),
-            paletteApi.getPalettes() || Promise.resolve([])
+            paletteApi.getPalettes() || Promise.resolve([]),
+            stripApi.getStrips(),
+            clientApi.getClients(),
         ])
-            .then(([fetchedEffects, fetchedPalettes]) => {
+            .then(([fetchedEffects, fetchedPalettes, fetchedStrips, fetchedClients]) => {
                 setEffects(fetchedEffects);
-                const paletteMap = new Map(fetchedPalettes.map(p => [p.uuid, p.name]));
-                setPalettes(paletteMap);
+                setPalettes(new Map(fetchedPalettes.map(p => [p.uuid, p.name])));
+                setStrips(fetchedStrips);
+                setClients(fetchedClients);
             })
             .catch(err => {
                 console.error('Error fetching data', err);
             });
-    }, [effectApi, paletteApi]);
+    }, [effectApi, paletteApi, stripApi, clientApi]);
+
+    useEffect(() => {
+        setPage(1);
+    }, [search]);
 
     const loading = effects === undefined;
 
@@ -46,7 +65,7 @@ function EffectsTable() {
             await effectApi.updateEffectStatus([effectUuid], command);
             setEffects(prevEffects => prevEffects?.map(e =>
                 e.uuid === effectUuid
-                    ? { ...e, status: command === 'Play' ? 'Playing' : 'Paused' }
+                    ? { ...e, status: command === 'Play' ? LightEffectStatus.Playing : LightEffectStatus.Paused }
                     : e
             ));
         } catch (err) {
@@ -69,7 +88,7 @@ function EffectsTable() {
         try {
             await effectApi.updateEffectStatus(Array.from(checkedEffects), 'Play');
             setEffects(prevEffects => prevEffects?.map(e =>
-                checkedEffects.has(e.uuid) ? { ...e, status: 'Playing' } : e
+                checkedEffects.has(e.uuid) ? { ...e, status: LightEffectStatus.Playing } : e
             ));
         } catch (err) {
             console.error('Error playing effects', err);
@@ -81,7 +100,7 @@ function EffectsTable() {
         try {
             await effectApi.updateEffectStatus(Array.from(checkedEffects), 'Pause');
             setEffects(prevEffects => prevEffects?.map(e =>
-                checkedEffects.has(e.uuid) ? { ...e, status: 'Paused' } : e
+                checkedEffects.has(e.uuid) ? { ...e, status: LightEffectStatus.Paused } : e
             ));
         } catch (err) {
             console.error('Error pausing effects', err);
@@ -93,7 +112,7 @@ function EffectsTable() {
         try {
             await effectApi.updateEffectStatus(Array.from(checkedEffects), 'Stop');
             setEffects(prevEffects => prevEffects?.map(e =>
-                checkedEffects.has(e.uuid) ? { ...e, status: 'Stopped' } : e
+                checkedEffects.has(e.uuid) ? { ...e, status: LightEffectStatus.Stopped } : e
             ));
         } catch (err) {
             console.error('Error stopping effects', err);
@@ -118,6 +137,23 @@ function EffectsTable() {
             setSortKey(key);
             setSortDir('asc');
         }
+        setPage(1);
+    };
+
+    const matchesSearch = (effect: ILightEffect): boolean => {
+        const q = search.trim().toLowerCase();
+        if (!q) return true;
+        const strip = strips.find(s => s.uuid === effect.stripUuid);
+        const client = strip ? clients.find(c => c.uuid === strip.clientUuid) : undefined;
+        const paletteName = palettes.get(effect.paletteUuid ?? '') ?? '';
+        return (
+            effect.name.toLowerCase().includes(q) ||
+            effect.type.toLowerCase().includes(q) ||
+            effect.status.toLowerCase().includes(q) ||
+            (strip?.name.toLowerCase().includes(q) ?? false) ||
+            (client?.name.toLowerCase().includes(q) ?? false) ||
+            paletteName.toLowerCase().includes(q)
+        );
     };
 
     const sortedEffects = effects ? [...effects].sort((a, b) => {
@@ -128,11 +164,12 @@ function EffectsTable() {
         return pa.localeCompare(pb) * dir;
     }) : undefined;
 
-    const totalPages = sortedEffects ? Math.ceil(sortedEffects.length / PAGE_SIZE) : 1;
-    const pagedEffects = sortedEffects?.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+    const filteredEffects = sortedEffects?.filter(matchesSearch);
+
+    const totalPages = filteredEffects ? Math.ceil(filteredEffects.length / PAGE_SIZE) : 1;
+    const pagedEffects = filteredEffects?.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
     const hasAnyChecked = checkedEffects.size > 0;
-
     const count = checkedEffects.size;
 
     const selectedStatuses = [...new Set(
@@ -239,13 +276,13 @@ function EffectsTable() {
                     {!loading && pagedEffects!.length === 0 && (
                         <Table.Tr>
                             <Table.Td colSpan={isMobile ? 3 : 4} ta="center" py="xl" c="dimmed">
-                                No effects configured
+                                {search.trim() ? 'No effects match your search' : 'No effects configured'}
                             </Table.Td>
                         </Table.Tr>
                     )}
                 </Table.Tbody>
             </Table>
-            {!loading && (effects?.length ?? 0) > PAGE_SIZE && (
+            {!loading && (filteredEffects?.length ?? 0) > PAGE_SIZE && (
                 <Group justify="center" mt="md">
                     <Pagination total={totalPages} value={page} onChange={setPage} size="sm" />
                 </Group>
