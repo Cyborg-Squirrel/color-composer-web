@@ -67,6 +67,11 @@ export class MockClientsApi implements IClientsApi {
         }
     }
 
+    async deleteClient(uuid: string): Promise<void> {
+        await this.delay(500);
+        this.clients = this.clients.filter(c => c.uuid !== uuid);
+    }
+
     async createClient(client: ILedStripClientMutation): Promise<string> {
         // Artificial delay
         await this.delay(500);

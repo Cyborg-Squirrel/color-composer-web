@@ -7,6 +7,4 @@ export default [
     route("effects", "routes/effects.tsx"),
     route("palettes", "routes/palettes.tsx"),
     route("triggers", "routes/triggers.tsx"),
-    route("settings", "routes/settings.tsx"),
-    route("about", "routes/about.tsx"),
 ] satisfies RouteConfig;

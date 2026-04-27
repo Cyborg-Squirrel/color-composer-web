@@ -49,6 +49,12 @@ export class RealStripsApi implements IStripsApi {
     return json.uuid;
   }
 
+  async deleteStrip(uuid: string): Promise<void> {
+    if (!this.apiUrl) return;
+    const res = await fetch(this.apiUrl + '/strip/' + uuid, { method: 'DELETE' });
+    if (!res.ok) throw new Error(`Failed to delete strip: ${res.status}`);
+  }
+
   async updateStrip(uuid: string, data: {
     name?: string;
     pin?: string;

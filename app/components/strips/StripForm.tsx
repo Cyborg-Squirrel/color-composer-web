@@ -12,6 +12,7 @@ interface IStripFormProps {
     isMobile: boolean;
     closeForm: () => void;
     onSuccess: () => void;
+    onDelete?: () => void;
 }
 
 export interface IStripFormHandle {
@@ -222,6 +223,18 @@ const StripForm = forwardRef<IStripFormHandle, IStripFormProps>((props, ref) => 
             {submitError && <Text c="red" size="sm" pt="sm">{submitError}</Text>}
 
             <Group justify="flex-end" mt="xl" grow={props.isMobile}>
+                {strip && props.onDelete && (
+                    <Button
+                        variant="light"
+                        color="red"
+                        type="button"
+                        onClick={props.onDelete}
+                        disabled={submitting}
+                        mr="auto"
+                    >
+                        Delete
+                    </Button>
+                )}
                 <Button variant="default" type="button" onClick={props.closeForm}>Cancel</Button>
                 <FormSubmitButton disabled={!form.isDirty()} loading={submitting} />
             </Group>
