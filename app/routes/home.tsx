@@ -1,15 +1,10 @@
 import { Grid, Group, Paper, ScrollArea, Skeleton, Text, Title } from '@mantine/core';
 import { useEffect, useState } from 'react';
-import { ClientStatus, type ILedStripClient } from '~/api/clients/clients_api';
-import type { ILightEffect } from '~/api/effects/effects_api';
-import type { IPalette } from '~/api/palettes/palettes_api';
-import type { ILedStrip } from '~/api/strips/strips_api';
+import { ClientStatus } from '~/api/clients/clients_api';
+import type { IHomeData } from '~/api/home/home_api';
 import BasicAppShell from '~/components/layouts/BasicAppShell';
 import { getClientStatusColor, getClientStatusText, getLastSeenAtString } from '~/components/util/TextHelper';
-import { useClientApi } from '~/provider/ClientApiContext';
-import { useEffectApi } from '~/provider/EffectApiContext';
-import { usePaletteApi } from '~/provider/PaletteApiContext';
-import { useStripApi } from '~/provider/StripApiContext';
+import { useHomeApi } from '~/provider/HomeApiContext';
 import { Layout } from '~/root';
 import type { Route } from './+types/home';
 
@@ -73,50 +68,34 @@ function SkeletonRows({ count = 3 }: { count?: number }) {
 }
 
 function HomeContent() {
-  const clientApi = useClientApi();
-  const stripApi = useStripApi();
-  const effectApi = useEffectApi();
-  const paletteApi = usePaletteApi();
+  const homeApi = useHomeApi();
 
-  const [clients, setClients] = useState<ILedStripClient[]>([]);
-  const [strips, setStrips] = useState<ILedStrip[]>([]);
-  const [effects, setEffects] = useState<ILightEffect[]>([]);
-  const [palettes, setPalettes] = useState<IPalette[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [data, setData] = useState<IHomeData | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    Promise.all([
-      clientApi.getClients(),
-      stripApi.getStrips(),
-      effectApi.getEffects(),
-      paletteApi.getPalettes(),
-    ]).then(([c, s, e, p]) => {
-      setClients(c);
-      setStrips(s);
-      setEffects(e);
-      setPalettes(p);
-      setLoading(false);
-    }).catch(err => {
-      console.error('Error loading home data', err);
-      setLoading(false);
-    });
-  }, []);
+    homeApi.getHomeStats()
+      .then(d => {
+        setData(d);
+        setIsLoading(false);
+      })
+      .catch(err => {
+        console.error('Error loading home', err);
+        setIsLoading(false);
+      });
+  }, [homeApi]);
 
-  const activeEffects = effects.filter(e => {
-    if (e.status !== 'Playing') return false;
-    const strip = strips.find(s => s.uuid === e.stripUuid);
-    const client = clients.find(c => c.uuid === strip?.clientUuid);
-    return client?.status !== ClientStatus.Offline;
-  });
-
-  const statValues = [clients.length, strips.length, effects.length, palettes.length];
+  const statValues = [data?.totalClients ?? 0, data?.totalStrips ?? 0, data?.totalEffects ?? 0, data?.totalPalettes ?? 0];
+  const activeEffects = data?.activeEffects ?? [];
+  const strips = data?.strips ?? [];
+  const clients = data?.clients ?? [];
 
   return (
     <>
       <Grid mb="md">
         {STAT_LABELS.map((stat, i) => (
           <Grid.Col key={stat.label} span={{ base: 6, sm: 3 }}>
-            <StatCard label={stat.label} color={stat.color} value={statValues[i]} loading={loading} />
+            <StatCard label={stat.label} color={stat.color} value={statValues[i]} loading={isLoading} />
           </Grid.Col>
         ))}
       </Grid>
@@ -127,7 +106,7 @@ function HomeContent() {
               Active Effects
             </Title>
             <ScrollArea h={140}>
-              {loading ? (
+              {isLoading ? (
                 <SkeletonRows count={2} />
               ) : activeEffects.length === 0 ? (
                 <Text c="dimmed" ta="center" py="xl" size="sm">No active effects</Text>
@@ -154,7 +133,7 @@ function HomeContent() {
               Clients
             </Title>
             <ScrollArea h={140}>
-              {loading ? (
+              {isLoading ? (
                 <SkeletonRows count={3} />
               ) : clients.length === 0 ? (
                 <Text c="dimmed" ta="center" py="xl" size="sm">No clients configured</Text>
