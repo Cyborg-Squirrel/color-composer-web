@@ -119,7 +119,7 @@ function HomeContent() {
                         <Text size="sm" fw={500}>{e.name}</Text>
                         {strip && <Text size="xs" c="dimmed">{strip.name}</Text>}
                       </div>
-                      <Text size="xs" fw={500} c="green">{e.status}</Text>
+                      <Text size="xs" fw={500} c={getClientStatusColor(ClientStatus.Active)}>{e.status}</Text>
                     </PanelRow>
                   );
                 })
