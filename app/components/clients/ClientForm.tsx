@@ -53,11 +53,11 @@ const ClientForm = forwardRef<IClientFormHandle, IClientFormProps>((props, ref) 
         validate: {
             name: (value) => (value.length <= 20 ? null : 'Invalid name'),
             address: (value) => {
-                const urlPattern = /^(https?:\/\/)/;
-                const ipPattern = /^(https?:\/\/)([0-9]{1,3}\.){3}[0-9]{1,3}/;
+                const urlPattern = /^https?:\/\/.+/;
+                const ipPattern = /^(\d{1,3}\.){3}\d{1,3}(:\d+)?$/;
 
                 if (!urlPattern.test(value) && !ipPattern.test(value)) {
-                    return 'Address must start with http:// or https:// followed by a valid URL or IP address';
+                    return 'Address must be a valid IP address or a URL starting with http:// or https://';
                 }
                 return null;
             },
