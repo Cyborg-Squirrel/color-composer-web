@@ -26,7 +26,7 @@ function AddClientButton({ onSuccess }: IAddClientButtonProps) {
             strips={[]}
             title='Add Client'
         />
-        <Button onClick={open}>Add Client</Button>
+        <Button id="add-client-btn" onClick={open}>Add Client</Button>
     </>)
 }
 

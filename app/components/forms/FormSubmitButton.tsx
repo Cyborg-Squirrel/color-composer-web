@@ -13,6 +13,7 @@ interface IFormSubmitButtonProps {
     mt?: string;
     justify?: "flex-start" | "center" | "flex-end";
     isMobile?: boolean;
+    id?: string;
 }
 
 export const FormSubmitButton = ({
@@ -22,9 +23,11 @@ export const FormSubmitButton = ({
     loaderProps = { type: 'dots' },
     children,
     isMobile = false,
+    id,
 }: IFormSubmitButtonProps) => {
     return (
         <Button
+            id={id}
             type="submit"
             onClick={onClick}
             disabled={disabled}

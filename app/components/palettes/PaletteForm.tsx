@@ -74,6 +74,7 @@ const PaletteForm = forwardRef<IPaletteFormHandle, IPaletteFormProps>((props, re
     return (
         <form onSubmit={form.onSubmit(handleSubmit)}>
             <TextInput
+                id="palette-name"
                 withAsterisk
                 label="Name"
                 placeholder="Palette name"
@@ -82,6 +83,7 @@ const PaletteForm = forwardRef<IPaletteFormHandle, IPaletteFormProps>((props, re
                 size={inputSize}
             />
             <Select
+                id="palette-type"
                 pt="sm"
                 withAsterisk
                 label="Type"
@@ -95,6 +97,7 @@ const PaletteForm = forwardRef<IPaletteFormHandle, IPaletteFormProps>((props, re
                 {colors.map((color, i) => (
                     <Group key={i} gap="xs" wrap="nowrap">
                         <ColorInput
+                            id={`palette-color-${i}`}
                             style={{ flex: 1 }}
                             value={color}
                             onChange={(v) => updateColor(i, v)}
@@ -102,6 +105,7 @@ const PaletteForm = forwardRef<IPaletteFormHandle, IPaletteFormProps>((props, re
                             size={inputSize}
                         />
                         <ActionIcon
+                            id={`palette-remove-color-${i}-btn`}
                             variant="subtle"
                             color="red"
                             onClick={() => removeColor(i)}
@@ -113,6 +117,7 @@ const PaletteForm = forwardRef<IPaletteFormHandle, IPaletteFormProps>((props, re
                     </Group>
                 ))}
                 <Button
+                    id="palette-add-color-btn"
                     variant="light"
                     size="xs"
                     leftSection={<PlusIcon size={14} />}
@@ -126,6 +131,7 @@ const PaletteForm = forwardRef<IPaletteFormHandle, IPaletteFormProps>((props, re
             <Group justify="flex-end" mt="xl" grow={props.isMobile}>
                 {!isNew && props.onDelete && (
                     <Button
+                        id="palette-delete-btn"
                         variant="light"
                         color="red"
                         type="button"
@@ -136,10 +142,10 @@ const PaletteForm = forwardRef<IPaletteFormHandle, IPaletteFormProps>((props, re
                         Delete
                     </Button>
                 )}
-                <Button variant="default" type="button" onClick={props.closeForm} disabled={submitting}>
+                <Button id="palette-cancel-btn" variant="default" type="button" onClick={props.closeForm} disabled={submitting}>
                     Cancel
                 </Button>
-                <FormSubmitButton loading={submitting} isMobile={props.isMobile}>
+                <FormSubmitButton id="palette-submit-btn" loading={submitting} isMobile={props.isMobile}>
                     {isNew ? 'Add palette' : 'Save changes'}
                 </FormSubmitButton>
             </Group>

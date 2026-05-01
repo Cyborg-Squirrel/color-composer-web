@@ -189,8 +189,8 @@ function EffectsTable({ search = '' }: IEffectsTableProps) {
                     Delete {count} {count === 1 ? 'effect' : 'effects'}? This cannot be undone.
                 </Text>
                 <Group justify="flex-end">
-                    <Button variant="default" onClick={() => setConfirmDelete(false)}>Cancel</Button>
-                    <Button color="red" onClick={() => { setConfirmDelete(false); handleBulkDelete(); }}>Delete</Button>
+                    <Button id="effects-delete-cancel-btn" variant="default" onClick={() => setConfirmDelete(false)}>Cancel</Button>
+                    <Button id="effects-delete-confirm-btn" color="red" onClick={() => { setConfirmDelete(false); handleBulkDelete(); }}>Delete</Button>
                 </Group>
             </Modal>
             <MediaControlAffix
@@ -207,6 +207,7 @@ function EffectsTable({ search = '' }: IEffectsTableProps) {
                     <Table.Tr>
                         <Table.Th />
                         <Table.Th
+                            id="effects-sort-name"
                             onClick={() => handleSort('name')}
                             style={{ cursor: 'pointer', userSelect: 'none' }}
                         >
@@ -219,6 +220,7 @@ function EffectsTable({ search = '' }: IEffectsTableProps) {
                         </Table.Th>
                         {!isMobile && (
                             <Table.Th
+                                id="effects-sort-palette"
                                 onClick={() => handleSort('palette')}
                                 style={{ cursor: 'pointer', userSelect: 'none' }}
                             >
@@ -244,6 +246,7 @@ function EffectsTable({ search = '' }: IEffectsTableProps) {
                         >
                             <Table.Td width="60px">
                                 <ActionIcon
+                                    id={`effect-play-pause-${effect.uuid}`}
                                     variant="subtle"
                                     onClick={() => handlePlayPause(effect.uuid, effect.status)}
                                     opacity={isMobile || checkedEffects.has(effect.uuid) || hoveredRowUuid === effect.uuid ? 1 : 0}
@@ -264,6 +267,7 @@ function EffectsTable({ search = '' }: IEffectsTableProps) {
                                 }}
                             >
                                 <Checkbox
+                                    id={`effect-checkbox-${effect.uuid}`}
                                     checked={checkedEffects.has(effect.uuid)}
                                     onChange={() => handleCheckboxChange(effect.uuid)}
                                     aria-label={`Select ${effect.name}`}

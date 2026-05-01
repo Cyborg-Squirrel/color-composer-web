@@ -28,7 +28,7 @@ function AddStripButton({ clients, onSuccess }: IAddStripButtonProps) {
             title='Add Strip'
             onSuccess={handleSuccess}
         />
-        <Button onClick={open}>Add Strip</Button>
+        <Button id="add-strip-btn" onClick={open}>Add Strip</Button>
     </>)
 }
 

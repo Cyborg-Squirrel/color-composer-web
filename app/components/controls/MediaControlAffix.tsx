@@ -64,25 +64,25 @@ function SwitchesCard({ statuses, onPlay, onPause, onStop, onDelete }: SwitchesC
 
   return (
     <Group grow justify="center" onClick={(e) => e.stopPropagation()}>
-      <ActionIcon variant="default" size="xl" aria-label="Rewind">
+      <ActionIcon id="media-rewind-btn" variant="default" size="xl" aria-label="Rewind">
         <RewindIcon />
       </ActionIcon>
       {showPause ? (
-        <ActionIcon variant="default" size="xl" aria-label="Pause" onClick={onPause}>
+        <ActionIcon id="media-pause-btn" variant="default" size="xl" aria-label="Pause" onClick={onPause}>
           <PauseIcon />
         </ActionIcon>
       ) : (
-        <ActionIcon variant="default" size="xl" aria-label="Play" onClick={onPlay}>
+        <ActionIcon id="media-play-btn" variant="default" size="xl" aria-label="Play" onClick={onPlay}>
           <PlayIcon />
         </ActionIcon>
       )}
-      <ActionIcon variant="default" size="xl" aria-label="Fast forward">
+      <ActionIcon id="media-fast-forward-btn" variant="default" size="xl" aria-label="Fast forward">
         <FastForwardIcon />
       </ActionIcon>
-      <ActionIcon variant="default" size="xl" aria-label="Stop" onClick={onStop}>
+      <ActionIcon id="media-stop-btn" variant="default" size="xl" aria-label="Stop" onClick={onStop}>
         <StopIcon />
       </ActionIcon>
-      <ActionIcon variant="default" bg="var(--mantine-color-error)" size="xl" aria-label="Delete" onClick={onDelete}>
+      <ActionIcon id="media-delete-btn" variant="default" bg="var(--mantine-color-error)" size="xl" aria-label="Delete" onClick={onDelete}>
         <TrashIcon />
       </ActionIcon>
     </Group>
