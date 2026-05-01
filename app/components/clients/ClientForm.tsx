@@ -124,7 +124,7 @@ const ClientForm = forwardRef<IClientFormHandle, IClientFormProps>((props, ref) 
             setSubmitting(false);
         })}>
             <TextInput
-                id="client-name"
+                data-testid="client-name"
                 withAsterisk
                 label="Name"
                 placeholder="The client's name"
@@ -134,7 +134,7 @@ const ClientForm = forwardRef<IClientFormHandle, IClientFormProps>((props, ref) 
             />
 
             <TextInput
-                id="client-address"
+                data-testid="client-address"
                 pt="sm"
                 withAsterisk
                 label="Address"
@@ -146,7 +146,7 @@ const ClientForm = forwardRef<IClientFormHandle, IClientFormProps>((props, ref) 
 
             {multipleStripsSupported ?
                 <MultiSelect
-                    id="client-led-strips"
+                    data-testid="client-led-strips"
                     pt="sm"
                     label="LED Strips"
                     placeholder="Select the LED strips connected to this client"
@@ -157,7 +157,7 @@ const ClientForm = forwardRef<IClientFormHandle, IClientFormProps>((props, ref) 
                     disabled={typeChanged}
                 /> :
                 <Select
-                    id="client-led-strip"
+                    data-testid="client-led-strip"
                     pt="sm"
                     label="LED Strip"
                     placeholder="Select the LED strip connected to this client"
@@ -172,7 +172,7 @@ const ClientForm = forwardRef<IClientFormHandle, IClientFormProps>((props, ref) 
 
             <Group pt="sm" justify="center" grow>
                 <NumberInput
-                    id="client-ws-port"
+                    data-testid="client-ws-port"
                     withAsterisk
                     hideControls
                     label="WebSocket Port"
@@ -184,7 +184,7 @@ const ClientForm = forwardRef<IClientFormHandle, IClientFormProps>((props, ref) 
                 />
 
                 <NumberInput
-                    id="client-api-port"
+                    data-testid="client-api-port"
                     withAsterisk
                     hideControls
                     label="API Port"
@@ -198,7 +198,7 @@ const ClientForm = forwardRef<IClientFormHandle, IClientFormProps>((props, ref) 
 
             <Group pt="sm" justify="center" grow>
                 <Select
-                    id="client-color-order"
+                    data-testid="client-color-order"
                     withAsterisk
                     label="Color Order"
                     placeholder="Select RGB color order for this client"
@@ -209,7 +209,7 @@ const ClientForm = forwardRef<IClientFormHandle, IClientFormProps>((props, ref) 
                 />
 
                 <Select
-                    id="client-type"
+                    data-testid="client-type"
                     withAsterisk
                     label="Client Type"
                     placeholder="Select the client type"
@@ -229,7 +229,7 @@ const ClientForm = forwardRef<IClientFormHandle, IClientFormProps>((props, ref) 
             </Group>
 
             <NumberInput
-                id="client-power-limit"
+                data-testid="client-power-limit"
                 pt="sm"
                 withAsterisk
                 disabled={customPowerLimitSupported ? false : true}
@@ -246,7 +246,7 @@ const ClientForm = forwardRef<IClientFormHandle, IClientFormProps>((props, ref) 
             <Group justify="flex-end" mt="xl" grow={props.isMobile}>
                 {!isNewClient && props.onDelete && (
                     <Button
-                        id="client-delete-btn"
+                        data-testid="client-delete-btn"
                         variant="light"
                         color="red"
                         type="button"
@@ -257,8 +257,8 @@ const ClientForm = forwardRef<IClientFormHandle, IClientFormProps>((props, ref) 
                         Delete
                     </Button>
                 )}
-                <Button id="client-cancel-btn" variant="default" type="button" onClick={props.closeForm} disabled={submitting}>Cancel</Button>
-                <FormSubmitButton id="client-submit-btn" disabled={!form.isDirty()} loading={submitting} />
+                <Button data-testid="client-cancel-btn" variant="default" type="button" onClick={props.closeForm} disabled={submitting}>Cancel</Button>
+                <FormSubmitButton data-testid="client-submit-btn" disabled={!form.isDirty()} loading={submitting} />
             </Group>
         </form>
     );

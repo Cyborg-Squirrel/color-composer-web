@@ -86,8 +86,8 @@ function StripFormModal(props: IStripFormModalProps) {
             >
                 Are you sure you want to discard your changes?
                 <Group mt="lg" justify="flex-end">
-                    <Button id="strip-discard-btn" variant="default" onClick={() => closePendingChangesModal(true)}>Discard</Button>
-                    <Button id="strip-keep-editing-btn" variant="primary" onClick={() => closePendingChangesModal(false)}>Keep Editing</Button>
+                    <Button data-testid="strip-discard-btn" variant="default" onClick={() => closePendingChangesModal(true)}>Discard</Button>
+                    <Button data-testid="strip-keep-editing-btn" variant="primary" onClick={() => closePendingChangesModal(false)}>Keep Editing</Button>
                 </Group>
             </Modal>
             <Modal
@@ -100,8 +100,8 @@ function StripFormModal(props: IStripFormModalProps) {
             >
                 Are you sure you want to delete this strip? This cannot be undone.
                 <Group mt="lg" justify="flex-end">
-                    <Button id="strip-delete-cancel-btn" variant="default" onClick={() => stack.close('third')}>Cancel</Button>
-                    <Button id="strip-delete-confirm-btn" color="red" onClick={confirmDelete}>Delete</Button>
+                    <Button data-testid="strip-delete-cancel-btn" variant="default" onClick={() => stack.close('third')}>Cancel</Button>
+                    <Button data-testid="strip-delete-confirm-btn" color="red" onClick={confirmDelete}>Delete</Button>
                 </Group>
             </Modal>
         </>

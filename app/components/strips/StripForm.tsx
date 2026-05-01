@@ -111,7 +111,7 @@ const StripForm = forwardRef<IStripFormHandle, IStripFormProps>((props, ref) => 
         if (!selectedClientUuid) {
             return (
                 <TextInput
-                    id="strip-pin"
+                    data-testid="strip-pin"
                     withAsterisk
                     label="Data pin"
                     placeholder="Select a client first"
@@ -123,7 +123,7 @@ const StripForm = forwardRef<IStripFormHandle, IStripFormProps>((props, ref) => 
         if (selectedClient?.clientType === PiClientType) {
             return (
                 <Select
-                    id="strip-pin"
+                    data-testid="strip-pin"
                     withAsterisk
                     label="Data pin"
                     placeholder="Select a pin"
@@ -137,7 +137,7 @@ const StripForm = forwardRef<IStripFormHandle, IStripFormProps>((props, ref) => 
         // NightDriver: numeric channel 1–8
         return (
             <NumberInput
-                id="strip-pin"
+                data-testid="strip-pin"
                 withAsterisk
                 label="Data pin"
                 key={`pin-${selectedClientUuid}`}
@@ -157,7 +157,7 @@ const StripForm = forwardRef<IStripFormHandle, IStripFormProps>((props, ref) => 
     return (
         <form onSubmit={form.onSubmit(handleSubmit)}>
             <TextInput
-                id="strip-name"
+                data-testid="strip-name"
                 withAsterisk
                 label="Name"
                 placeholder="The strip's name"
@@ -167,7 +167,7 @@ const StripForm = forwardRef<IStripFormHandle, IStripFormProps>((props, ref) => 
             />
 
             <Select
-                id="strip-client"
+                data-testid="strip-client"
                 pt="sm"
                 withAsterisk
                 label="Client"
@@ -182,7 +182,7 @@ const StripForm = forwardRef<IStripFormHandle, IStripFormProps>((props, ref) => 
             <Group pt="sm" justify="center" grow>
                 {getPinInput()}
                 <NumberInput
-                    id="strip-length"
+                    data-testid="strip-length"
                     withAsterisk
                     label="Length"
                     placeholder="Number of LEDs"
@@ -196,7 +196,7 @@ const StripForm = forwardRef<IStripFormHandle, IStripFormProps>((props, ref) => 
 
             <Group pt="sm" justify="center" grow>
                 <NumberInput
-                    id="strip-brightness"
+                    data-testid="strip-brightness"
                     label="Brightness"
                     suffix="%"
                     placeholder="Optional"
@@ -208,7 +208,7 @@ const StripForm = forwardRef<IStripFormHandle, IStripFormProps>((props, ref) => 
                     max={100}
                 />
                 <NumberInput
-                    id="strip-height"
+                    data-testid="strip-height"
                     label="Height"
                     placeholder="For 2D grids"
                     key={form.key('height')}
@@ -220,7 +220,7 @@ const StripForm = forwardRef<IStripFormHandle, IStripFormProps>((props, ref) => 
             </Group>
 
             <Select
-                id="strip-blend-mode"
+                data-testid="strip-blend-mode"
                 pt="sm"
                 label="Blend Mode"
                 data={blendModes}
@@ -234,7 +234,7 @@ const StripForm = forwardRef<IStripFormHandle, IStripFormProps>((props, ref) => 
             <Group justify="flex-end" mt="xl" grow={props.isMobile}>
                 {strip && props.onDelete && (
                     <Button
-                        id="strip-delete-btn"
+                        data-testid="strip-delete-btn"
                         variant="light"
                         color="red"
                         type="button"
@@ -245,8 +245,8 @@ const StripForm = forwardRef<IStripFormHandle, IStripFormProps>((props, ref) => 
                         Delete
                     </Button>
                 )}
-                <Button id="strip-cancel-btn" variant="default" type="button" onClick={props.closeForm}>Cancel</Button>
-                <FormSubmitButton id="strip-submit-btn" disabled={!form.isDirty()} loading={submitting} />
+                <Button data-testid="strip-cancel-btn" variant="default" type="button" onClick={props.closeForm}>Cancel</Button>
+                <FormSubmitButton data-testid="strip-submit-btn" disabled={!form.isDirty()} loading={submitting} />
             </Group>
         </form>
     );

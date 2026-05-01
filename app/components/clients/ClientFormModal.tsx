@@ -89,8 +89,8 @@ function ClientFormModal({ opened, onClose, onSuccess, isMobile, client, strips,
             >
                 Are you sure you want to discard your changes?
                 <Group mt="lg" justify="flex-end">
-                    <Button id="client-discard-btn" variant="default" onClick={() => closePendingChangesModal(true)}>Discard</Button>
-                    <Button id="client-keep-editing-btn" variant="primary" onClick={() => closePendingChangesModal(false)}>Keep Editing</Button>
+                    <Button data-testid="client-discard-btn" variant="default" onClick={() => closePendingChangesModal(true)}>Discard</Button>
+                    <Button data-testid="client-keep-editing-btn" variant="primary" onClick={() => closePendingChangesModal(false)}>Keep Editing</Button>
                 </Group>
             </Modal>
             <Modal
@@ -103,8 +103,8 @@ function ClientFormModal({ opened, onClose, onSuccess, isMobile, client, strips,
             >
                 Are you sure you want to delete this client? This cannot be undone.
                 <Group mt="lg" justify="flex-end">
-                    <Button id="client-delete-cancel-btn" variant="default" onClick={() => stack.close('third')}>Cancel</Button>
-                    <Button id="client-delete-confirm-btn" color="red" onClick={confirmDelete}>Delete</Button>
+                    <Button data-testid="client-delete-cancel-btn" variant="default" onClick={() => stack.close('third')}>Cancel</Button>
+                    <Button data-testid="client-delete-confirm-btn" color="red" onClick={confirmDelete}>Delete</Button>
                 </Group>
             </Modal>
         </>

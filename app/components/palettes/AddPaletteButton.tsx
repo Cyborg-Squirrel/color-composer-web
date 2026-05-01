@@ -26,7 +26,7 @@ function AddPaletteButton({ onSuccess }: IAddPaletteButtonProps) {
                 palette={undefined}
                 title="Add Palette"
             />
-            <Button id="add-palette-btn" onClick={open}>Add Palette</Button>
+            <Button data-testid="add-palette-btn" onClick={open}>Add Palette</Button>
         </>
     );
 }

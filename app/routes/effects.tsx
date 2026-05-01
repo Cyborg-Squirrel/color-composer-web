@@ -20,7 +20,7 @@ export default function Effects() {
 
   const searchBar = (
     <TextInput
-      id="effects-search"
+      data-testid="effects-search"
       placeholder="Search effects"
       value={search}
       onChange={(e) => setSearch(e.currentTarget.value)}
@@ -30,7 +30,7 @@ export default function Effects() {
     />
   );
 
-  const addButton = <Button id="effects-add-btn">Add effect</Button>;
+  const addButton = <Button data-testid="effects-add-btn">Add effect</Button>;
 
   return <Layout>
     <BasicAppShell title="Color Composer" pageName="Effects" topPadding={"sm"} boxCssEnabled={true} searchBar={searchBar} addButton={addButton}>
