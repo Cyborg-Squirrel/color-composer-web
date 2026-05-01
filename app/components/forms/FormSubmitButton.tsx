@@ -23,11 +23,11 @@ export const FormSubmitButton = ({
     loaderProps = { type: 'dots' },
     children,
     isMobile = false,
-    "data-testid": dataTestId,
+    ...others
 }: IFormSubmitButtonProps) => {
     return (
         <Button
-            data-testid={dataTestId}
+            {...others}
             type="submit"
             onClick={onClick}
             disabled={disabled}
