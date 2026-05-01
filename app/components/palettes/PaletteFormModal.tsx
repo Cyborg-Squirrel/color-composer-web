@@ -76,8 +76,8 @@ function PaletteFormModal({ opened, onClose, onSuccess, isMobile, palette, title
             >
                 Are you sure you want to discard your changes?
                 <Group mt="lg" justify="flex-end">
-                    <Button variant="default" onClick={() => closePendingChangesModal(true)}>Discard</Button>
-                    <Button variant="primary" onClick={() => closePendingChangesModal(false)}>Keep Editing</Button>
+                    <Button data-testid="palette-discard-btn" variant="default" onClick={() => closePendingChangesModal(true)}>Discard</Button>
+                    <Button data-testid="palette-keep-editing-btn" variant="primary" onClick={() => closePendingChangesModal(false)}>Keep Editing</Button>
                 </Group>
             </Modal>
         </>

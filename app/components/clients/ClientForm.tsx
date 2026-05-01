@@ -124,6 +124,7 @@ const ClientForm = forwardRef<IClientFormHandle, IClientFormProps>((props, ref) 
             setSubmitting(false);
         })}>
             <TextInput
+                data-testid="client-name"
                 withAsterisk
                 label="Name"
                 placeholder="The client's name"
@@ -133,6 +134,7 @@ const ClientForm = forwardRef<IClientFormHandle, IClientFormProps>((props, ref) 
             />
 
             <TextInput
+                data-testid="client-address"
                 pt="sm"
                 withAsterisk
                 label="Address"
@@ -144,6 +146,7 @@ const ClientForm = forwardRef<IClientFormHandle, IClientFormProps>((props, ref) 
 
             {multipleStripsSupported ?
                 <MultiSelect
+                    data-testid="client-led-strips"
                     pt="sm"
                     label="LED Strips"
                     placeholder="Select the LED strips connected to this client"
@@ -154,6 +157,7 @@ const ClientForm = forwardRef<IClientFormHandle, IClientFormProps>((props, ref) 
                     disabled={typeChanged}
                 /> :
                 <Select
+                    data-testid="client-led-strip"
                     pt="sm"
                     label="LED Strip"
                     placeholder="Select the LED strip connected to this client"
@@ -168,6 +172,7 @@ const ClientForm = forwardRef<IClientFormHandle, IClientFormProps>((props, ref) 
 
             <Group pt="sm" justify="center" grow>
                 <NumberInput
+                    data-testid="client-ws-port"
                     withAsterisk
                     hideControls
                     label="WebSocket Port"
@@ -179,6 +184,7 @@ const ClientForm = forwardRef<IClientFormHandle, IClientFormProps>((props, ref) 
                 />
 
                 <NumberInput
+                    data-testid="client-api-port"
                     withAsterisk
                     hideControls
                     label="API Port"
@@ -192,6 +198,7 @@ const ClientForm = forwardRef<IClientFormHandle, IClientFormProps>((props, ref) 
 
             <Group pt="sm" justify="center" grow>
                 <Select
+                    data-testid="client-color-order"
                     withAsterisk
                     label="Color Order"
                     placeholder="Select RGB color order for this client"
@@ -202,6 +209,7 @@ const ClientForm = forwardRef<IClientFormHandle, IClientFormProps>((props, ref) 
                 />
 
                 <Select
+                    data-testid="client-type"
                     withAsterisk
                     label="Client Type"
                     placeholder="Select the client type"
@@ -221,6 +229,7 @@ const ClientForm = forwardRef<IClientFormHandle, IClientFormProps>((props, ref) 
             </Group>
 
             <NumberInput
+                data-testid="client-power-limit"
                 pt="sm"
                 withAsterisk
                 disabled={customPowerLimitSupported ? false : true}
@@ -237,6 +246,7 @@ const ClientForm = forwardRef<IClientFormHandle, IClientFormProps>((props, ref) 
             <Group justify="flex-end" mt="xl" grow={props.isMobile}>
                 {!isNewClient && props.onDelete && (
                     <Button
+                        data-testid="client-delete-btn"
                         variant="light"
                         color="red"
                         type="button"
@@ -247,8 +257,8 @@ const ClientForm = forwardRef<IClientFormHandle, IClientFormProps>((props, ref) 
                         Delete
                     </Button>
                 )}
-                <Button variant="default" type="button" onClick={props.closeForm} disabled={submitting}>Cancel</Button>
-                <FormSubmitButton disabled={!form.isDirty()} loading={submitting} />
+                <Button data-testid="client-cancel-btn" variant="default" type="button" onClick={props.closeForm} disabled={submitting}>Cancel</Button>
+                <FormSubmitButton data-testid="client-submit-btn" disabled={!form.isDirty()} loading={submitting} />
             </Group>
         </form>
     );
