@@ -1,4 +1,4 @@
-import type { ILightEffect, ILightEffectMutation, LightEffectStatusCommand } from './effects_api';
+import type { IEffectSchema, ILightEffect, ILightEffectMutation, LightEffectStatusCommand } from './effects_api';
 
 export interface IEffectsApi {
   getEffects(): Promise<ILightEffect[]>;
@@ -8,4 +8,6 @@ export interface IEffectsApi {
   updateEffect(uuid: string, data: Partial<ILightEffectMutation>): Promise<void>;
   deleteEffect(uuid: string): Promise<void>;
   updateEffectStatus(uuids: string[], command: LightEffectStatusCommand): Promise<void>;
+  /** GET /effect/schemas — list settings schemas for every effect type. */
+  getEffectSchemas(): Promise<IEffectSchema[]>;
 }

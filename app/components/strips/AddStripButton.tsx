@@ -1,5 +1,6 @@
 import { Button } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
+import { PlusIcon } from "@phosphor-icons/react";
 import type { ILedStripClient } from "~/api/clients/clients_api";
 import { isMobileUi } from "~/components/util/IsMobile";
 import StripFormModal from "./StripFormModal";
@@ -28,7 +29,9 @@ function AddStripButton({ clients, onSuccess }: IAddStripButtonProps) {
             title='Add Strip'
             onSuccess={handleSuccess}
         />
-        <Button data-testid="add-strip-btn" onClick={open}>Add Strip</Button>
+        <Button data-testid="add-strip-btn" leftSection={<PlusIcon size={12} />} onClick={open}>
+            Add Strip
+        </Button>
     </>)
 }
 

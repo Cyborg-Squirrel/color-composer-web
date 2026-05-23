@@ -1,4 +1,4 @@
-import type { ILightEffect, ILightEffectMutation, LightEffectStatusCommand } from './effects_api';
+import type { IEffectSchema, ILightEffect, ILightEffectMutation, LightEffectStatusCommand } from './effects_api';
 import type { IEffectsApi } from './effects_api.interface';
 
 export class RealEffectsApi implements IEffectsApi {
@@ -142,5 +142,14 @@ export class RealEffectsApi implements IEffectsApi {
         if (!res.ok) {
             throw new Error(`Failed to update effect status: ${res.status} ${res.statusText}`);
         }
+    }
+
+    async getEffectSchemas(): Promise<IEffectSchema[]> {
+        if (!this.apiUrl) return [];
+        const res = await fetch(this.apiUrl + '/effect/schemas');
+        if (!res.ok) {
+            throw new Error(`Failed to fetch effect schemas: ${res.status} ${res.statusText}`);
+        }
+        return res.json();
     }
 }

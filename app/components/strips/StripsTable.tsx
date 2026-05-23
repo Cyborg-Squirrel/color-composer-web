@@ -80,8 +80,8 @@ export function StripsTable({ clients, refreshKey, onClientChanged }: IStripsTab
                                 {!isMobile && <Table.Td>{s.length}</Table.Td>}
                                 {!isMobile && <Table.Td>{s.brightness}%</Table.Td>}
                                 <Table.Td>
-                                    <Text size="sm" fw={500} c={getStripStatusColor(s.activeEffects)}>
-                                        {getStripStatusText(s.activeEffects)}
+                                    <Text size="sm" fw={500} c={getStripStatusColor(s.inUse)}>
+                                        {getStripStatusText(s.inUse)}
                                     </Text>
                                 </Table.Td>
                             </Table.Tr>

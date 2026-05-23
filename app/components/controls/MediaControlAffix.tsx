@@ -107,7 +107,7 @@ export default function MediaControlAffix({ show, isMobile, selectedStatuses, on
     <>
       {show && (
         <MediaControlPortal anchorRef={ref as any} parentRef={parentRef as any} isMobile={isMobile}>
-          <SwitchesCard statuses={selectedStatuses} onPlay={onPlay} onPause={onPause} onStop={onStop} onDelete={onDelete} />
+          <SwitchesCard statuses={selectedStatuses ?? []} onPlay={onPlay} onPause={onPause} onStop={onStop} onDelete={onDelete} />
         </MediaControlPortal>
       )}
       <div ref={ref} style={{ display: 'none' }} />

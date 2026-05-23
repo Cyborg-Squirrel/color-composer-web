@@ -12,7 +12,7 @@ export class MockStripsApi implements IStripsApi {
       height: 1,
       brightness: 20,
       blendMode: 'Additive',
-      activeEffects: 2,
+      inUse: true,
     },
     {
       name: 'LED Lamp Strip',
@@ -23,7 +23,7 @@ export class MockStripsApi implements IStripsApi {
       height: 1,
       brightness: 34,
       blendMode: 'Layer',
-      activeEffects: 0,
+      inUse: false,
     }
   ];
 
@@ -58,7 +58,7 @@ export class MockStripsApi implements IStripsApi {
       height: data.height || 1,
       brightness: data.brightness || 100,
       blendMode: data.blendMode || 'Additive',
-      activeEffects: 0,
+      inUse: false,
     };
 
     this.strips.push(newStrip);

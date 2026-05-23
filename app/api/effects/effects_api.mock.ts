@@ -1,33 +1,34 @@
-import type { ILightEffect, ILightEffectMutation, LightEffectStatusCommand } from './effects_api';
+import { LightEffectStatus, type IEffectSchema, type ILightEffect, type ILightEffectMutation, type LightEffectStatusCommand } from './effects_api';
 import type { IEffectsApi } from './effects_api.interface';
+import { MOCK_EFFECT_SCHEMAS } from './effects_api.mock_schemas';
 
 export class MockEffectsApi implements IEffectsApi {
     private effects: ILightEffect[] = [
         {
             uuid: '550e8400-e29b-41d4-a716-446655440001',
             name: 'Rainbow Wave',
-            type: 'rainbow',
-            stripUuid: '550e8400-e29b-41d4-a716-446655440011',
-            status: 'Playing',
-            settings: { speed: 0.5 },
+            type: 'Rainbow',
+            stripUuid: '13120111-0184-4961-9e74-018a960d4b32',
+            status: LightEffectStatus.Playing,
+            settings: { speed: 60 },
             paletteUuid: '550e8400-e29b-41d4-a716-446655550001',
         },
         {
             uuid: '550e8400-e29b-41d4-a716-446655440002',
             name: 'Solid Color',
-            type: 'solid',
-            stripUuid: '550e8400-e29b-41d4-a716-446655440011',
-            status: 'Paused',
+            type: 'Solid',
+            stripUuid: '13120111-0184-4961-9e74-018a960d4b32',
+            status: LightEffectStatus.Paused,
             settings: { color: '#FF0000' },
             paletteUuid: '550e8400-e29b-41d4-a716-446655550002',
         },
         {
             uuid: '550e8400-e29b-41d4-a716-446655440003',
-            name: 'Pulse Effect',
-            type: 'pulse',
-            stripUuid: '550e8400-e29b-41d4-a716-446655440012',
-            status: 'Idle',
-            settings: { intensity: 0.8 },
+            name: 'Breathe',
+            type: 'Breathe',
+            stripUuid: '99d53b59-cb0d-449f-a9e9-bf6cb7bf391a',
+            status: LightEffectStatus.Inactive,
+            settings: { color: '#ff8844', speed: 35 },
             paletteUuid: null,
         },
     ];
@@ -61,7 +62,7 @@ export class MockEffectsApi implements IEffectsApi {
             poolUuid: data.poolUuid,
             paletteUuid: data.paletteUuid,
             settings: data.settings || {},
-            status: 'Idle',
+            status: LightEffectStatus.Inactive,
         };
         this.effects.push(newEffect);
         return newEffect.uuid;
@@ -91,10 +92,11 @@ export class MockEffectsApi implements IEffectsApi {
 
     async updateEffectStatus(uuids: string[], command: LightEffectStatusCommand): Promise<void> {
         await this.delay(500);
-        const statusMap: Record<LightEffectStatusCommand, 'Playing' | 'Paused' | 'Stopped'> = {
-            'Play': 'Playing',
-            'Pause': 'Paused',
-            'Stop': 'Stopped',
+        const statusMap: Record<LightEffectStatusCommand, LightEffectStatus> = {
+            'Play': LightEffectStatus.Playing,
+            'Pause': LightEffectStatus.Paused,
+            'Stop': LightEffectStatus.Stopped,
+            'Deactivate': LightEffectStatus.Inactive,
         };
         const newStatus = statusMap[command];
         for (const uuid of uuids) {
@@ -103,5 +105,10 @@ export class MockEffectsApi implements IEffectsApi {
                 effect.status = newStatus;
             }
         }
+    }
+
+    async getEffectSchemas(): Promise<IEffectSchema[]> {
+        await this.delay(200);
+        return MOCK_EFFECT_SCHEMAS.map(s => ({ ...s, fields: s.fields.map(f => ({ ...f, validators: [...f.validators] })) }));
     }
 }

@@ -54,12 +54,12 @@ export function getClientStatusText(status: ClientStatus) {
     }
 }
 
-export function getStripStatusText(activeEffects: number) {
-    return activeEffects > 0 ? 'Active': 'Inactive';
+export function getStripStatusText(inUse: boolean) {
+    return inUse ? 'Active': 'Inactive';
 }
 
-export function getStripStatusColor(activeEffects: number) {
-    if (activeEffects > 0) {
+export function getStripStatusColor(inUse: boolean) {
+    if (inUse) {
         return 'var(--mantine-color-green-8)';
     } else {
         return 'light-dark(var(--mantine-color-text), var(--mantine-color-dimmed))';
