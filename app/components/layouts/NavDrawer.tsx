@@ -2,15 +2,14 @@ import { ActionIcon, Box, Code, Drawer, Group, NavLink, Stack, Text } from "@man
 import {
   HouseIcon,
   LightbulbIcon,
-  LightningIcon,
   PaletteIcon,
   SparkleIcon,
   TimerIcon,
   WifiHighIcon,
-  XIcon,
+  XIcon
 } from "@phosphor-icons/react";
 import type { ReactNode } from "react";
-import { Link, useLocation, useNavigate } from "react-router";
+import { Link, useLocation } from "react-router";
 
 export interface NavItem {
   link: string;
@@ -34,12 +33,6 @@ interface NavDrawerProps {
 
 export function NavDrawer({ open, onClose }: NavDrawerProps) {
   const { pathname } = useLocation();
-  const navigate = useNavigate();
-
-  const goHome = () => {
-    navigate("/");
-    onClose();
-  };
 
   return (
     <Drawer
@@ -62,16 +55,14 @@ export function NavDrawer({ open, onClose }: NavDrawerProps) {
           h={48}
           px="md"
           gap="xs"
+          wrap="nowrap"
           style={{ borderBottom: "1px solid var(--mantine-color-default-border)", flexShrink: 0, cursor: "pointer" }}
-          onClick={goHome}
         >
-          <LightningIcon size={16} weight="fill" style={{ color: "var(--neon-accent)" }} />
           <Text ff="var(--mantine-font-family-monospace)" fw={600} size="sm" style={{ letterSpacing: "-0.02em" }}>
-            neon
+            Color Composer
           </Text>
-          <Code style={{ fontSize: 9, padding: "1px 5px" }}>v0.1</Code>
-          <Box style={{ flex: 1 }} />
-          <ActionIcon variant="subtle" color="gray" onClick={(e) => { e.stopPropagation(); onClose(); }} aria-label="Close menu">
+          <Code style={{ fontSize: 9, padding: "1px 5px" }}>{import.meta.env.VITE_APP_VERSION}</Code>
+          <ActionIcon ml="auto" variant="subtle" color="gray" onClick={(e) => { e.stopPropagation(); onClose(); }} aria-label="Close menu">
             <XIcon size={16} />
           </ActionIcon>
         </Group>

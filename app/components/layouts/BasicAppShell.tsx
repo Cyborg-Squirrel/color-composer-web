@@ -40,7 +40,7 @@ interface IAppShellProps {
 
 function AboutModal({ opened, onClose }: { opened: boolean; onClose: () => void }) {
   const rows = [
-    { label: "Version", value: "v0.0.1" },
+    { label: "Version", value: import.meta.env.VITE_APP_VERSION },
     { label: "API", value: "Kotlin · Micronaut · Postgres" },
     { label: "Web", value: "React · Mantine v9 · Tailwind" },
   ];

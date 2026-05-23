@@ -65,7 +65,7 @@ export function PoolCard({
           ff="var(--mantine-font-family-monospace)"
           style={{ letterSpacing: "0.08em" }}
         >
-          {pool.poolType} · {pool.members.length}
+          {pool.poolType}
         </Badge>
         {!isEffectsVariant && playState === "playing" && (
           <Badge color="teal" variant="light" size="xs">Playing</Badge>
