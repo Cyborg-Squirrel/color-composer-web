@@ -8,7 +8,7 @@ export interface IStripPoolMember {
     stripUuid: string;
     inverted: boolean;
     poolIndex: number;   // ordering within the pool
-    inUse: Boolean;
+    inUse: boolean;
 }
 
 export interface IStripPool {
@@ -17,7 +17,7 @@ export interface IStripPool {
     poolType: PoolType;
     blendMode: BlendMode;
     members: IStripPoolMember[];
-    inUse: Boolean;
+    inUse: boolean;
 }
 
 export interface IStripPoolMutation {

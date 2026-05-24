@@ -40,6 +40,7 @@ export class MockPoolsApi implements IPoolsApi {
             poolType: data.poolType,
             blendMode: data.blendMode ?? 'Layer',
             members: [],
+            inUse: false
         };
         this.pools.push(newPool);
         return newPool.uuid;
@@ -68,6 +69,7 @@ export class MockPoolsApi implements IPoolsApi {
                 stripUuid: m.stripUuid,
                 inverted: m.inverted,
                 poolIndex: m.poolIndex,
+                inUse: m.inUse,
             })),
         };
     }

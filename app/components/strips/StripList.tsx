@@ -192,7 +192,6 @@ export function StripList({ refreshKey, onChanged, tab }: StripListProps) {
                   playState={playState}
                   onlineByStrip={onlineByStrip}
                   variant="strips"
-                  onDelete={(pool) => setDeletingPool(pool)}
                 />
               );
             })}
