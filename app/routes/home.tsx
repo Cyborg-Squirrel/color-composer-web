@@ -13,6 +13,7 @@ import { CpuIcon, LightbulbIcon } from "@phosphor-icons/react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router";
 import { ClientStatus, NightDriverType, PiClientType, type ILedStripClient } from "~/api/clients/clients_api";
+import type { ILightEffectSettings } from "~/api/effect_settings/effect_settings_api";
 import { type ILightEffect } from "~/api/effects/effects_api";
 import type { IPalette } from "~/api/palettes/palettes_api";
 import type { IStripPool } from "~/api/pools/pools_api";
@@ -30,6 +31,7 @@ import {
 } from "~/components/util/stripHelpers";
 import { useClientApi } from "~/provider/ClientApiContext";
 import { useEffectApi } from "~/provider/EffectApiContext";
+import { useEffectSettingsApi } from "~/provider/EffectSettingsApiContext";
 import { useResourceEvents } from "~/provider/EventStreamContext";
 import { useHomeApi } from "~/provider/HomeApiContext";
 import { usePaletteApi } from "~/provider/PaletteApiContext";
@@ -103,12 +105,14 @@ function HomeContent() {
   const clientApi = useClientApi();
   const poolApi = usePoolApi();
   const effectApi = useEffectApi();
+  const effectSettingsApi = useEffectSettingsApi();
   const paletteApi = usePaletteApi();
 
   const [strips, setStrips] = useState<ILedStrip[]>([]);
   const [clients, setClients] = useState<ILedStripClient[]>([]);
   const [pools, setPools] = useState<IStripPool[]>([]);
   const [effects, setEffects] = useState<ILightEffect[]>([]);
+  const [presets, setPresets] = useState<ILightEffectSettings[]>([]);
   const [palettes, setPalettes] = useState<IPalette[]>([]);
   const [totals, setTotals] = useState<{ clients: number; strips: number; effects: number; palettes: number } | null>(null);
   const [loading, setLoading] = useState(true);
@@ -118,15 +122,16 @@ function HomeContent() {
       // The /home endpoint gives us totals + a snapshot, but we also fetch pools
       // (which it doesn't include) and prefer the dedicated list endpoints so we
       // get full per-resource shapes for live derivation.
-      const [home, s, c, p, e, pal] = await Promise.all([
+      const [home, s, c, p, e, pal, ps] = await Promise.all([
         homeApi.getHomeStats().catch(() => null),
         stripApi.getStrips().catch(() => [] as ILedStrip[]),
         clientApi.getClients().catch(() => [] as ILedStripClient[]),
         poolApi.getPools().catch(() => [] as IStripPool[]),
         effectApi.getEffects().catch(() => [] as ILightEffect[]),
         paletteApi.getPalettes().catch(() => [] as IPalette[]),
+        effectSettingsApi.getEffectSettings().catch(() => [] as ILightEffectSettings[]),
       ]);
-      setStrips(s); setClients(c); setPools(p); setEffects(e); setPalettes(pal);
+      setStrips(s); setClients(c); setPools(p); setEffects(e); setPalettes(pal); setPresets(ps);
       setTotals({
         clients: home?.totalClients ?? c.length,
         strips: home?.totalStrips ?? s.length,
@@ -138,14 +143,20 @@ function HomeContent() {
     } finally {
       setLoading(false);
     }
-  }, [homeApi, stripApi, clientApi, poolApi, effectApi, paletteApi]);
+  }, [homeApi, stripApi, clientApi, poolApi, effectApi, paletteApi, effectSettingsApi]);
 
   useEffect(() => { fetchAll(); }, [fetchAll]);
   useResourceEvents(
-    ["LedClient", "LedStrip", "StripPool", "LightEffect", "Palette"],
+    ["LedClient", "LedStrip", "StripPool", "LightEffect", "EffectSettings", "Palette"],
     () => { fetchAll(); },
     [],
   );
+
+  const presetByUuid = useMemo(() => {
+    const map: Record<string, ILightEffectSettings> = {};
+    for (const p of presets) map[p.uuid] = p;
+    return map;
+  }, [presets]);
 
   const onlineByStrip = useMemo(() => buildOnlineByStrip(strips, clients), [strips, clients]);
 
@@ -228,7 +239,8 @@ function HomeContent() {
               const playState = deriveStripPlayState(s.uuid, effects);
               const active = findActiveEffect(s.uuid, effects);
               const client = clients.find((c) => c.uuid === s.clientUuid);
-              const settings = (active?.settings ?? {}) as { color?: string; colorB?: string; speed?: number };
+              const activePreset = active?.settingsUuid ? presetByUuid[active.settingsUuid] : undefined;
+              const settings = (activePreset?.settings ?? {}) as { color?: string; colorB?: string; speed?: number };
               const stateColor =
                 playState === "playing" ? "var(--neon-accent)" :
                 playState === "paused" ? "var(--neon-amber)" : "var(--neon-text3)";

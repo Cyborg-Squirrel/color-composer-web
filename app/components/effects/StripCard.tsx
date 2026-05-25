@@ -1,5 +1,6 @@
 import { ActionIcon, Badge, Box, Group, Paper, Slider, Stack, Text } from "@mantine/core";
 import { PauseIcon, PlayIcon, StopIcon } from "@phosphor-icons/react";
+import type { ILightEffectSettings } from "~/api/effect_settings/effect_settings_api";
 import type { ILightEffect } from "~/api/effects/effects_api";
 import type { IPalette } from "~/api/palettes/palettes_api";
 import type { ILedStrip, StripPlayState } from "~/api/strips/strips_api";
@@ -12,6 +13,7 @@ interface EffectsStripCardProps {
   online: boolean;
   playState: StripPlayState;
   activeEffect?: ILightEffect;
+  activeSettings?: ILightEffectSettings;
   activeEffectCount: number;
   palette?: IPalette;
   selected: boolean;
@@ -25,6 +27,7 @@ export function StripCard({
   online,
   playState,
   activeEffect,
+  activeSettings,
   activeEffectCount,
   palette,
   selected,
@@ -33,7 +36,7 @@ export function StripCard({
   onUpdateBrightness,
 }: EffectsStripCardProps) {
   const { label, badgeColor } = stripStatusBadge(online, playState);
-  const settings = (activeEffect?.settings ?? {}) as { color?: string; colorB?: string; speed?: number };
+  const settings = (activeSettings?.settings ?? {}) as { color?: string; colorB?: string; speed?: number };
 
   // Footer summary: "EffectName · PaletteName" or "EffectName +N" (N counts active effects beyond the base) or em-dash
   const extra = Math.max(0, activeEffectCount - 1);

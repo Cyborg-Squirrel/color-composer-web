@@ -7,6 +7,7 @@ interface EffectParamsProps {
   value: Record<string, unknown>;
   onChange: (settings: Record<string, unknown>) => void;
   compact?: boolean;
+  errors?: Record<string, string>;
 }
 
 /** Convert a key like `colorB` or `bpm` to a human label ("Color B", "BPM"). */
@@ -39,7 +40,7 @@ function MonoLabel({ field }: { field: IEffectSchemaField }) {
   );
 }
 
-export function EffectParams({ fields, value, onChange, compact }: EffectParamsProps) {
+export function EffectParams({ fields, value, onChange, compact, errors }: EffectParamsProps) {
   if (!fields.length) {
     return (
       <Text size="xs" c="dimmed" fs="italic">
@@ -52,8 +53,21 @@ export function EffectParams({ fields, value, onChange, compact }: EffectParamsP
 
   return (
     <Stack gap={compact ? 8 : "sm"}>
-      {fields.map((field) => renderField(field, value, set))}
+      {fields.map((field) => renderField(field, value, set, errors?.[field.key]))}
     </Stack>
+  );
+}
+
+function FieldError({ message }: { message: string }) {
+  return (
+    <Text
+      ff="var(--mantine-font-family-monospace)"
+      size="xs"
+      c="red"
+      style={{ fontSize: 10, letterSpacing: "0.04em" }}
+    >
+      {message}
+    </Text>
   );
 }
 
@@ -61,24 +75,28 @@ function renderField(
   field: IEffectSchemaField,
   value: Record<string, unknown>,
   set: (patch: Record<string, unknown>) => void,
+  error: string | undefined,
 ) {
   const current = value[field.key];
   const min = validatorOfType(field, 'min')?.value;
   const max = validatorOfType(field, 'max')?.value;
-  const options = validatorOfType(field, 'options')?.values;
+  const options = validatorOfType(field, 'options')?.values ?? [];
 
   switch (field.type) {
     case 'Boolean': {
       const checked = typeof current === 'boolean' ? current : false;
       return (
-        <Group key={field.key} justify="space-between" wrap="nowrap">
-          <MonoLabel field={field} />
-          <Switch
-            checked={checked}
-            onChange={(e) => set({ [field.key]: e.currentTarget.checked })}
-            size="xs"
-          />
-        </Group>
+        <Stack key={field.key} gap={2}>
+          <Group justify="space-between" wrap="nowrap">
+            <MonoLabel field={field} />
+            <Switch
+              checked={checked}
+              onChange={(e) => set({ [field.key]: e.currentTarget.checked })}
+              size="xs"
+            />
+          </Group>
+          {error && <FieldError message={error} />}
+        </Stack>
       );
     }
     case 'Integer':
@@ -106,68 +124,85 @@ function renderField(
               size="xs"
               label={null}
             />
+            {error && <FieldError message={error} />}
           </Stack>
         );
       }
 
       return (
-        <Group key={field.key} justify="space-between" wrap="nowrap">
-          <MonoLabel field={field} />
-          <NumberInput
-            size="xs"
-            value={Number.isFinite(raw) ? (raw as number) : undefined}
-            onChange={(v) => set({ [field.key]: typeof v === 'number' ? (isInteger ? Math.round(v) : v) : undefined })}
-            min={min}
-            max={max}
-            step={step}
-            allowDecimal={!isInteger}
-            style={{ width: 120 }}
-          />
-        </Group>
+        <Stack key={field.key} gap={2}>
+          <Group justify="space-between" wrap="nowrap">
+            <MonoLabel field={field} />
+            <NumberInput
+              size="xs"
+              value={Number.isFinite(raw) ? (raw as number) : undefined}
+              onChange={(v) => set({ [field.key]: typeof v === 'number' ? (isInteger ? Math.round(v) : v) : undefined })}
+              min={min}
+              max={max}
+              step={step}
+              allowDecimal={!isInteger}
+              error={Boolean(error)}
+              style={{ width: 120 }}
+            />
+          </Group>
+          {error && <FieldError message={error} />}
+        </Stack>
       );
     }
     case 'String': {
       const text = typeof current === 'string' ? current : '';
       if (options && options.length > 0) {
         return (
-          <Group key={field.key} justify="space-between" wrap="nowrap">
-            <MonoLabel field={field} />
-            <Select
-              size="xs"
-              value={options.includes(text) ? text : null}
-              onChange={(v) => set({ [field.key]: v ?? '' })}
-              data={options}
-              style={{ width: 160 }}
-            />
-          </Group>
+          <Stack key={field.key} gap={2}>
+            <Group justify="space-between" wrap="nowrap">
+              <MonoLabel field={field} />
+              <Select
+                size="xs"
+                value={options.includes(text) ? text : null}
+                onChange={(v) => set({ [field.key]: v ?? '' })}
+                data={options}
+                error={Boolean(error)}
+                style={{ width: 160 }}
+              />
+            </Group>
+            {error && <FieldError message={error} />}
+          </Stack>
         );
       }
       return (
-        <Group key={field.key} justify="space-between" wrap="nowrap">
-          <MonoLabel field={field} />
-          <TextInput
-            size="xs"
-            value={text}
-            onChange={(e) => set({ [field.key]: e.currentTarget.value })}
-            style={{ width: 160 }}
-          />
-        </Group>
+        <Stack key={field.key} gap={2}>
+          <Group justify="space-between" wrap="nowrap">
+            <MonoLabel field={field} />
+            <TextInput
+              size="xs"
+              value={text}
+              onChange={(e) => set({ [field.key]: e.currentTarget.value })}
+              error={Boolean(error)}
+              style={{ width: 160 }}
+            />
+          </Group>
+          {error && <FieldError message={error} />}
+        </Stack>
       );
     }
     case 'RgbColor': {
       const text = typeof current === 'string' ? current : '#4488ff';
       return (
-        <Group key={field.key} justify="space-between" wrap="nowrap">
-          <MonoLabel field={field} />
-          <ColorInput
-            size="xs"
-            value={text}
-            onChange={(v) => set({ [field.key]: v })}
-            format="hex"
-            swatches={["#4488ff", "#ff8844", "#44ffaa", "#8844ff", "#ff44aa", "#ffffff", "#000000"]}
-            style={{ width: 160 }}
-          />
-        </Group>
+        <Stack key={field.key} gap={2}>
+          <Group justify="space-between" wrap="nowrap">
+            <MonoLabel field={field} />
+            <ColorInput
+              size="xs"
+              value={text}
+              onChange={(v) => set({ [field.key]: v })}
+              format="hex"
+              swatches={["#4488ff", "#ff8844", "#44ffaa", "#8844ff", "#ff44aa", "#ffffff", "#000000"]}
+              error={Boolean(error)}
+              style={{ width: 160 }}
+            />
+          </Group>
+          {error && <FieldError message={error} />}
+        </Stack>
       );
     }
     default:

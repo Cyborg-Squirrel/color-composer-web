@@ -13,6 +13,7 @@ import {
 import { CaretLeftIcon, LightningIcon, PlayIcon, PlusIcon } from "@phosphor-icons/react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type { ILedStripClient } from "~/api/clients/clients_api";
+import type { ILightEffectSettings } from "~/api/effect_settings/effect_settings_api";
 import { LightEffectStatus, type ILightEffect, type LightEffectStatusCommand } from "~/api/effects/effects_api";
 import type { IPalette } from "~/api/palettes/palettes_api";
 import type { IStripPool } from "~/api/pools/pools_api";
@@ -31,6 +32,7 @@ import {
 } from "~/components/util/stripHelpers";
 import { useClientApi } from "~/provider/ClientApiContext";
 import { useEffectApi } from "~/provider/EffectApiContext";
+import { useEffectSettingsApi } from "~/provider/EffectSettingsApiContext";
 import { useResourceEvents } from "~/provider/EventStreamContext";
 import { usePaletteApi } from "~/provider/PaletteApiContext";
 import { usePoolApi } from "~/provider/PoolApiContext";
@@ -52,6 +54,7 @@ export function EffectsSplitPane() {
   const clientApi = useClientApi();
   const poolApi = usePoolApi();
   const effectApi = useEffectApi();
+  const effectSettingsApi = useEffectSettingsApi();
   const paletteApi = usePaletteApi();
   const isMobile = isMobileUi();
 
@@ -59,6 +62,7 @@ export function EffectsSplitPane() {
   const [clients, setClients] = useState<ILedStripClient[]>([]);
   const [pools, setPools] = useState<IStripPool[]>([]);
   const [effects, setEffects] = useState<ILightEffect[]>([]);
+  const [presets, setPresets] = useState<ILightEffectSettings[]>([]);
   const [palettes, setPalettes] = useState<IPalette[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -72,26 +76,39 @@ export function EffectsSplitPane() {
 
   const fetchAll = useCallback(async () => {
     try {
-      const [s, c, p, e, pal] = await Promise.all([
+      const [s, c, p, e, pal, ps] = await Promise.all([
         stripApi.getStrips(),
         clientApi.getClients(),
         poolApi.getPools(),
         effectApi.getEffects(),
         paletteApi.getPalettes(),
+        effectSettingsApi.getEffectSettings(),
       ]);
-      setStrips(s); setClients(c); setPools(p); setEffects(e); setPalettes(pal);
+      setStrips(s); setClients(c); setPools(p); setEffects(e); setPalettes(pal); setPresets(ps);
     } catch (err) {
       console.error("Failed to load effects page", err);
     } finally {
       setLoading(false);
     }
-  }, [stripApi, clientApi, poolApi, effectApi, paletteApi]);
+  }, [stripApi, clientApi, poolApi, effectApi, paletteApi, effectSettingsApi]);
 
   useEffect(() => { fetchAll(); }, [fetchAll]);
   useResourceEvents(
-    ["LedStrip", "LedClient", "StripPool", "LightEffect", "Palette"],
+    ["LedStrip", "LedClient", "StripPool", "LightEffect", "EffectSettings", "Palette"],
     () => { fetchAll(); },
     [],
+  );
+
+  const presetByUuid = useMemo(() => {
+    const map: Record<string, ILightEffectSettings> = {};
+    for (const p of presets) map[p.uuid] = p;
+    return map;
+  }, [presets]);
+
+  const presetForEffect = useCallback(
+    (effect: ILightEffect | undefined): ILightEffectSettings | undefined =>
+      effect?.settingsUuid ? presetByUuid[effect.settingsUuid] : undefined,
+    [presetByUuid],
   );
 
   const sortedStrips = useMemo(
@@ -167,12 +184,16 @@ export function EffectsSplitPane() {
   const handleCreateEffect = async (payload: AddEffectPayload) => {
     if (!selectedStrip && !selectedPool) return;
     try {
+      const settingsUuid =
+        payload.preset.kind === "existing"
+          ? payload.preset.settingsUuid
+          : await effectSettingsApi.createEffectSettings(payload.preset.mutation);
       const uuid = await effectApi.createEffect({
         name: payload.name,
         effectType: payload.effectType,
         stripUuid: selectedStrip?.uuid,
         poolUuid: selectedPool?.uuid,
-        settings: payload.settings,
+        settingsUuid,
         paletteUuid: payload.paletteUuid,
       });
       setAddOpen(false);
@@ -203,17 +224,26 @@ export function EffectsSplitPane() {
     setEffects((prev) =>
       prev.map((e) =>
         e.uuid === target.uuid
-          ? { ...e, name: payload.name, settings: payload.settings, paletteUuid: payload.paletteUuid }
+          ? {
+              ...e,
+              name: payload.effect.name,
+              paletteUuid: payload.effect.paletteUuid,
+              settingsUuid: payload.effect.settingsUuid,
+            }
           : e,
       ),
     );
     try {
+      if (payload.preset) {
+        await effectSettingsApi.updateEffectSettings(payload.preset.uuid, payload.preset.mutation);
+      }
       await effectApi.updateEffect(target.uuid, {
-        name: payload.name,
+        name: payload.effect.name,
         effectType: target.type,
-        settings: payload.settings,
-        paletteUuid: payload.paletteUuid,
+        settingsUuid: payload.effect.settingsUuid,
+        paletteUuid: payload.effect.paletteUuid,
       });
+      fetchAll();
     } catch (err) {
       console.error("Failed to update effect", err);
       fetchAll();
@@ -317,6 +347,7 @@ export function EffectsSplitPane() {
                     online={onlineByStrip[s.uuid] !== false}
                     playState={playState}
                     activeEffect={baseLayer}
+                    activeSettings={presetForEffect(baseLayer)}
                     activeEffectCount={stripActive.length}
                     palette={palette}
                     selected={selectedId === s.uuid}
@@ -336,7 +367,7 @@ export function EffectsSplitPane() {
               {sortedPools.map((p) => {
                 const playState = derivePoolPlayState(p.uuid, effects);
                 const active = findPoolActiveEffect(p.uuid, effects);
-                const settings = (active?.settings ?? {}) as { color?: string };
+                const activeSettings = (presetForEffect(active)?.settings ?? {}) as { color?: string };
                 return (
                   <PoolCard
                     key={p.uuid}
@@ -349,7 +380,7 @@ export function EffectsSplitPane() {
                     onSelect={selectStrip}
                     onUpdatePlayState={(cmd) => handlePoolPlayState(p, cmd)}
                     activeEffectType={active?.type ?? null}
-                    activeColor={settings.color ?? null}
+                    activeColor={activeSettings.color ?? null}
                   />
                 );
               })}
@@ -468,6 +499,7 @@ export function EffectsSplitPane() {
                 <EffectListRow
                   key={eff.uuid}
                   effect={eff}
+                  settings={presetForEffect(eff)}
                   layerIndex={idx}
                   palette={palette}
                   onEdit={() => setEditing(eff)}
@@ -496,6 +528,7 @@ export function EffectsSplitPane() {
                     <EffectListRow
                       key={eff.uuid}
                       effect={eff}
+                      settings={presetForEffect(eff)}
                       palette={palette}
                       onEdit={() => setEditing(eff)}
                       onDelete={() => setDeleting(eff)}
@@ -538,16 +571,20 @@ export function EffectsSplitPane() {
         onClose={() => setAddOpen(false)}
         onCreate={handleCreateEffect}
         palettes={palettes}
+        presets={presets}
         isMobile={isMobile}
         targetName={selectedName}
       />
-      <EditEffectModal
-        effect={editing}
-        palettes={palettes}
-        isMobile={isMobile}
-        onClose={() => setEditing(null)}
-        onSave={handleEditSave}
-      />
+      {editing && (
+        <EditEffectModal
+          effect={editing}
+          palettes={palettes}
+          presets={presets}
+          isMobile={isMobile}
+          onClose={() => setEditing(null)}
+          onSave={handleEditSave}
+        />
+      )}
       <ConfirmDeleteModal
         opened={Boolean(deleting)}
         onClose={() => setDeleting(null)}

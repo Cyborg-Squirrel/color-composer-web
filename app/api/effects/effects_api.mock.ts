@@ -10,7 +10,6 @@ export class MockEffectsApi implements IEffectsApi {
             type: 'Rainbow',
             stripUuid: '13120111-0184-4961-9e74-018a960d4b32',
             status: LightEffectStatus.Playing,
-            settings: { speed: 60 },
             paletteUuid: '550e8400-e29b-41d4-a716-446655550001',
         },
         {
@@ -19,7 +18,6 @@ export class MockEffectsApi implements IEffectsApi {
             type: 'Solid',
             stripUuid: '13120111-0184-4961-9e74-018a960d4b32',
             status: LightEffectStatus.Paused,
-            settings: { color: '#FF0000' },
             paletteUuid: '550e8400-e29b-41d4-a716-446655550002',
         },
         {
@@ -28,7 +26,6 @@ export class MockEffectsApi implements IEffectsApi {
             type: 'Breathe',
             stripUuid: '99d53b59-cb0d-449f-a9e9-bf6cb7bf391a',
             status: LightEffectStatus.Inactive,
-            settings: { color: '#ff8844', speed: 35 },
             paletteUuid: null,
         },
     ];
@@ -61,7 +58,7 @@ export class MockEffectsApi implements IEffectsApi {
             stripUuid: data.stripUuid,
             poolUuid: data.poolUuid,
             paletteUuid: data.paletteUuid,
-            settings: data.settings || {},
+            settingsUuid: '550e8400-e29b-41d4-a716-446655660001',
             status: LightEffectStatus.Inactive,
         };
         this.effects.push(newEffect);
@@ -80,7 +77,7 @@ export class MockEffectsApi implements IEffectsApi {
                 stripUuid: data.stripUuid ?? effect.stripUuid,
                 poolUuid: data.poolUuid ?? effect.poolUuid,
                 paletteUuid: data.paletteUuid ?? effect.paletteUuid,
-                settings: data.settings ?? effect.settings,
+                settingsUuid: data.settingsUuid ?? effect.settingsUuid,
             };
         }
     }

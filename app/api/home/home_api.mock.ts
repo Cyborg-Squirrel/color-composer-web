@@ -17,7 +17,6 @@ export class MockHomeApi implements IHomeApi {
                     name: 'Rainbow Cycle',
                     type: 'RainbowCycle',
                     stripUuid: 'strip-uuid-1',
-                    settings: {},
                     status: LightEffectStatus.Playing,
                 },
                 {
@@ -25,7 +24,6 @@ export class MockHomeApi implements IHomeApi {
                     name: 'Color Wipe',
                     type: 'ColorWipe',
                     stripUuid: 'strip-uuid-2',
-                    settings: {},
                     status: LightEffectStatus.Playing,
                 },
             ],

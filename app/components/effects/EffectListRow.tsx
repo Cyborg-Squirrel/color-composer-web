@@ -1,12 +1,15 @@
 import { ActionIcon, Badge, Box, Group, Menu, Stack, Text, UnstyledButton } from "@mantine/core";
 import { DotsThreeVerticalIcon, PencilSimpleIcon, PlusIcon, ProhibitIcon, TrashIcon } from "@phosphor-icons/react";
 import { useState } from "react";
+import type { ILightEffectSettings } from "~/api/effect_settings/effect_settings_api";
 import { LightEffectStatus, type ILightEffect } from "~/api/effects/effects_api";
 import type { IPalette } from "~/api/palettes/palettes_api";
 import { previewBackground } from "~/constants/effects";
 
 interface EffectListRowProps {
   effect: ILightEffect;
+  /** Linked settings preset, looked up via effect.settingsUuid. */
+  settings?: ILightEffectSettings;
   /** Layer index among active (non-Inactive) effects. Undefined for inactive rows. */
   layerIndex?: number;
   palette?: IPalette;
@@ -16,9 +19,9 @@ interface EffectListRowProps {
   onDeactivate?: () => void;
 }
 
-function buildSummary(effect: ILightEffect, palette?: IPalette): string {
+function buildSummary(effect: ILightEffect, settings: ILightEffectSettings | undefined, palette?: IPalette): string {
   const parts: string[] = [effect.type];
-  const s = effect.settings ?? {};
+  const s = settings?.settings ?? {};
   if (typeof s.color === "string") parts.push((s.color as string).toUpperCase());
   if (typeof s.speed === "number") parts.push(`${s.speed}% spd`);
   if (palette) parts.push(palette.name);
@@ -27,6 +30,7 @@ function buildSummary(effect: ILightEffect, palette?: IPalette): string {
 
 export function EffectListRow({
   effect,
+  settings,
   layerIndex,
   palette,
   onEdit,
@@ -43,7 +47,7 @@ export function EffectListRow({
   const layerLabel = !isInactive
     ? (layerIndex === 0 ? "Base" : `Layer ${layerIndex}`)
     : null;
-  const summary = buildSummary(effect, palette);
+  const summary = buildSummary(effect, settings, palette);
   const [hoverActivate, setHoverActivate] = useState(false);
 
   const swatchBackground = isGradient

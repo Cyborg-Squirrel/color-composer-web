@@ -21,7 +21,7 @@ export interface ILightEffect {
     stripUuid?: string | null;
     poolUuid?: string | null;
     paletteUuid?: string | null;
-    settings: Record<string, unknown>;
+    settingsUuid?: string | null;
     status: LightEffectStatus;
 }
 
@@ -30,7 +30,7 @@ export interface ILightEffectMutation {
     effectType: string;
     stripUuid?: string | null;
     poolUuid?: string | null;
-    settings?: Record<string, unknown>;
+    settingsUuid?: string | null;
     paletteUuid?: string | null;
 }
 
@@ -82,4 +82,61 @@ export function validatorOfType<T extends EffectFieldValidator['type']>(
     type: T,
 ): Extract<EffectFieldValidator, { type: T }> | undefined {
     return field.validators.find((v) => v.type === type) as Extract<EffectFieldValidator, { type: T }> | undefined;
+}
+
+/* ───────────────────────── Validation ───────────────────────── */
+
+/**
+ * Validate a single field value against its schema validators.
+ * Returns an error message if invalid, or null if valid.
+ *
+ * A missing value (undefined, null, or '') is considered valid — the user
+ * opted not to set this field, and the backend applies its own default.
+ */
+export function validateField(field: IEffectSchemaField, value: unknown): string | null {
+    if (value === undefined || value === null || value === '') return null;
+
+    switch (field.type) {
+        case 'Integer':
+        case 'Number': {
+            if (typeof value !== 'number' || !Number.isFinite(value)) {
+                return 'Must be a number';
+            }
+            if (field.type === 'Integer' && !Number.isInteger(value)) {
+                return 'Must be an integer';
+            }
+            const min = validatorOfType(field, 'min')?.value;
+            const max = validatorOfType(field, 'max')?.value;
+            if (typeof min === 'number' && value < min) return `Must be ≥ ${min}`;
+            if (typeof max === 'number' && value > max) return `Must be ≤ ${max}`;
+            return null;
+        }
+        case 'String': {
+            if (typeof value !== 'string') return 'Must be a string';
+            const options = validatorOfType(field, 'options')?.values;
+            if (options && options.length > 0 && !options.includes(value)) {
+                return `Must be one of: ${options.join(', ')}`;
+            }
+            return null;
+        }
+        case 'Boolean':
+            return typeof value === 'boolean' ? null : 'Must be true or false';
+        case 'RgbColor':
+            return typeof value === 'string' ? null : 'Must be a color string';
+        default:
+            return null;
+    }
+}
+
+/** Validate an entire settings object. Returns a map of field key → error message (only invalid fields included). */
+export function validateSettings(
+    schema: IEffectSchemaField[],
+    settings: Record<string, unknown>,
+): Record<string, string> {
+    const errors: Record<string, string> = {};
+    for (const field of schema) {
+        const err = validateField(field, settings[field.key]);
+        if (err) errors[field.key] = err;
+    }
+    return errors;
 }

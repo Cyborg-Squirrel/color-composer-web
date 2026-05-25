@@ -4,6 +4,7 @@ import {
   Group,
   Modal,
   Paper,
+  SegmentedControl,
   Select,
   Stack,
   Text,
@@ -12,10 +13,15 @@ import {
   useModalsStack,
 } from "@mantine/core";
 import { MagnifyingGlassIcon } from "@phosphor-icons/react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import type {
+  ILightEffectSettings,
+  ILightEffectSettingsMutation,
+} from "~/api/effect_settings/effect_settings_api";
 import {
   EFFECT_CATEGORIES,
   findSchema,
+  validateSettings,
   type EffectCategoryFilter,
 } from "~/api/effects/effects_api";
 import type { IPalette } from "~/api/palettes/palettes_api";
@@ -23,11 +29,15 @@ import { useEffectSchemas } from "~/provider/EffectApiContext";
 import EffectCard from "./EffectCard";
 import EffectParams from "./EffectParams";
 
+export type AddEffectPresetChoice =
+  | { kind: "existing"; settingsUuid: string }
+  | { kind: "new"; mutation: ILightEffectSettingsMutation };
+
 export interface AddEffectPayload {
   name: string;
   effectType: string;
-  settings: Record<string, unknown>;
   paletteUuid: string | null;
+  preset: AddEffectPresetChoice;
 }
 
 interface AddEffectModalProps {
@@ -37,10 +47,13 @@ interface AddEffectModalProps {
   /** Pre-selected effect type (e.g. when launched from a catalog card). */
   initialEffectType?: string | null;
   palettes: IPalette[];
+  presets: ILightEffectSettings[];
   isMobile?: boolean;
   /** Display name of the target strip/pool, used as a context hint. */
   targetName?: string | null;
 }
+
+type PresetMode = "existing" | "new";
 
 export function AddEffectModal({
   opened,
@@ -48,12 +61,17 @@ export function AddEffectModal({
   onCreate,
   initialEffectType = null,
   palettes,
+  presets,
   isMobile = false,
   targetName,
 }: AddEffectModalProps) {
   const [effectType, setEffectType] = useState<string | null>(initialEffectType);
   const [name, setName] = useState<string>("");
   const [nameTouched, setNameTouched] = useState(false);
+  const [presetMode, setPresetMode] = useState<PresetMode>("new");
+  const [selectedPresetUuid, setSelectedPresetUuid] = useState<string | null>(null);
+  const [presetName, setPresetName] = useState<string>("");
+  const [presetNameTouched, setPresetNameTouched] = useState(false);
   const [params, setParams] = useState<Record<string, unknown>>({});
   const [paletteUuid, setPaletteUuid] = useState<string | null>(null);
   const [search, setSearch] = useState("");
@@ -66,6 +84,10 @@ export function AddEffectModal({
     setEffectType(initialEffectType);
     setName(initialEffectType ?? "");
     setNameTouched(false);
+    setPresetMode("new");
+    setSelectedPresetUuid(null);
+    setPresetName("");
+    setPresetNameTouched(false);
     setParams({});
     setPaletteUuid(null);
     setSearch("");
@@ -82,19 +104,59 @@ export function AddEffectModal({
     [schemas, filter, search],
   );
 
+  const presetsForType = useMemo(
+    () => (effectType ? presets.filter((p) => p.type === effectType) : []),
+    [presets, effectType],
+  );
+
+  // When the type changes, auto-select the default preset (or first available) and switch
+  // to "existing" mode; if no presets exist for the type, default to "new".
+  useEffect(() => {
+    if (!effectType) {
+      setSelectedPresetUuid(null);
+      return;
+    }
+    const matches = presets.filter((p) => p.type === effectType);
+    if (matches.length === 0) {
+      setPresetMode("new");
+      setSelectedPresetUuid(null);
+    } else {
+      const def = matches.find((p) => p.isDefault) ?? matches[0];
+      setPresetMode("existing");
+      setSelectedPresetUuid(def.uuid);
+    }
+  }, [effectType]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const selectedPreset = useMemo(
+    () => (selectedPresetUuid ? presetsForType.find((p) => p.uuid === selectedPresetUuid) : undefined),
+    [presetsForType, selectedPresetUuid],
+  );
+
   const pick = (id: string) => {
     setEffectType(id);
     setParams({});
     if (!nameTouched) setName(id);
+    if (!presetNameTouched) setPresetName(`${id} preset`);
   };
 
-  const valid = Boolean(effectType && name.trim());
+  const errors = useMemo(
+    () => (schema && presetMode === "new" ? validateSettings(schema.fields, params) : {}),
+    [schema, params, presetMode],
+  );
+  const hasErrors = Object.keys(errors).length > 0;
+
+  const presetValid =
+    presetMode === "existing"
+      ? Boolean(selectedPresetUuid)
+      : Boolean(presetName.trim()) && !hasErrors;
+  const valid = Boolean(effectType && name.trim()) && presetValid;
 
   // Dirty = user has interacted enough that closing would lose work.
   const initialName = initialEffectType ?? "";
   const dirty =
     effectType !== initialEffectType ||
     name !== initialName ||
+    presetName.trim().length > 0 ||
     Object.keys(params).length > 0 ||
     paletteUuid !== null;
 
@@ -102,11 +164,22 @@ export function AddEffectModal({
 
   const submit = () => {
     if (!effectType || !valid) return;
+    const preset: AddEffectPresetChoice =
+      presetMode === "existing" && selectedPresetUuid
+        ? { kind: "existing", settingsUuid: selectedPresetUuid }
+        : {
+            kind: "new",
+            mutation: {
+              type: effectType,
+              name: presetName.trim(),
+              settings: params,
+            },
+          };
     onCreate({
       name: name.trim(),
       effectType,
-      settings: params,
       paletteUuid,
+      preset,
     });
   };
 
@@ -122,6 +195,11 @@ export function AddEffectModal({
     stack.close("confirm-discard");
     onClose();
   };
+
+  const presetSelectData = presetsForType.map((p) => ({
+    value: p.uuid,
+    label: p.isDefault ? `${p.name} (default)` : p.name,
+  }));
 
   return (
     <Modal.Stack>
@@ -224,29 +302,89 @@ export function AddEffectModal({
           </Stack>
 
           <Stack gap="xs" style={{ minWidth: 0 }}>
-            <Text
-              ff="var(--mantine-font-family-monospace)"
-              size="xs"
-              c="dimmed"
-              tt="uppercase"
-              style={{ letterSpacing: "0.06em" }}
-            >
-              Parameters
-            </Text>
-            <Paper
-              withBorder
-              p="md"
-              radius="sm"
-              style={{ background: "var(--neon-bg)", flex: 1, minHeight: 200 }}
-            >
-              {!schema ? (
-                <Text size="xs" c="dimmed" fs="italic">
-                  {effectType ? `No schema available for ${effectType}.` : "Pick an effect to configure."}
-                </Text>
-              ) : (
-                <EffectParams fields={schema.fields} value={params} onChange={setParams} compact />
-              )}
-            </Paper>
+            <Group justify="space-between" align="center">
+              <Text
+                ff="var(--mantine-font-family-monospace)"
+                size="xs"
+                c="dimmed"
+                tt="uppercase"
+                style={{ letterSpacing: "0.06em" }}
+              >
+                Preset
+              </Text>
+              <SegmentedControl
+                data-testid="add-effect-preset-mode"
+                size="xs"
+                value={presetMode}
+                onChange={(v) => setPresetMode(v as PresetMode)}
+                data={[
+                  { value: "existing", label: "Existing", disabled: presetsForType.length === 0 },
+                  { value: "new", label: "New" },
+                ]}
+              />
+            </Group>
+
+            {presetMode === "existing" ? (
+              <>
+                <Select
+                  data-testid="add-effect-preset-select"
+                  placeholder={presetsForType.length === 0 ? "No presets for this type" : "Pick a preset"}
+                  value={selectedPresetUuid}
+                  onChange={setSelectedPresetUuid}
+                  data={presetSelectData}
+                  disabled={presetsForType.length === 0 || !effectType}
+                  size={isMobile ? "md" : "sm"}
+                />
+                <Paper
+                  withBorder
+                  p="md"
+                  radius="sm"
+                  style={{ background: "var(--neon-bg)", flex: 1, minHeight: 160 }}
+                >
+                  {!selectedPreset ? (
+                    <Text size="xs" c="dimmed" fs="italic">
+                      {effectType ? "Pick a preset above, or switch to New." : "Pick an effect first."}
+                    </Text>
+                  ) : !schema ? (
+                    <Text size="xs" c="dimmed" fs="italic">
+                      No schema available for {effectType}.
+                    </Text>
+                  ) : (
+                    <PresetReadonly fields={schema.fields} settings={selectedPreset.settings} />
+                  )}
+                </Paper>
+              </>
+            ) : (
+              <>
+                <TextInput
+                  data-testid="add-effect-preset-name"
+                  label="Preset name"
+                  withAsterisk
+                  value={presetName}
+                  onChange={(e) => {
+                    setPresetName(e.currentTarget.value);
+                    setPresetNameTouched(true);
+                  }}
+                  placeholder="e.g. Slow rainbow"
+                  size={isMobile ? "md" : "sm"}
+                />
+                <Paper
+                  withBorder
+                  p="md"
+                  radius="sm"
+                  style={{ background: "var(--neon-bg)", flex: 1, minHeight: 160 }}
+                >
+                  {!schema ? (
+                    <Text size="xs" c="dimmed" fs="italic">
+                      {effectType ? `No schema available for ${effectType}.` : "Pick an effect to configure."}
+                    </Text>
+                  ) : (
+                    <EffectParams fields={schema.fields} value={params} onChange={setParams} errors={errors} compact />
+                  )}
+                </Paper>
+              </>
+            )}
+
             <Select
               data-testid="add-effect-palette"
               label="Palette (optional)"
@@ -293,6 +431,46 @@ export function AddEffectModal({
       </Group>
     </Modal>
     </Modal.Stack>
+  );
+}
+
+/** Read-only summary of a preset's settings — used when the user picked an existing preset. */
+function PresetReadonly({
+  fields,
+  settings,
+}: {
+  fields: { key: string; description?: string }[];
+  settings: Record<string, unknown>;
+}) {
+  if (fields.length === 0) {
+    return (
+      <Text size="xs" c="dimmed" fs="italic">
+        This effect has no configurable parameters.
+      </Text>
+    );
+  }
+  return (
+    <Stack gap={6}>
+      {fields.map((f) => {
+        const v = settings[f.key];
+        return (
+          <Group key={f.key} justify="space-between" wrap="nowrap">
+            <Text
+              ff="var(--mantine-font-family-monospace)"
+              size="xs"
+              c="dimmed"
+              tt="uppercase"
+              style={{ letterSpacing: "0.05em" }}
+            >
+              {f.key}
+            </Text>
+            <Text ff="var(--mantine-font-family-monospace)" size="xs">
+              {v === undefined || v === null || v === "" ? "—" : String(v)}
+            </Text>
+          </Group>
+        );
+      })}
+    </Stack>
   );
 }
 

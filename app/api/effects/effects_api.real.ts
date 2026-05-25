@@ -69,7 +69,7 @@ export class RealEffectsApi implements IEffectsApi {
                 effectType: data.effectType,
                 stripUuid: data.stripUuid,
                 poolUuid: data.poolUuid,
-                settings: data.settings || {},
+                settingsUuid: data.settingsUuid,
                 paletteUuid: data.paletteUuid,
             })
         });
@@ -98,7 +98,7 @@ export class RealEffectsApi implements IEffectsApi {
                 stripUuid: data.stripUuid,
                 poolUuid: data.poolUuid,
                 paletteUuid: data.paletteUuid,
-                settings: data.settings,
+                settingsUuid: data.settingsUuid,
             })
         });
 

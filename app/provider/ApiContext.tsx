@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { ClientApiProvider } from "./ClientApiContext";
 import { EffectApiProvider } from "./EffectApiContext";
+import { EffectSettingsApiProvider } from "./EffectSettingsApiContext";
 import { EventStreamProvider } from "./EventStreamContext";
 import { HomeApiProvider } from "./HomeApiContext";
 import { PaletteApiProvider } from "./PaletteApiContext";
@@ -14,9 +15,11 @@ function ApiProvider({ children }: { children: ReactNode }) {
                 <StripApiProvider>
                     <PoolApiProvider>
                         <EffectApiProvider>
-                            <PaletteApiProvider>
-                                {children}
-                            </PaletteApiProvider>
+                            <EffectSettingsApiProvider>
+                                <PaletteApiProvider>
+                                    {children}
+                                </PaletteApiProvider>
+                            </EffectSettingsApiProvider>
                         </EffectApiProvider>
                     </PoolApiProvider>
                 </StripApiProvider>
