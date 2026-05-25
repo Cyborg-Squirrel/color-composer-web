@@ -289,15 +289,17 @@ export function AddEffectModal({
           </Stepper>
 
           <Group justify="space-between">
-            <Button variant="default" onClick={requestClose}>
-              Cancel
-            </Button>
+            {active > 0 ? (
+              <Button variant="default" onClick={goBack} data-testid="add-effect-back">
+                Back
+              </Button>
+            ) : (
+              <span />
+            )}
             <Group gap="xs">
-              {active > 0 && (
-                <Button variant="default" onClick={goBack} data-testid="add-effect-back">
-                  Back
-                </Button>
-              )}
+              <Button variant="default" onClick={requestClose}>
+                Cancel
+              </Button>
               {active < 2 ? (
                 <Button
                   data-testid="add-effect-next"
