@@ -26,6 +26,7 @@ import type {
 } from "~/api/effect_settings/effect_settings_api";
 import {
   EFFECT_CATEGORIES,
+  defaultParamsForFields,
   findSchema,
   validateSettings,
   type EffectCategoryFilter,
@@ -131,6 +132,17 @@ export function AddEffectModal({
       setPresetChoice(def.uuid);
     }
   }, [effectType]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Pre-populate params with the schema's default values whenever the effect
+  // type changes (or once schemas finish loading for the chosen type).
+  useEffect(() => {
+    if (!effectType) {
+      setParams({});
+      return;
+    }
+    const s = findSchema(schemas, effectType);
+    setParams(s ? defaultParamsForFields(s.fields) : {});
+  }, [effectType, schemas]);
 
   const selectedPreset = useMemo(
     () =>

@@ -58,6 +58,7 @@ export interface IEffectSchemaField {
     type: EffectSettingsType;
     validators: EffectFieldValidator[];
     description: string;
+    default: boolean | number | string | null;
 }
 
 export interface IEffectSchema {
@@ -139,4 +140,18 @@ export function validateSettings(
         if (err) errors[field.key] = err;
     }
     return errors;
+}
+
+/**
+ * Build a settings object pre-populated with each field's `default` value.
+ * Fields whose `default` is `null` are omitted so the backend can apply its own default.
+ */
+export function defaultParamsForFields(fields: IEffectSchemaField[]): Record<string, unknown> {
+    const result: Record<string, unknown> = {};
+    for (const field of fields) {
+        if (field.default !== null) {
+            result[field.key] = field.default;
+        }
+    }
+    return result;
 }
