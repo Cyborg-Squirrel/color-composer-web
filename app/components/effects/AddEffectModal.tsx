@@ -4,15 +4,21 @@ import {
   Group,
   Modal,
   Paper,
-  SegmentedControl,
-  Select,
   Stack,
+  Stepper,
+  Select,
   Text,
   TextInput,
   UnstyledButton,
   useModalsStack,
 } from "@mantine/core";
-import { MagnifyingGlassIcon } from "@phosphor-icons/react";
+import {
+  CheckIcon,
+  LightningIcon,
+  MagnifyingGlassIcon,
+  PaletteIcon,
+  SlidersIcon,
+} from "@phosphor-icons/react";
 import { useEffect, useMemo, useState } from "react";
 import type {
   ILightEffectSettings,
@@ -28,6 +34,7 @@ import type { IPalette } from "~/api/palettes/palettes_api";
 import { useEffectSchemas } from "~/provider/EffectApiContext";
 import EffectCard from "./EffectCard";
 import EffectParams from "./EffectParams";
+import { NEW_PRESET, PresetPicker, type PresetChoice } from "./PresetPicker";
 
 export type AddEffectPresetChoice =
   | { kind: "existing"; settingsUuid: string }
@@ -53,8 +60,6 @@ interface AddEffectModalProps {
   targetName?: string | null;
 }
 
-type PresetMode = "existing" | "new";
-
 export function AddEffectModal({
   opened,
   onClose,
@@ -65,11 +70,12 @@ export function AddEffectModal({
   isMobile = false,
   targetName,
 }: AddEffectModalProps) {
+  const [active, setActive] = useState(0);
+  const [highest, setHighest] = useState(0);
   const [effectType, setEffectType] = useState<string | null>(initialEffectType);
   const [name, setName] = useState<string>("");
   const [nameTouched, setNameTouched] = useState(false);
-  const [presetMode, setPresetMode] = useState<PresetMode>("new");
-  const [selectedPresetUuid, setSelectedPresetUuid] = useState<string | null>(null);
+  const [presetChoice, setPresetChoice] = useState<PresetChoice>(null);
   const [presetName, setPresetName] = useState<string>("");
   const [presetNameTouched, setPresetNameTouched] = useState(false);
   const [params, setParams] = useState<Record<string, unknown>>({});
@@ -81,11 +87,12 @@ export function AddEffectModal({
 
   // Reset state every time the modal opens.
   useMemoReset(opened, () => {
+    setActive(0);
+    setHighest(0);
     setEffectType(initialEffectType);
     setName(initialEffectType ?? "");
     setNameTouched(false);
-    setPresetMode("new");
-    setSelectedPresetUuid(null);
+    setPresetChoice(null);
     setPresetName("");
     setPresetNameTouched(false);
     setParams({});
@@ -109,27 +116,28 @@ export function AddEffectModal({
     [presets, effectType],
   );
 
-  // When the type changes, auto-select the default preset (or first available) and switch
-  // to "existing" mode; if no presets exist for the type, default to "new".
+  // When the type changes, default the preset choice: pick the default preset
+  // (or first available) if any exist, otherwise fall back to "new".
   useEffect(() => {
     if (!effectType) {
-      setSelectedPresetUuid(null);
+      setPresetChoice(null);
       return;
     }
     const matches = presets.filter((p) => p.type === effectType);
     if (matches.length === 0) {
-      setPresetMode("new");
-      setSelectedPresetUuid(null);
+      setPresetChoice(NEW_PRESET);
     } else {
       const def = matches.find((p) => p.isDefault) ?? matches[0];
-      setPresetMode("existing");
-      setSelectedPresetUuid(def.uuid);
+      setPresetChoice(def.uuid);
     }
   }, [effectType]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const selectedPreset = useMemo(
-    () => (selectedPresetUuid ? presetsForType.find((p) => p.uuid === selectedPresetUuid) : undefined),
-    [presetsForType, selectedPresetUuid],
+    () =>
+      presetChoice && presetChoice !== NEW_PRESET
+        ? presetsForType.find((p) => p.uuid === presetChoice)
+        : undefined,
+    [presetsForType, presetChoice],
   );
 
   const pick = (id: string) => {
@@ -140,33 +148,40 @@ export function AddEffectModal({
   };
 
   const errors = useMemo(
-    () => (schema && presetMode === "new" ? validateSettings(schema.fields, params) : {}),
-    [schema, params, presetMode],
+    () => (schema && presetChoice === NEW_PRESET ? validateSettings(schema.fields, params) : {}),
+    [schema, params, presetChoice],
   );
   const hasErrors = Object.keys(errors).length > 0;
 
+  const step1Valid = Boolean(effectType);
   const presetValid =
-    presetMode === "existing"
-      ? Boolean(selectedPresetUuid)
-      : Boolean(presetName.trim()) && !hasErrors;
-  const valid = Boolean(effectType && name.trim()) && presetValid;
+    presetChoice === NEW_PRESET
+      ? Boolean(presetName.trim()) && !hasErrors
+      : Boolean(presetChoice);
+  const step2Valid = Boolean(name.trim()) && presetValid;
+  const canCreate = step1Valid && step2Valid;
 
-  // Dirty = user has interacted enough that closing would lose work.
-  const initialName = initialEffectType ?? "";
-  const dirty =
-    effectType !== initialEffectType ||
-    name !== initialName ||
-    presetName.trim().length > 0 ||
-    Object.keys(params).length > 0 ||
-    paletteUuid !== null;
+  // Dirty once the user has reached the Preset step (index 1) at any point —
+  // even if they navigate back to step 1, we still confirm before discarding.
+  const dirty = highest >= 1;
 
   const stack = useModalsStack(["main", "confirm-discard"]);
 
+  const advance = (n: number) => {
+    setActive(n);
+    setHighest((h) => Math.max(h, n));
+  };
+  const goNext = () => {
+    if (active === 0 && step1Valid) advance(1);
+    else if (active === 1 && step2Valid) advance(2);
+  };
+  const goBack = () => setActive((c) => Math.max(c - 1, 0));
+
   const submit = () => {
-    if (!effectType || !valid) return;
+    if (!effectType || !canCreate) return;
     const preset: AddEffectPresetChoice =
-      presetMode === "existing" && selectedPresetUuid
-        ? { kind: "existing", settingsUuid: selectedPresetUuid }
+      presetChoice && presetChoice !== NEW_PRESET
+        ? { kind: "existing", settingsUuid: presetChoice }
         : {
             kind: "new",
             mutation: {
@@ -196,243 +211,376 @@ export function AddEffectModal({
     onClose();
   };
 
-  const presetSelectData = presetsForType.map((p) => ({
-    value: p.uuid,
-    label: p.isDefault ? `${p.name} (default)` : p.name,
-  }));
-
   return (
     <Modal.Stack>
-    <Modal
-      {...stack.register("main")}
-      opened={opened}
-      onClose={requestClose}
-      title={`Add Effect${targetName ? ` — ${targetName}` : ""}`}
-      radius="md"
-      size="lg"
-      fullScreen={isMobile}
-      centered
-    >
-      <Stack gap="md">
-        <TextInput
-          data-testid="add-effect-name"
-          label="Effect name"
-          withAsterisk
-          value={name}
-          onChange={(e) => {
-            setName(e.currentTarget.value);
-            setNameTouched(true);
-          }}
-          placeholder="e.g. Living Room Rainbow"
-          size={isMobile ? "md" : "sm"}
-        />
-
-        <Box
-          style={{
-            display: "grid",
-            gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr",
-            gap: 14,
-            minHeight: 300,
-          }}
-        >
-          <Stack gap="xs" style={{ minWidth: 0 }}>
-            <TextInput
-              data-testid="add-effect-search"
-              placeholder="Search effects…"
-              value={search}
-              onChange={(e) => setSearch(e.currentTarget.value)}
-              leftSection={<MagnifyingGlassIcon size={14} />}
-              size={isMobile ? "md" : "sm"}
-            />
-            <Group gap={4} wrap="wrap">
-              {EFFECT_CATEGORIES.map((cat) => {
-                const active = filter === cat;
-                return (
-                  <UnstyledButton
-                    key={cat}
-                    onClick={() => setFilter(cat)}
-                    style={{
-                      padding: "3px 8px",
-                      fontFamily: "var(--mantine-font-family-monospace)",
-                      fontSize: 9,
-                      letterSpacing: "0.06em",
-                      textTransform: "uppercase",
-                      borderRadius: 3,
-                      border: `1px solid ${active ? "var(--neon-accent)" : "var(--mantine-color-default-border)"}`,
-                      background: active ? "var(--neon-accent-dim)" : "var(--mantine-color-default)",
-                      color: active ? "var(--neon-accent)" : "var(--neon-text3)",
-                      cursor: "pointer",
-                    }}
-                  >
-                    {cat}
-                  </UnstyledButton>
-                );
-              })}
-            </Group>
-            <Box
-              style={{
-                flex: 1,
-                overflowY: "auto",
-                maxHeight: 320,
-                minHeight: 200,
-                border: "1px solid var(--mantine-color-default-border)",
-                borderRadius: 3,
-                padding: 5,
-                background: "var(--neon-bg)",
-                display: "flex",
-                flexDirection: "column",
-                gap: 4,
-              }}
+      <Modal
+        {...stack.register("main")}
+        opened={opened}
+        onClose={requestClose}
+        title={`Add Effect${targetName ? ` — ${targetName}` : ""}`}
+        radius="md"
+        size="lg"
+        fullScreen={isMobile}
+        centered
+      >
+        <Stack gap="md">
+          <Stepper
+            active={active}
+            onStepClick={advance}
+            allowNextStepsSelect={false}
+            size="xs"
+            iconSize={28}
+          >
+            <Stepper.Step
+              label="Effect"
+              description="Choose a type"
+              icon={<LightningIcon size={14} weight="fill" />}
+              completedIcon={<CheckIcon size={14} weight="bold" />}
             >
-              {filtered.length === 0 ? (
-                <Text ta="center" py="md" size="xs" c="dimmed">
-                  No effects match
-                </Text>
-              ) : (
-                filtered.map((s) => (
-                  <EffectCard
-                    key={s.effectName}
-                    schema={s}
-                    active={effectType === s.effectName}
-                    onSelect={() => pick(s.effectName)}
-                  />
-                ))
-              )}
-            </Box>
-          </Stack>
-
-          <Stack gap="xs" style={{ minWidth: 0 }}>
-            <Group justify="space-between" align="center">
-              <Text
-                ff="var(--mantine-font-family-monospace)"
-                size="xs"
-                c="dimmed"
-                tt="uppercase"
-                style={{ letterSpacing: "0.06em" }}
-              >
-                Preset
-              </Text>
-              <SegmentedControl
-                data-testid="add-effect-preset-mode"
-                size="xs"
-                value={presetMode}
-                onChange={(v) => setPresetMode(v as PresetMode)}
-                data={[
-                  { value: "existing", label: "Existing", disabled: presetsForType.length === 0 },
-                  { value: "new", label: "New" },
-                ]}
+              <Step1ChooseType
+                schemas={filtered}
+                effectType={effectType}
+                onPick={pick}
+                search={search}
+                onSearch={setSearch}
+                filter={filter}
+                onFilter={setFilter}
+                isMobile={isMobile}
               />
+            </Stepper.Step>
+
+            <Stepper.Step
+              label="Preset"
+              description="Name and configure"
+              icon={<SlidersIcon size={14} />}
+              completedIcon={<CheckIcon size={14} weight="bold" />}
+            >
+              <Step2NamePreset
+                effectType={effectType}
+                name={name}
+                onName={(v) => { setName(v); setNameTouched(true); }}
+                presetsForType={presetsForType}
+                presetChoice={presetChoice}
+                onPresetChoice={setPresetChoice}
+                selectedPreset={selectedPreset}
+                presetName={presetName}
+                onPresetName={(v) => { setPresetName(v); setPresetNameTouched(true); }}
+                schema={schema}
+                params={params}
+                onParams={setParams}
+                errors={errors}
+                isMobile={isMobile}
+              />
+            </Stepper.Step>
+
+            <Stepper.Step
+              label="Palette"
+              description="Optional"
+              icon={<PaletteIcon size={14} />}
+              completedIcon={<CheckIcon size={14} weight="bold" />}
+            >
+              <Step3Palette
+                palettes={palettes}
+                paletteUuid={paletteUuid}
+                onPalette={setPaletteUuid}
+                isMobile={isMobile}
+              />
+            </Stepper.Step>
+          </Stepper>
+
+          <Group justify="space-between">
+            <Button variant="default" onClick={requestClose}>
+              Cancel
+            </Button>
+            <Group gap="xs">
+              {active > 0 && (
+                <Button variant="default" onClick={goBack} data-testid="add-effect-back">
+                  Back
+                </Button>
+              )}
+              {active < 2 ? (
+                <Button
+                  data-testid="add-effect-next"
+                  disabled={active === 0 ? !step1Valid : !step2Valid}
+                  onClick={goNext}
+                >
+                  Next
+                </Button>
+              ) : (
+                <Button
+                  data-testid="add-effect-create"
+                  disabled={!canCreate}
+                  onClick={submit}
+                >
+                  Create Effect
+                </Button>
+              )}
             </Group>
-
-            {presetMode === "existing" ? (
-              <>
-                <Select
-                  data-testid="add-effect-preset-select"
-                  placeholder={presetsForType.length === 0 ? "No presets for this type" : "Pick a preset"}
-                  value={selectedPresetUuid}
-                  onChange={setSelectedPresetUuid}
-                  data={presetSelectData}
-                  disabled={presetsForType.length === 0 || !effectType}
-                  size={isMobile ? "md" : "sm"}
-                />
-                <Paper
-                  withBorder
-                  p="md"
-                  radius="sm"
-                  style={{ background: "var(--neon-bg)", flex: 1, minHeight: 160 }}
-                >
-                  {!selectedPreset ? (
-                    <Text size="xs" c="dimmed" fs="italic">
-                      {effectType ? "Pick a preset above, or switch to New." : "Pick an effect first."}
-                    </Text>
-                  ) : !schema ? (
-                    <Text size="xs" c="dimmed" fs="italic">
-                      No schema available for {effectType}.
-                    </Text>
-                  ) : (
-                    <PresetReadonly fields={schema.fields} settings={selectedPreset.settings} />
-                  )}
-                </Paper>
-              </>
-            ) : (
-              <>
-                <TextInput
-                  data-testid="add-effect-preset-name"
-                  label="Preset name"
-                  withAsterisk
-                  value={presetName}
-                  onChange={(e) => {
-                    setPresetName(e.currentTarget.value);
-                    setPresetNameTouched(true);
-                  }}
-                  placeholder="e.g. Slow rainbow"
-                  size={isMobile ? "md" : "sm"}
-                />
-                <Paper
-                  withBorder
-                  p="md"
-                  radius="sm"
-                  style={{ background: "var(--neon-bg)", flex: 1, minHeight: 160 }}
-                >
-                  {!schema ? (
-                    <Text size="xs" c="dimmed" fs="italic">
-                      {effectType ? `No schema available for ${effectType}.` : "Pick an effect to configure."}
-                    </Text>
-                  ) : (
-                    <EffectParams fields={schema.fields} value={params} onChange={setParams} errors={errors} compact />
-                  )}
-                </Paper>
-              </>
-            )}
-
-            <Select
-              data-testid="add-effect-palette"
-              label="Palette (optional)"
-              placeholder="None"
-              clearable
-              value={paletteUuid}
-              onChange={setPaletteUuid}
-              data={palettes.map((p) => ({ value: p.uuid, label: p.name }))}
-              size={isMobile ? "md" : "sm"}
-            />
-          </Stack>
-        </Box>
-
+          </Group>
+        </Stack>
+      </Modal>
+      <Modal
+        {...stack.register("confirm-discard")}
+        title={<div style={{ fontWeight: 600 }}>Discard changes?</div>}
+        radius="md"
+        size="sm"
+        centered
+      >
+        <Text size="sm" mb="lg">
+          You have unsaved effect details. Close anyway?
+        </Text>
         <Group justify="flex-end">
-          <Button variant="default" onClick={requestClose}>
-            Cancel
+          <Button data-testid="add-effect-discard" variant="default" onClick={discard}>
+            Discard
           </Button>
-          <Button data-testid="add-effect-create" disabled={!valid} onClick={submit}>
-            Create Effect
+          <Button
+            data-testid="add-effect-keep-editing"
+            onClick={() => stack.close("confirm-discard")}
+          >
+            Keep editing
           </Button>
         </Group>
-      </Stack>
-    </Modal>
-    <Modal
-      {...stack.register("confirm-discard")}
-      title={<div style={{ fontWeight: 600 }}>Discard changes?</div>}
-      radius="md"
-      size="sm"
-      centered
-    >
-      <Text size="sm" mb="lg">
-        You have unsaved effect details. Close anyway?
-      </Text>
-      <Group justify="flex-end">
-        <Button data-testid="add-effect-discard" variant="default" onClick={discard}>
-          Discard
-        </Button>
-        <Button
-          data-testid="add-effect-keep-editing"
-          onClick={() => stack.close("confirm-discard")}
-        >
-          Keep editing
-        </Button>
-      </Group>
-    </Modal>
+      </Modal>
     </Modal.Stack>
   );
 }
+
+/* ─────────────────────────── Step 1 ─────────────────────────── */
+
+function Step1ChooseType({
+  schemas,
+  effectType,
+  onPick,
+  search,
+  onSearch,
+  filter,
+  onFilter,
+  isMobile,
+}: {
+  schemas: ReturnType<typeof useEffectSchemas>["schemas"];
+  effectType: string | null;
+  onPick: (id: string) => void;
+  search: string;
+  onSearch: (v: string) => void;
+  filter: EffectCategoryFilter;
+  onFilter: (v: EffectCategoryFilter) => void;
+  isMobile: boolean;
+}) {
+  return (
+    <Stack gap="xs" mt="md">
+      <TextInput
+        data-testid="add-effect-search"
+        placeholder="Search effects…"
+        value={search}
+        onChange={(e) => onSearch(e.currentTarget.value)}
+        leftSection={<MagnifyingGlassIcon size={14} />}
+        size={isMobile ? "md" : "sm"}
+      />
+      <Group gap={4} wrap="wrap">
+        {EFFECT_CATEGORIES.map((cat) => {
+          const active = filter === cat;
+          return (
+            <UnstyledButton
+              key={cat}
+              onClick={() => onFilter(cat)}
+              style={{
+                padding: "3px 8px",
+                fontFamily: "var(--mantine-font-family-monospace)",
+                fontSize: 9,
+                letterSpacing: "0.06em",
+                textTransform: "uppercase",
+                borderRadius: 3,
+                border: `1px solid ${active ? "var(--neon-accent)" : "var(--mantine-color-default-border)"}`,
+                background: active ? "var(--neon-accent-dim)" : "var(--mantine-color-default)",
+                color: active ? "var(--neon-accent)" : "var(--neon-text3)",
+                cursor: "pointer",
+              }}
+            >
+              {cat}
+            </UnstyledButton>
+          );
+        })}
+      </Group>
+      <Box
+        style={{
+          overflowY: "auto",
+          maxHeight: 340,
+          minHeight: 240,
+          border: "1px solid var(--mantine-color-default-border)",
+          borderRadius: 3,
+          padding: 5,
+          background: "var(--neon-bg)",
+          display: "flex",
+          flexDirection: "column",
+          gap: 4,
+        }}
+      >
+        {schemas.length === 0 ? (
+          <Text ta="center" py="md" size="xs" c="dimmed">
+            No effects match
+          </Text>
+        ) : (
+          schemas.map((s) => (
+            <EffectCard
+              key={s.effectName}
+              schema={s}
+              active={effectType === s.effectName}
+              onSelect={() => onPick(s.effectName)}
+            />
+          ))
+        )}
+      </Box>
+    </Stack>
+  );
+}
+
+/* ─────────────────────────── Step 2 ─────────────────────────── */
+
+function Step2NamePreset({
+  effectType,
+  name,
+  onName,
+  presetsForType,
+  presetChoice,
+  onPresetChoice,
+  selectedPreset,
+  presetName,
+  onPresetName,
+  schema,
+  params,
+  onParams,
+  errors,
+  isMobile,
+}: {
+  effectType: string | null;
+  name: string;
+  onName: (v: string) => void;
+  presetsForType: ILightEffectSettings[];
+  presetChoice: PresetChoice;
+  onPresetChoice: (v: PresetChoice) => void;
+  selectedPreset: ILightEffectSettings | undefined;
+  presetName: string;
+  onPresetName: (v: string) => void;
+  schema: ReturnType<typeof findSchema>;
+  params: Record<string, unknown>;
+  onParams: (v: Record<string, unknown>) => void;
+  errors: Record<string, string>;
+  isMobile: boolean;
+}) {
+  const isNew = presetChoice === NEW_PRESET;
+
+  return (
+    <Stack gap="md" mt="md">
+      <TextInput
+        data-testid="add-effect-name"
+        label="Effect name"
+        withAsterisk
+        value={name}
+        onChange={(e) => onName(e.currentTarget.value)}
+        placeholder="e.g. Living Room Rainbow"
+        size={isMobile ? "md" : "sm"}
+      />
+
+      <Stack gap={6}>
+        <Group justify="space-between" align="center">
+          <Text
+            ff="var(--mantine-font-family-monospace)"
+            size="xs"
+            c="dimmed"
+            tt="uppercase"
+            style={{ letterSpacing: "0.06em" }}
+          >
+            Preset
+          </Text>
+        </Group>
+
+        <PresetPicker
+          presets={presetsForType}
+          value={presetChoice}
+          onChange={onPresetChoice}
+          testIdPrefix="add-effect-preset"
+        />
+
+        {isNew ? (
+          <>
+            <TextInput
+              data-testid="add-effect-preset-name"
+              label="Preset name"
+              withAsterisk
+              value={presetName}
+              onChange={(e) => onPresetName(e.currentTarget.value)}
+              placeholder="e.g. Slow rainbow"
+              size={isMobile ? "md" : "sm"}
+            />
+            <Paper
+              withBorder
+              p="md"
+              radius="sm"
+              style={{ background: "var(--neon-bg)" }}
+            >
+              {!schema ? (
+                <Text size="xs" c="dimmed" fs="italic">
+                  {effectType ? `No schema available for ${effectType}.` : "Pick an effect first."}
+                </Text>
+              ) : (
+                <EffectParams
+                  fields={schema.fields}
+                  value={params}
+                  onChange={onParams}
+                  errors={errors}
+                  compact
+                />
+              )}
+            </Paper>
+          </>
+        ) : selectedPreset && schema ? (
+          <Paper
+            withBorder
+            p="md"
+            radius="sm"
+            style={{ background: "var(--neon-bg)" }}
+          >
+            <PresetReadonly fields={schema.fields} settings={selectedPreset.settings} />
+          </Paper>
+        ) : null}
+      </Stack>
+    </Stack>
+  );
+}
+
+/* ─────────────────────────── Step 3 ─────────────────────────── */
+
+function Step3Palette({
+  palettes,
+  paletteUuid,
+  onPalette,
+  isMobile,
+}: {
+  palettes: IPalette[];
+  paletteUuid: string | null;
+  onPalette: (v: string | null) => void;
+  isMobile: boolean;
+}) {
+  return (
+    <Stack gap="md" mt="md">
+      <Text size="sm" c="dimmed">
+        Optionally assign a palette to this effect. You can leave this empty and assign one later.
+      </Text>
+      <Select
+        data-testid="add-effect-palette"
+        label="Palette"
+        placeholder="None"
+        clearable
+        value={paletteUuid}
+        onChange={onPalette}
+        data={palettes.map((p) => ({ value: p.uuid, label: p.name }))}
+        size={isMobile ? "md" : "sm"}
+      />
+    </Stack>
+  );
+}
+
+/* ─────────────────────────── Helpers ─────────────────────────── */
 
 /** Read-only summary of a preset's settings — used when the user picked an existing preset. */
 function PresetReadonly({

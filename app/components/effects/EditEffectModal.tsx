@@ -1,4 +1,4 @@
-import { Box, Button, Group, Modal, Select, Stack, Text, TextInput } from "@mantine/core";
+import { Box, Button, Group, Modal, Paper, Select, Stack, Text, TextInput, useModalsStack } from "@mantine/core";
 import { useEffect, useMemo, useState } from "react";
 import type {
   ILightEffectSettings,
@@ -9,18 +9,23 @@ import type { IPalette } from "~/api/palettes/palettes_api";
 import { previewBackground } from "~/constants/effects";
 import { useEffectSchemas } from "~/provider/EffectApiContext";
 import EffectParams from "./EffectParams";
+import { NEW_PRESET, PresetPicker, type PresetChoice } from "./PresetPicker";
+
+export type EditEffectPresetChoice =
+  | {
+      kind: "existing";
+      settingsUuid: string;
+      /** Set if the user edited the linked preset's name or settings in place. */
+      mutation?: Partial<ILightEffectSettingsMutation>;
+    }
+  | { kind: "new"; mutation: ILightEffectSettingsMutation };
 
 export interface EditEffectPayload {
   effect: {
     name: string;
     paletteUuid: string | null;
-    settingsUuid: string | null;
   };
-  /** Present when the user edited the linked preset's name or settings. */
-  preset?: {
-    uuid: string;
-    mutation: Partial<ILightEffectSettingsMutation>;
-  };
+  preset: EditEffectPresetChoice;
 }
 
 interface EditEffectModalProps {
@@ -50,7 +55,7 @@ export function EditEffectModal({
 
   const [name, setName] = useState(effect.name);
   const [paletteUuid, setPaletteUuid] = useState<string | null>(effect.paletteUuid ?? null);
-  const [linkedUuid, setLinkedUuid] = useState<string | null>(effect.settingsUuid ?? null);
+  const [presetChoice, setPresetChoice] = useState<PresetChoice>(effect.settingsUuid ?? null);
   const [presetName, setPresetName] = useState<string>("");
   const [settings, setSettings] = useState<Record<string, unknown>>({});
 
@@ -58,23 +63,32 @@ export function EditEffectModal({
   useEffect(() => {
     setName(effect.name);
     setPaletteUuid(effect.paletteUuid ?? null);
-    setLinkedUuid(effect.settingsUuid ?? null);
+    setPresetChoice(effect.settingsUuid ?? null);
   }, [effect.uuid]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Hydrate preset-level fields whenever the linked preset changes.
-  const linkedPreset = useMemo(
-    () => (linkedUuid ? presetsForType.find((p) => p.uuid === linkedUuid) : undefined),
-    [presetsForType, linkedUuid],
+  const selectedPreset = useMemo(
+    () =>
+      presetChoice && presetChoice !== NEW_PRESET
+        ? presetsForType.find((p) => p.uuid === presetChoice)
+        : undefined,
+    [presetsForType, presetChoice],
   );
+
+  // Hydrate preset-level fields whenever the chosen preset changes.
+  // For an existing preset, mirror its current name+settings (which the user can then edit).
+  // For "new preset", reset to a sensible default.
   useEffect(() => {
-    if (linkedPreset) {
-      setPresetName(linkedPreset.name);
-      setSettings(linkedPreset.settings ?? {});
+    if (presetChoice === NEW_PRESET) {
+      setPresetName(`${effect.type} preset`);
+      setSettings({});
+    } else if (selectedPreset) {
+      setPresetName(selectedPreset.name);
+      setSettings(selectedPreset.settings ?? {});
     } else {
       setPresetName("");
       setSettings({});
     }
-  }, [linkedPreset?.uuid]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [presetChoice, selectedPreset?.uuid]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const errors = useMemo(
     () => (schema ? validateSettings(schema.fields, settings) : {}),
@@ -86,47 +100,81 @@ export function EditEffectModal({
   const bg = previewBackground(effect.type, color);
   const isGradient = bg.startsWith("linear-gradient");
 
-  const valid = Boolean(name.trim()) && (!linkedPreset || presetName.trim().length > 0) && !hasErrors;
+  const presetValid =
+    presetChoice === NEW_PRESET
+      ? Boolean(presetName.trim()) && !hasErrors
+      : selectedPreset
+        ? Boolean(presetName.trim()) && !hasErrors
+        : Boolean(presetChoice);
+  const valid = Boolean(name.trim()) && presetValid;
 
-  // Detect whether the linked preset itself was edited (vs just swapped).
+  // Detect whether the linked existing preset itself was edited in place
+  // (vs just swapped to a different preset).
   const presetChanged = useMemo(() => {
-    if (!linkedPreset) return false;
-    const nameChanged = presetName.trim() !== linkedPreset.name;
+    if (!selectedPreset) return false;
+    const nameChanged = presetName.trim() !== selectedPreset.name;
     const settingsChanged =
-      JSON.stringify(settings ?? {}) !== JSON.stringify(linkedPreset.settings ?? {});
+      JSON.stringify(settings ?? {}) !== JSON.stringify(selectedPreset.settings ?? {});
     return nameChanged || settingsChanged;
-  }, [linkedPreset, presetName, settings]);
+  }, [selectedPreset, presetName, settings]);
 
-  const presetSelectData = presetsForType.map((p) => ({
-    value: p.uuid,
-    label: p.isDefault ? `${p.name} (default)` : p.name,
-  }));
+  // Dirty = any field diverges from the effect's initial state.
+  const dirty =
+    name !== effect.name ||
+    paletteUuid !== (effect.paletteUuid ?? null) ||
+    presetChoice !== (effect.settingsUuid ?? null) ||
+    (Boolean(selectedPreset) && presetChanged);
+
+  const stack = useModalsStack(["main", "confirm-discard"]);
+
+  const requestClose = () => {
+    if (dirty) {
+      stack.open("confirm-discard");
+    } else {
+      onClose();
+    }
+  };
+
+  const discard = () => {
+    stack.close("confirm-discard");
+    onClose();
+  };
 
   const submit = () => {
     if (!valid) return;
-    const payload: EditEffectPayload = {
-      effect: {
-        name: name.trim(),
-        paletteUuid,
-        settingsUuid: linkedUuid,
-      },
-    };
-    if (linkedPreset && presetChanged) {
-      payload.preset = {
-        uuid: linkedPreset.uuid,
+    let preset: EditEffectPresetChoice;
+    if (presetChoice === NEW_PRESET) {
+      preset = {
+        kind: "new",
         mutation: {
+          type: effect.type,
           name: presetName.trim(),
           settings,
         },
       };
+    } else if (selectedPreset) {
+      preset = {
+        kind: "existing",
+        settingsUuid: selectedPreset.uuid,
+        ...(presetChanged
+          ? { mutation: { name: presetName.trim(), settings } }
+          : {}),
+      };
+    } else {
+      return;
     }
-    onSave(payload);
+    onSave({
+      effect: { name: name.trim(), paletteUuid },
+      preset,
+    });
   };
 
   return (
+    <Modal.Stack>
     <Modal
+      {...stack.register("main")}
       opened={Boolean(effect)}
-      onClose={onClose}
+      onClose={requestClose}
       title={<div style={{ fontWeight: 600 }}>Edit {effect.type}</div>}
       radius="md"
       size="sm"
@@ -188,40 +236,45 @@ export function EditEffectModal({
             tt="uppercase"
             style={{ letterSpacing: "0.06em" }}
           >
-            Linked preset
+            Preset
           </Text>
-          <Select
-            data-testid="edit-effect-preset-select"
-            placeholder={presetsForType.length === 0 ? "No presets for this type" : "Pick a preset"}
-            value={linkedUuid}
-            onChange={setLinkedUuid}
-            data={presetSelectData}
-            disabled={presetsForType.length === 0}
-            size={isMobile ? "md" : "sm"}
+          <PresetPicker
+            presets={presetsForType}
+            value={presetChoice}
+            onChange={setPresetChoice}
+            testIdPrefix="edit-effect-preset"
           />
-          {linkedPreset && (
+          {(presetChoice === NEW_PRESET || selectedPreset) && (
             <>
               <TextInput
                 data-testid="edit-effect-preset-name"
                 label="Preset name"
+                withAsterisk
                 value={presetName}
                 onChange={(e) => setPresetName(e.currentTarget.value)}
                 size={isMobile ? "md" : "sm"}
               />
-              {schema ? (
-                <EffectParams
-                  fields={schema.fields}
-                  value={settings}
-                  onChange={setSettings}
-                  errors={errors}
-                  compact
-                />
-              ) : (
-                <Text size="xs" c="dimmed" fs="italic">
-                  No schema available for {effect.type}.
-                </Text>
-              )}
-              {presetChanged && (
+              <Paper
+                withBorder
+                p="md"
+                radius="sm"
+                style={{ background: "var(--neon-bg)" }}
+              >
+                {schema ? (
+                  <EffectParams
+                    fields={schema.fields}
+                    value={settings}
+                    onChange={setSettings}
+                    errors={errors}
+                    compact
+                  />
+                ) : (
+                  <Text size="xs" c="dimmed" fs="italic">
+                    No schema available for {effect.type}.
+                  </Text>
+                )}
+              </Paper>
+              {selectedPreset && presetChanged && (
                 <Text
                   ff="var(--mantine-font-family-monospace)"
                   size="xs"
@@ -247,7 +300,7 @@ export function EditEffectModal({
         />
 
         <Group justify="flex-end">
-          <Button variant="default" onClick={onClose} data-testid="edit-effect-cancel">
+          <Button variant="default" onClick={requestClose} data-testid="edit-effect-cancel">
             Cancel
           </Button>
           <Button
@@ -260,6 +313,29 @@ export function EditEffectModal({
         </Group>
       </Stack>
     </Modal>
+    <Modal
+      {...stack.register("confirm-discard")}
+      title={<div style={{ fontWeight: 600 }}>Discard changes?</div>}
+      radius="md"
+      size="sm"
+      centered
+    >
+      <Text size="sm" mb="lg">
+        You have unsaved changes. Close anyway?
+      </Text>
+      <Group justify="flex-end">
+        <Button data-testid="edit-effect-discard" variant="default" onClick={discard}>
+          Discard
+        </Button>
+        <Button
+          data-testid="edit-effect-keep-editing"
+          onClick={() => stack.close("confirm-discard")}
+        >
+          Keep editing
+        </Button>
+      </Group>
+    </Modal>
+    </Modal.Stack>
   );
 }
 

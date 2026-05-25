@@ -221,26 +221,32 @@ export function EffectsSplitPane() {
     if (!editing) return;
     const target = editing;
     setEditing(null);
-    setEffects((prev) =>
-      prev.map((e) =>
-        e.uuid === target.uuid
-          ? {
-              ...e,
-              name: payload.effect.name,
-              paletteUuid: payload.effect.paletteUuid,
-              settingsUuid: payload.effect.settingsUuid,
-            }
-          : e,
-      ),
-    );
     try {
-      if (payload.preset) {
-        await effectSettingsApi.updateEffectSettings(payload.preset.uuid, payload.preset.mutation);
+      let settingsUuid: string;
+      if (payload.preset.kind === "new") {
+        settingsUuid = await effectSettingsApi.createEffectSettings(payload.preset.mutation);
+      } else {
+        settingsUuid = payload.preset.settingsUuid;
+        if (payload.preset.mutation) {
+          await effectSettingsApi.updateEffectSettings(settingsUuid, payload.preset.mutation);
+        }
       }
+      setEffects((prev) =>
+        prev.map((e) =>
+          e.uuid === target.uuid
+            ? {
+                ...e,
+                name: payload.effect.name,
+                paletteUuid: payload.effect.paletteUuid,
+                settingsUuid,
+              }
+            : e,
+        ),
+      );
       await effectApi.updateEffect(target.uuid, {
         name: payload.effect.name,
         effectType: target.type,
-        settingsUuid: payload.effect.settingsUuid,
+        settingsUuid,
         paletteUuid: payload.effect.paletteUuid,
       });
       fetchAll();

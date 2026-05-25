@@ -207,7 +207,6 @@ export function EffectListRow({
           )}
           <Menu.Item
             data-testid={`eff-row-delete-${effect.uuid}`}
-            color="red"
             leftSection={<TrashIcon size={12} />}
             onClick={onDelete}
           >
