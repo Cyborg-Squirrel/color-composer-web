@@ -47,7 +47,7 @@ export class RealEffectSettingsApi implements IEffectSettingsApi {
             throw new Error(`Failed to create effect settings: ${res.status} ${res.statusText}`);
         }
 
-        return res.json();
+        return res.text();
     }
 
     async updateEffectSettings(uuid: string, data: Partial<ILightEffectSettingsMutation>): Promise<void> {

@@ -1,5 +1,5 @@
 import { ActionIcon, Badge, Box, Group, Menu, Stack, Text, UnstyledButton } from "@mantine/core";
-import { DotsThreeVerticalIcon, PencilSimpleIcon, PlusIcon, ProhibitIcon, TrashIcon } from "@phosphor-icons/react";
+import { DotsThreeVerticalIcon, LightningIcon, LightningSlashIcon, PencilSimpleIcon, PlusIcon, TrashIcon } from "@phosphor-icons/react";
 import { useState } from "react";
 import type { ILightEffectSettings } from "~/api/effect_settings/effect_settings_api";
 import { LightEffectStatus, type ILightEffect } from "~/api/effects/effects_api";
@@ -199,10 +199,19 @@ export function EffectListRow({
           {!isInactive && onDeactivate && (
             <Menu.Item
               data-testid={`eff-row-deactivate-${effect.uuid}`}
-              leftSection={<ProhibitIcon size={12} />}
+              leftSection={<LightningSlashIcon size={12} />}
               onClick={onDeactivate}
             >
               Deactivate
+            </Menu.Item>
+          )}
+          {isInactive && onActivate && (
+            <Menu.Item
+              data-testid={`eff-row-menu-activate-${effect.uuid}`}
+              leftSection={<LightningIcon size={12} />}
+              onClick={onActivate}
+            >
+              Activate
             </Menu.Item>
           )}
           <Menu.Item

@@ -8,14 +8,15 @@ import type { ILedStrip, StripPlayState } from "~/api/strips/strips_api";
  * API.md exposes per-effect status but no per-strip play state.
  */
 export function deriveStripPlayState(stripUuid: string, effects: ILightEffect[]): StripPlayState {
-  const own = effects.filter((e) => e.stripUuid === stripUuid);
-  if (own.some((e) => e.status === LightEffectStatus.Playing)) return "playing";
-  if (own.length > 0 && own.every((e) => e.status === LightEffectStatus.Paused)) return "paused";
-  return "stopped";
+  return playStateFromOwn(effects.filter((e) => e.stripUuid === stripUuid));
 }
 
 export function derivePoolPlayState(poolUuid: string, effects: ILightEffect[]): StripPlayState {
-  const own = effects.filter((e) => e.poolUuid === poolUuid);
+  return playStateFromOwn(effects.filter((e) => e.poolUuid === poolUuid));
+}
+
+/** Same derivation as deriveStripPlayState, but on a pre-grouped list of effects. */
+export function playStateFromOwn(own: ILightEffect[]): StripPlayState {
   if (own.some((e) => e.status === LightEffectStatus.Playing)) return "playing";
   if (own.length > 0 && own.every((e) => e.status === LightEffectStatus.Paused)) return "paused";
   return "stopped";

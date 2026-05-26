@@ -6,6 +6,7 @@ import type {
 } from "~/api/effect_settings/effect_settings_api";
 import { findSchema, validateSettings, type ILightEffect } from "~/api/effects/effects_api";
 import type { IPalette } from "~/api/palettes/palettes_api";
+import type { ILedStrip } from "~/api/strips/strips_api";
 import { previewBackground } from "~/constants/effects";
 import { useEffectSchemas } from "~/provider/EffectApiContext";
 import EffectParams from "./EffectParams";
@@ -24,12 +25,15 @@ export interface EditEffectPayload {
   effect: {
     name: string;
     paletteUuid: string | null;
+    /** Selected strip — null means unassign from any strip. */
+    stripUuid: string | null;
   };
   preset: EditEffectPresetChoice;
 }
 
 interface EditEffectModalProps {
   effect: ILightEffect;
+  strips: ILedStrip[];
   palettes: IPalette[];
   presets: ILightEffectSettings[];
   isMobile?: boolean;
@@ -39,6 +43,7 @@ interface EditEffectModalProps {
 
 export function EditEffectModal({
   effect,
+  strips,
   palettes,
   presets,
   isMobile = false,
@@ -55,6 +60,7 @@ export function EditEffectModal({
 
   const [name, setName] = useState(effect.name);
   const [paletteUuid, setPaletteUuid] = useState<string | null>(effect.paletteUuid ?? null);
+  const [stripUuid, setStripUuid] = useState<string | null>(effect.stripUuid ?? null);
   const [presetChoice, setPresetChoice] = useState<PresetChoice>(effect.settingsUuid ?? null);
   const [presetName, setPresetName] = useState<string>("");
   const [settings, setSettings] = useState<Record<string, unknown>>({});
@@ -63,6 +69,7 @@ export function EditEffectModal({
   useEffect(() => {
     setName(effect.name);
     setPaletteUuid(effect.paletteUuid ?? null);
+    setStripUuid(effect.stripUuid ?? null);
     setPresetChoice(effect.settingsUuid ?? null);
   }, [effect.uuid]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -122,6 +129,7 @@ export function EditEffectModal({
   const dirty =
     name !== effect.name ||
     paletteUuid !== (effect.paletteUuid ?? null) ||
+    stripUuid !== (effect.stripUuid ?? null) ||
     presetChoice !== (effect.settingsUuid ?? null) ||
     (Boolean(selectedPreset) && presetChanged);
 
@@ -164,7 +172,7 @@ export function EditEffectModal({
       return;
     }
     onSave({
-      effect: { name: name.trim(), paletteUuid },
+      effect: { name: name.trim(), paletteUuid, stripUuid },
       preset,
     });
   };
@@ -289,6 +297,17 @@ export function EditEffectModal({
         </Stack>
 
         <Select
+          data-testid="edit-effect-strip"
+          label="Strip"
+          placeholder="Unassigned"
+          clearable
+          value={stripUuid}
+          onChange={setStripUuid}
+          data={strips.map((s) => ({ value: s.uuid, label: s.name }))}
+          size={isMobile ? "md" : "sm"}
+        />
+
+        <Select
           data-testid="edit-effect-palette"
           label="Palette (optional)"
           placeholder="None"
@@ -305,7 +324,7 @@ export function EditEffectModal({
           </Button>
           <Button
             data-testid="edit-effect-save"
-            disabled={!valid}
+            disabled={!valid || !dirty}
             onClick={submit}
           >
             Save

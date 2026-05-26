@@ -26,9 +26,7 @@ import {
   buildOnlineByStrip,
   comparePoolsActiveFirst,
   compareStripsActiveFirst,
-  derivePoolPlayState,
-  deriveStripPlayState,
-  findPoolActiveEffect,
+  playStateFromOwn,
 } from "~/components/util/stripHelpers";
 import { useClientApi } from "~/provider/ClientApiContext";
 import { useEffectApi } from "~/provider/EffectApiContext";
@@ -93,9 +91,21 @@ export function EffectsSplitPane() {
   }, [stripApi, clientApi, poolApi, effectApi, paletteApi, effectSettingsApi]);
 
   useEffect(() => { fetchAll(); }, [fetchAll]);
+
   useResourceEvents(
     ["LedStrip", "LedClient", "StripPool", "LightEffect", "EffectSettings", "Palette"],
-    () => { fetchAll(); },
+    async (event) => {
+      try {
+        if (event.type.startsWith("LedStrip")) setStrips(await stripApi.getStrips());
+        else if (event.type.startsWith("LedClient")) setClients(await clientApi.getClients());
+        else if (event.type.startsWith("StripPool")) setPools(await poolApi.getPools());
+        else if (event.type.startsWith("LightEffect")) setEffects(await effectApi.getEffects());
+        else if (event.type.startsWith("EffectSettings")) setPresets(await effectSettingsApi.getEffectSettings());
+        else if (event.type.startsWith("Palette")) setPalettes(await paletteApi.getPalettes());
+      } catch (err) {
+        console.error("Failed to refresh resource for event", event.type, err);
+      }
+    },
     [],
   );
 
@@ -110,6 +120,34 @@ export function EffectsSplitPane() {
       effect?.settingsUuid ? presetByUuid[effect.settingsUuid] : undefined,
     [presetByUuid],
   );
+
+  const paletteByUuid = useMemo(() => {
+    const map = new Map<string, IPalette>();
+    for (const p of palettes) map.set(p.uuid, p);
+    return map;
+  }, [palettes]);
+
+  const effectsByStrip = useMemo(() => {
+    const map = new Map<string, ILightEffect[]>();
+    for (const e of effects) {
+      if (!e.stripUuid) continue;
+      const bucket = map.get(e.stripUuid);
+      if (bucket) bucket.push(e);
+      else map.set(e.stripUuid, [e]);
+    }
+    return map;
+  }, [effects]);
+
+  const effectsByPool = useMemo(() => {
+    const map = new Map<string, ILightEffect[]>();
+    for (const e of effects) {
+      if (!e.poolUuid) continue;
+      const bucket = map.get(e.poolUuid);
+      if (bucket) bucket.push(e);
+      else map.set(e.poolUuid, [e]);
+    }
+    return map;
+  }, [effects]);
 
   const sortedStrips = useMemo(
     () => [...strips].sort(compareStripsActiveFirst),
@@ -127,20 +165,29 @@ export function EffectsSplitPane() {
     } else if (tab === "pools" && (!selectedId || !sortedPools.some((p) => p.uuid === selectedId))) {
       if (sortedPools[0]) setSelectedId(sortedPools[0].uuid);
     }
-  }, [tab, sortedStrips, sortedPools]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [tab, sortedStrips, sortedPools, selectedId]);
 
   const onlineByStrip = useMemo(() => buildOnlineByStrip(strips, clients), [strips, clients]);
 
-  const selectedIsPool = selectedId ? isPoolId(selectedId, pools) : false;
-  const selectedStrip = !selectedIsPool ? strips.find((s) => s.uuid === selectedId) : undefined;
-  const selectedPool = selectedIsPool ? pools.find((p) => p.uuid === selectedId) : undefined;
+  const selectedIsPool = useMemo(
+    () => (selectedId ? isPoolId(selectedId, pools) : false),
+    [selectedId, pools],
+  );
+  const selectedStrip = useMemo(
+    () => (!selectedIsPool && selectedId ? strips.find((s) => s.uuid === selectedId) : undefined),
+    [selectedIsPool, strips, selectedId],
+  );
+  const selectedPool = useMemo(
+    () => (selectedIsPool && selectedId ? pools.find((p) => p.uuid === selectedId) : undefined),
+    [selectedIsPool, pools, selectedId],
+  );
   const selectedName = selectedStrip?.name ?? selectedPool?.name ?? null;
 
   const selectedEffects = useMemo<ILightEffect[]>(() => {
-    if (selectedStrip) return effects.filter((e) => e.stripUuid === selectedStrip.uuid);
-    if (selectedPool) return effects.filter((e) => e.poolUuid === selectedPool.uuid);
+    if (selectedStrip) return effectsByStrip.get(selectedStrip.uuid) ?? [];
+    if (selectedPool) return effectsByPool.get(selectedPool.uuid) ?? [];
     return [];
-  }, [effects, selectedStrip, selectedPool]);
+  }, [effectsByStrip, effectsByPool, selectedStrip, selectedPool]);
 
   const activeEffects = useMemo(
     () => selectedEffects.filter((e) => e.status !== LightEffectStatus.Inactive),
@@ -197,8 +244,6 @@ export function EffectsSplitPane() {
         paletteUuid: payload.paletteUuid,
       });
       setAddOpen(false);
-      // Refresh first so the new effect shows up immediately.
-      await fetchAll();
       // Then prompt the user about playing it.
       setConfirmPlay({ uuid, name: payload.name });
     } catch (err) {
@@ -231,6 +276,10 @@ export function EffectsSplitPane() {
           await effectSettingsApi.updateEffectSettings(settingsUuid, payload.preset.mutation);
         }
       }
+      // Moving a pool-assigned effect onto a strip means clearing its pool too,
+      // since the API enforces exactly one of stripUuid/poolUuid.
+      const movedFromPoolToStrip = Boolean(target.poolUuid && payload.effect.stripUuid);
+      const nextPoolUuid = movedFromPoolToStrip ? null : target.poolUuid ?? null;
       setEffects((prev) =>
         prev.map((e) =>
           e.uuid === target.uuid
@@ -238,6 +287,8 @@ export function EffectsSplitPane() {
                 ...e,
                 name: payload.effect.name,
                 paletteUuid: payload.effect.paletteUuid,
+                stripUuid: payload.effect.stripUuid,
+                poolUuid: nextPoolUuid,
                 settingsUuid,
               }
             : e,
@@ -248,6 +299,8 @@ export function EffectsSplitPane() {
         effectType: target.type,
         settingsUuid,
         paletteUuid: payload.effect.paletteUuid,
+        stripUuid: payload.effect.stripUuid,
+        ...(movedFromPoolToStrip ? { poolUuid: null } : {}),
       });
       fetchAll();
     } catch (err) {
@@ -340,12 +393,11 @@ export function EffectsSplitPane() {
           ) : (
             <Stack gap={6}>
               {sortedStrips.map((s) => {
-                const playState = deriveStripPlayState(s.uuid, effects);
-                const stripActive = effects.filter(
-                  (e) => e.stripUuid === s.uuid && e.status !== LightEffectStatus.Inactive,
-                );
+                const own = effectsByStrip.get(s.uuid) ?? [];
+                const playState = playStateFromOwn(own);
+                const stripActive = own.filter((e) => e.status !== LightEffectStatus.Inactive);
                 const baseLayer = stripActive[0];
-                const palette = baseLayer?.paletteUuid ? palettes.find((p) => p.uuid === baseLayer.paletteUuid) : undefined;
+                const palette = baseLayer?.paletteUuid ? paletteByUuid.get(baseLayer.paletteUuid) : undefined;
                 return (
                   <StripCard
                     key={s.uuid}
@@ -359,7 +411,8 @@ export function EffectsSplitPane() {
                     selected={selectedId === s.uuid}
                     onSelect={selectStrip}
                     onUpdatePlayState={(cmd) => handleStripPlayState(s, cmd)}
-                    onUpdateBrightness={(b) => { handleBrightnessChange(s, b); commitBrightness({ ...s, brightness: b }); }}
+                    onUpdateBrightness={(b) => handleBrightnessChange(s, b)}
+                    onCommitBrightness={(b) => commitBrightness({ ...s, brightness: b })}
                   />
                 );
               })}
@@ -371,8 +424,11 @@ export function EffectsSplitPane() {
           ) : (
             <Stack gap={6}>
               {sortedPools.map((p) => {
-                const playState = derivePoolPlayState(p.uuid, effects);
-                const active = findPoolActiveEffect(p.uuid, effects);
+                const own = effectsByPool.get(p.uuid) ?? [];
+                const playState = playStateFromOwn(own);
+                const active = own.find(
+                  (e) => e.status === LightEffectStatus.Playing || e.status === LightEffectStatus.Paused,
+                );
                 const activeSettings = (presetForEffect(active)?.settings ?? {}) as { color?: string };
                 return (
                   <PoolCard
@@ -498,9 +554,7 @@ export function EffectsSplitPane() {
               <Box style={{ width: 24, flexShrink: 0 }} />
             </Group>
             {activeEffects.map((eff, idx) => {
-              const palette = eff.paletteUuid
-                ? palettes.find((p) => p.uuid === eff.paletteUuid)
-                : undefined;
+              const palette = eff.paletteUuid ? paletteByUuid.get(eff.paletteUuid) : undefined;
               return (
                 <EffectListRow
                   key={eff.uuid}
@@ -527,9 +581,7 @@ export function EffectsSplitPane() {
                   Inactive
                 </Text>
                 {inactiveEffects.map((eff) => {
-                  const palette = eff.paletteUuid
-                    ? palettes.find((p) => p.uuid === eff.paletteUuid)
-                    : undefined;
+                  const palette = eff.paletteUuid ? paletteByUuid.get(eff.paletteUuid) : undefined;
                   return (
                     <EffectListRow
                       key={eff.uuid}
@@ -584,6 +636,7 @@ export function EffectsSplitPane() {
       {editing && (
         <EditEffectModal
           effect={editing}
+          strips={strips}
           palettes={palettes}
           presets={presets}
           isMobile={isMobile}

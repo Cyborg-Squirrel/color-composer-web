@@ -78,8 +78,7 @@ export class RealEffectsApi implements IEffectsApi {
             throw new Error(`Failed to create effect: ${res.status} ${res.statusText}`);
         }
 
-        const json = await res.json();
-        return json.uuid;
+        return res.text();
     }
 
     async updateEffect(uuid: string, data: Partial<ILightEffectMutation>): Promise<void> {

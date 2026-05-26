@@ -20,6 +20,7 @@ interface EffectsStripCardProps {
   onSelect: (uuid: string) => void;
   onUpdatePlayState: (cmd: "Play" | "Pause" | "Stop") => void;
   onUpdateBrightness: (brightness: number) => void;
+  onCommitBrightness: (brightness: number) => void;
 }
 
 export function StripCard({
@@ -34,6 +35,7 @@ export function StripCard({
   onSelect,
   onUpdatePlayState,
   onUpdateBrightness,
+  onCommitBrightness,
 }: EffectsStripCardProps) {
   const { label, badgeColor } = stripStatusBadge(online, playState);
   const settings = (activeSettings?.settings ?? {}) as { color?: string; colorB?: string; speed?: number };
@@ -152,6 +154,7 @@ export function StripCard({
               size="xs"
               label={null}
               onChange={onUpdateBrightness}
+              onChangeEnd={onCommitBrightness}
             />
           </Stack>
         </Stack>

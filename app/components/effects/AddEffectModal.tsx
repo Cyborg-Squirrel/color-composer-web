@@ -4,9 +4,9 @@ import {
   Group,
   Modal,
   Paper,
+  Select,
   Stack,
   Stepper,
-  Select,
   Text,
   TextInput,
   UnstyledButton,
@@ -37,9 +37,11 @@ import EffectCard from "./EffectCard";
 import EffectParams from "./EffectParams";
 import { NEW_PRESET, PresetPicker, type PresetChoice } from "./PresetPicker";
 
+export type EffectUserSelection = "existing" | "new";
+
 export type AddEffectPresetChoice =
-  | { kind: "existing"; settingsUuid: string }
-  | { kind: "new"; mutation: ILightEffectSettingsMutation };
+  | { kind: EffectUserSelection & "existing"; settingsUuid: string }
+  | { kind: EffectUserSelection & "new"; mutation: ILightEffectSettingsMutation };
 
 export interface AddEffectPayload {
   name: string;
@@ -266,6 +268,7 @@ export function AddEffectModal({
               description="Name and configure"
               icon={<SlidersIcon size={14} />}
               completedIcon={<CheckIcon size={14} weight="bold" />}
+              allowStepSelect={active === 0 ? step1Valid : undefined}
             >
               <Step2NamePreset
                 effectType={effectType}
@@ -290,6 +293,7 @@ export function AddEffectModal({
               description="Optional"
               icon={<PaletteIcon size={14} />}
               completedIcon={<CheckIcon size={14} weight="bold" />}
+              allowStepSelect={active === 1 ? step2Valid : undefined}
             >
               <Step3Palette
                 palettes={palettes}
