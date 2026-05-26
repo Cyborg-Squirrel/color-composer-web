@@ -39,6 +39,11 @@ export function isClientOnline(client: ILedStripClient | undefined): boolean {
   return client.status !== ClientStatus.Offline && client.status !== ClientStatus.Error;
 }
 
+export function isClientConnected(client: ILedStripClient | undefined): boolean {
+  if (!client) return false;
+  return client.status === ClientStatus.Idle || client.status === ClientStatus.Active;
+}
+
 export function buildOnlineByStrip(
   strips: ILedStrip[],
   clients: ILedStripClient[],
@@ -47,6 +52,17 @@ export function buildOnlineByStrip(
   for (const c of clients) clientOnline[c.uuid] = isClientOnline(c);
   const out: Record<string, boolean> = {};
   for (const s of strips) out[s.uuid] = clientOnline[s.clientUuid] ?? false;
+  return out;
+}
+
+export function buildConnectedByStrip(
+  strips: ILedStrip[],
+  clients: ILedStripClient[],
+): Record<string, boolean> {
+  const clientConnected: Record<string, boolean> = {};
+  for (const c of clients) clientConnected[c.uuid] = isClientConnected(c);
+  const out: Record<string, boolean> = {};
+  for (const s of strips) out[s.uuid] = clientConnected[s.clientUuid] ?? false;
   return out;
 }
 

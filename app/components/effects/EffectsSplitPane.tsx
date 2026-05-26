@@ -10,7 +10,7 @@ import {
   Tooltip,
   UnstyledButton,
 } from "@mantine/core";
-import { CaretLeftIcon, LightningIcon, PlayIcon, PlusIcon } from "@phosphor-icons/react";
+import { CaretLeftIcon, PlayIcon, PlusIcon } from "@phosphor-icons/react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type { ILedStripClient } from "~/api/clients/clients_api";
 import type { ILightEffectSettings } from "~/api/effect_settings/effect_settings_api";
@@ -23,6 +23,7 @@ import ConfirmDeleteModal from "~/components/util/ConfirmDeleteModal";
 import EmptyState from "~/components/util/EmptyState";
 import { isMobileUi } from "~/components/util/IsMobile";
 import {
+  buildConnectedByStrip,
   buildOnlineByStrip,
   comparePoolsActiveFirst,
   compareStripsActiveFirst,
@@ -168,6 +169,7 @@ export function EffectsSplitPane() {
   }, [tab, sortedStrips, sortedPools, selectedId]);
 
   const onlineByStrip = useMemo(() => buildOnlineByStrip(strips, clients), [strips, clients]);
+  const connectedByStrip = useMemo(() => buildConnectedByStrip(strips, clients), [strips, clients]);
 
   const selectedIsPool = useMemo(
     () => (selectedId ? isPoolId(selectedId, pools) : false),
@@ -403,6 +405,7 @@ export function EffectsSplitPane() {
                     key={s.uuid}
                     strip={s}
                     online={onlineByStrip[s.uuid] !== false}
+                    connected={connectedByStrip[s.uuid] === true}
                     playState={playState}
                     activeEffect={baseLayer}
                     activeSettings={presetForEffect(baseLayer)}
@@ -479,7 +482,6 @@ export function EffectsSplitPane() {
           </UnstyledButton>
         )}
         <Group gap="sm" wrap="nowrap" style={{ flex: 1, justifyContent: isMobile ? "center" : "flex-start", minWidth: 0 }}>
-          <LightningIcon size={14} weight="fill" style={{ color: "var(--neon-accent)" }} />
           <Text ff="var(--mantine-font-family-monospace)" size="xs" c="dimmed" tt="uppercase" style={{ letterSpacing: "0.06em" }}>
             Effects {selectedName && (
               <>
@@ -516,7 +518,6 @@ export function EffectsSplitPane() {
           </Text>
         ) : selectedEffects.length === 0 ? (
           <EmptyState
-            icon={<LightningIcon size={26} weight="duotone" />}
             title="No effects"
             subtitle={selectedName ? `Add an effect to make ${selectedName} glow.` : undefined}
             action={

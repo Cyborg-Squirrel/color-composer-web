@@ -1,6 +1,5 @@
 import { Skeleton, Stack } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
-import { LightbulbIcon, StackIcon } from "@phosphor-icons/react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useLocation } from "react-router";
 import type { ILedStripClient } from "~/api/clients/clients_api";
@@ -10,6 +9,7 @@ import { ConfirmDeleteModal } from "~/components/util/ConfirmDeleteModal";
 import { EmptyState } from "~/components/util/EmptyState";
 import { isMobileUi } from "~/components/util/IsMobile";
 import {
+  buildConnectedByStrip,
   buildOnlineByStrip,
   comparePoolsActiveFirst,
   compareStripsActiveFirst,
@@ -72,6 +72,7 @@ export function StripList({ refreshKey, onChanged, tab }: StripListProps) {
   );
 
   const onlineByStrip = useMemo(() => buildOnlineByStrip(strips ?? [], clients), [strips, clients]);
+  const connectedByStrip = useMemo(() => buildConnectedByStrip(strips ?? [], clients), [strips, clients]);
 
   const stripInPool = useMemo(() => {
     const set = new Set<string>();
@@ -150,7 +151,6 @@ export function StripList({ refreshKey, onChanged, tab }: StripListProps) {
           </Stack>
         ) : sortedStrips.length === 0 ? (
           <EmptyState
-            icon={<LightbulbIcon size={28} weight="duotone" />}
             title="No strips"
             subtitle="Add a strip attached to one of your clients"
           />
@@ -163,6 +163,7 @@ export function StripList({ refreshKey, onChanged, tab }: StripListProps) {
                   key={s.uuid}
                   strip={s}
                   online={onlineByStrip[s.uuid] !== false}
+                  connected={connectedByStrip[s.uuid] === true}
                   playState={playState}
                   clientName={clients.find((c) => c.uuid === s.clientUuid)?.name ?? "—"}
                   isInPool={stripInPool.has(s.uuid)}
@@ -176,7 +177,6 @@ export function StripList({ refreshKey, onChanged, tab }: StripListProps) {
       ) : (
         sortedPools.length === 0 ? (
           <EmptyState
-            icon={<StackIcon size={28} weight="duotone" />}
             title="No pools"
             subtitle="Group strips so they play one effect in sync"
           />

@@ -7,6 +7,7 @@ import { stripStatusBadge } from "~/components/util/stripHelpers";
 interface StripListCardProps {
   strip: ILedStrip;
   online: boolean;
+  connected: boolean;
   playState: StripPlayState;
   clientName: string;
   isInPool: boolean;
@@ -17,6 +18,7 @@ interface StripListCardProps {
 export function StripListCard({
   strip,
   online,
+  connected,
   playState,
   clientName,
   isInPool,
@@ -37,7 +39,7 @@ export function StripListCard({
     >
       <Stack gap={8}>
         <Group gap={10} wrap="nowrap" align="center">
-          <StatusDot online={online} playState={playState} />
+          <StatusDot connected={connected} />
           <Text size="sm" fw={500} truncate>
             {strip.name}
           </Text>

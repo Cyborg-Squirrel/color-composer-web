@@ -1,25 +1,13 @@
-import type { StripPlayState } from "~/api/strips/strips_api";
-
 interface StatusDotProps {
-  online: boolean;
-  playState: StripPlayState;
+  connected: boolean;
   size?: number;
 }
 
-export function StatusDot({ online, playState, size = 7 }: StatusDotProps) {
-  let color: string;
-  let glow = false;
-  if (!online) {
-    color = "var(--neon-text3)";
-  } else if (playState === "playing") {
-    color = "var(--neon-accent)";
-    glow = true;
-  } else if (playState === "paused") {
-    color = "var(--neon-amber)";
-  } else {
-    color = "var(--neon-text3)";
-  }
+const CONNECTED_GREEN = "var(--mantine-color-green-8)";
+const DISCONNECTED_GRAY = "var(--mantine-color-gray-4)";
 
+export function StatusDot({ connected, size = 7 }: StatusDotProps) {
+  const color = connected ? CONNECTED_GREEN : DISCONNECTED_GRAY;
   return (
     <span
       style={{
@@ -28,7 +16,7 @@ export function StatusDot({ online, playState, size = 7 }: StatusDotProps) {
         height: size,
         borderRadius: "50%",
         background: color,
-        boxShadow: glow ? `0 0 5px ${color}` : "none",
+        boxShadow: connected ? `0 0 5px ${color}` : "none",
         flexShrink: 0,
       }}
     />

@@ -23,7 +23,6 @@ function buildSummary(effect: ILightEffect, settings: ILightEffectSettings | und
   const parts: string[] = [effect.type];
   const s = settings?.settings ?? {};
   if (typeof s.color === "string") parts.push((s.color as string).toUpperCase());
-  if (typeof s.speed === "number") parts.push(`${s.speed}% spd`);
   if (palette) parts.push(palette.name);
   return parts.join(" · ");
 }

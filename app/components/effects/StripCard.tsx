@@ -1,16 +1,16 @@
-import { ActionIcon, Badge, Box, Group, Paper, Slider, Stack, Text } from "@mantine/core";
+import { ActionIcon, Box, Group, Paper, Slider, Stack, Text } from "@mantine/core";
 import { PauseIcon, PlayIcon, StopIcon } from "@phosphor-icons/react";
 import type { ILightEffectSettings } from "~/api/effect_settings/effect_settings_api";
 import type { ILightEffect } from "~/api/effects/effects_api";
 import type { IPalette } from "~/api/palettes/palettes_api";
 import type { ILedStrip, StripPlayState } from "~/api/strips/strips_api";
-import StatusDot from "~/components/util/StatusDot";
-import { stripStatusBadge } from "~/components/util/stripHelpers";
 import StripPreviewBar from "~/components/strips/StripPreviewBar";
+import StatusDot from "~/components/util/StatusDot";
 
 interface EffectsStripCardProps {
   strip: ILedStrip;
   online: boolean;
+  connected: boolean;
   playState: StripPlayState;
   activeEffect?: ILightEffect;
   activeSettings?: ILightEffectSettings;
@@ -26,6 +26,7 @@ interface EffectsStripCardProps {
 export function StripCard({
   strip,
   online,
+  connected,
   playState,
   activeEffect,
   activeSettings,
@@ -37,7 +38,6 @@ export function StripCard({
   onUpdateBrightness,
   onCommitBrightness,
 }: EffectsStripCardProps) {
-  const { label, badgeColor } = stripStatusBadge(online, playState);
   const settings = (activeSettings?.settings ?? {}) as { color?: string; colorB?: string; speed?: number };
 
   // Footer summary: "EffectName · PaletteName" or "EffectName +N" (N counts active effects beyond the base) or em-dash
@@ -67,19 +67,10 @@ export function StripCard({
       }}
     >
       <Group gap={8} wrap="nowrap" align="center" mb={6} style={{ minWidth: 0 }}>
-        <StatusDot online={online} playState={playState} />
+        <StatusDot connected={connected} />
         <Text size="xs" fw={500} style={{ minWidth: 0 }} truncate>
           {strip.name}
         </Text>
-        <Badge
-          size="xs"
-          variant="light"
-          color={badgeColor}
-          ff="var(--mantine-font-family-monospace)"
-          style={{ letterSpacing: "0.06em", flexShrink: 0 }}
-        >
-          {label}
-        </Badge>
       </Group>
       <Box mb={6}>
         <StripPreviewBar
@@ -89,7 +80,6 @@ export function StripCard({
           effectType={activeEffect?.type ?? null}
           color={settings.color ?? null}
           colorB={settings.colorB ?? null}
-          speed={typeof settings.speed === "number" ? settings.speed : 50}
         />
       </Box>
       <Text

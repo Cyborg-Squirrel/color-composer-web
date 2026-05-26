@@ -19,10 +19,11 @@ import type { IPalette } from "~/api/palettes/palettes_api";
 import type { IStripPool } from "~/api/pools/pools_api";
 import type { ILedStrip } from "~/api/strips/strips_api";
 import BasicAppShell from "~/components/layouts/BasicAppShell";
+import StripPreviewBar from "~/components/strips/StripPreviewBar";
 import { SectionHeader } from "~/components/util/SectionHeader";
 import StatusDot from "~/components/util/StatusDot";
-import StripPreviewBar from "~/components/strips/StripPreviewBar";
 import {
+  buildConnectedByStrip,
   buildOnlineByStrip,
   derivePoolPlayState,
   deriveStripPlayState,
@@ -159,6 +160,7 @@ function HomeContent() {
   }, [presets]);
 
   const onlineByStrip = useMemo(() => buildOnlineByStrip(strips, clients), [strips, clients]);
+  const connectedByStrip = useMemo(() => buildConnectedByStrip(strips, clients), [strips, clients]);
 
   const onlineClients = clients.filter(isClientOnline).length;
   const offlineClients = clients.length - onlineClients;
@@ -236,6 +238,7 @@ function HomeContent() {
           <Stack gap={6}>
             {strips.map((s) => {
               const online = onlineByStrip[s.uuid] !== false;
+              const connected = connectedByStrip[s.uuid] === true;
               const playState = deriveStripPlayState(s.uuid, effects);
               const active = findActiveEffect(s.uuid, effects);
               const client = clients.find((c) => c.uuid === s.clientUuid);
@@ -255,7 +258,7 @@ function HomeContent() {
                   style={{ cursor: "pointer", transition: "border-color .15s" }}
                 >
                   <Group gap="sm" wrap="nowrap" align="center">
-                    <StatusDot online={online} playState={playState} />
+                    <StatusDot connected={connected} />
                     <Stack gap={4} style={{ flex: 1, minWidth: 0 }}>
                       <Group gap="xs" wrap="nowrap">
                         <Text size="sm" fw={500} truncate>{s.name}</Text>
@@ -270,7 +273,6 @@ function HomeContent() {
                         effectType={active?.type ?? null}
                         color={settings.color ?? null}
                         colorB={settings.colorB ?? null}
-                        speed={typeof settings.speed === "number" ? settings.speed : 50}
                       />
                     </Stack>
                     <Box style={{ flexShrink: 0, textAlign: "right" }}>

@@ -11,14 +11,14 @@ import {
   Title,
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
-import { InfoIcon, LightningIcon } from "@phosphor-icons/react";
+import { InfoIcon, LightbulbIcon } from "@phosphor-icons/react";
 import { useRef, useState, type ReactNode } from "react";
 import { Link, useLocation } from "react-router";
 import { isMobileUi } from "~/components/util/IsMobile";
 import { AppShellRefContext } from "~/provider/AppShellContext";
 import { ColorSchemeToggle } from "../controls/ColorSchemeToggle";
 import styles from "./BasicAppShell.module.css";
-import NavDrawer, { NAV_ITEMS } from "./NavDrawer";
+import NavDrawer from "./NavDrawer";
 
 type ContainerSize = "xs" | "sm" | "md" | "lg" | "xl" | number | undefined;
 type Padding = "xl" | "lg" | "md" | "sm" | "xs";
@@ -71,11 +71,6 @@ export default function BasicAppShell(props: IAppShellProps) {
   const [aboutOpened, setAboutOpened] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
-  const currentNavLabel =
-    NAV_ITEMS.find((n) => n.link === pathname)?.label ??
-    NAV_ITEMS.find((n) => n.link !== "/" && pathname.startsWith(n.link))?.label ??
-    "";
-
   return (
     <AppShellRefContext.Provider value={ref}>
       <AboutModal opened={aboutOpened} onClose={() => setAboutOpened(false)} />
@@ -96,7 +91,7 @@ export default function BasicAppShell(props: IAppShellProps) {
               />
               <Link to="/" style={{ textDecoration: "none", color: "inherit" }}>
                 <Group gap={6} wrap="nowrap">
-                  <LightningIcon size={16} weight="fill" style={{ color: "var(--neon-accent)" }} />
+                  <LightbulbIcon size={16} weight="fill" style={{ color: "var(--neon-accent)" }} />
                   <Text
                     id="title"
                     ff="var(--mantine-font-family-monospace)"
@@ -108,19 +103,6 @@ export default function BasicAppShell(props: IAppShellProps) {
                   </Text>
                 </Group>
               </Link>
-              {currentNavLabel && (
-                <>
-                  <Divider orientation="vertical" h={18} my="auto" />
-                  <Text
-                    ff="var(--mantine-font-family-monospace)"
-                    size="xs"
-                    c="dimmed"
-                    style={{ letterSpacing: "0.04em" }}
-                  >
-                    {currentNavLabel}
-                  </Text>
-                </>
-              )}
             </Group>
             <Group gap="sm" wrap="nowrap">
               <ColorSchemeToggle hidden={import.meta.env.VITE_COLOR_SCHEME_TOGGLE_ENABLED !== "true"} />

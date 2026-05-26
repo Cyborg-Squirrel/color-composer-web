@@ -2,13 +2,12 @@ import { Stack, Text } from "@mantine/core";
 import type { ReactNode } from "react";
 
 interface EmptyStateProps {
-  icon: ReactNode;
   title: string;
   subtitle?: string;
   action?: ReactNode;
 }
 
-export function EmptyState({ icon, title, subtitle, action }: EmptyStateProps) {
+export function EmptyState({ title, subtitle, action }: EmptyStateProps) {
   return (
     <Stack
       align="center"
@@ -22,7 +21,6 @@ export function EmptyState({ icon, title, subtitle, action }: EmptyStateProps) {
         color: "var(--neon-text3)",
       }}
     >
-      <span style={{ opacity: 0.25, display: "inline-flex" }}>{icon}</span>
       <Text
         ff="var(--mantine-font-family-monospace)"
         size="xs"
