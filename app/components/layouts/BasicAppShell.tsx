@@ -17,6 +17,7 @@ import { Link, useLocation } from "react-router";
 import { isMobileUi } from "~/components/util/IsMobile";
 import { AppShellRefContext } from "~/provider/AppShellContext";
 import { ColorSchemeToggle } from "../controls/ColorSchemeToggle";
+import { PrimaryColorPicker } from "../controls/PrimaryColorPicker";
 import styles from "./BasicAppShell.module.css";
 import NavDrawer from "./NavDrawer";
 
@@ -106,6 +107,7 @@ export default function BasicAppShell(props: IAppShellProps) {
             </Group>
             <Group gap="sm" wrap="nowrap">
               <ColorSchemeToggle hidden={import.meta.env.VITE_COLOR_SCHEME_TOGGLE_ENABLED !== "true"} />
+              <PrimaryColorPicker />
               <ActionIcon
                 variant="subtle"
                 color="gray"
