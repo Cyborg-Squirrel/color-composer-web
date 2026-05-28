@@ -9,6 +9,7 @@ export class MockEffectSettingsApi implements IEffectSettingsApi {
             name: 'Warm White',
             settings: { color: '#fff2cc' },
             isDefault: true,
+            skipFramesIfBlank: true,
         },
         {
             uuid: '550e8400-e29b-41d4-a716-446655660002',
@@ -16,6 +17,7 @@ export class MockEffectSettingsApi implements IEffectSettingsApi {
             name: 'Slow Cycle',
             settings: { speed: 25, reverse: false },
             isDefault: true,
+            skipFramesIfBlank: true,
         },
         {
             uuid: '550e8400-e29b-41d4-a716-446655660003',
@@ -23,6 +25,7 @@ export class MockEffectSettingsApi implements IEffectSettingsApi {
             name: 'Ocean Pulse',
             settings: { color: '#1f7fff', speed: 30 },
             isDefault: false,
+            skipFramesIfBlank: true,
         },
     ];
 
@@ -49,6 +52,7 @@ export class MockEffectSettingsApi implements IEffectSettingsApi {
             name: data.name,
             settings: data.settings || {},
             isDefault,
+            skipFramesIfBlank: data.skipFramesIfBlank ?? true,
         };
         this.effectSettings.push(created);
         return created.uuid;
@@ -69,6 +73,7 @@ export class MockEffectSettingsApi implements IEffectSettingsApi {
             name: data.name ?? current.name,
             settings: data.settings ?? current.settings,
             isDefault: data.isDefault ?? current.isDefault,
+            skipFramesIfBlank: data.skipFramesIfBlank ?? current.skipFramesIfBlank,
         };
     }
 

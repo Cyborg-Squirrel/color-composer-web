@@ -11,6 +11,7 @@ export class MockEffectsApi implements IEffectsApi {
             stripUuid: '13120111-0184-4961-9e74-018a960d4b32',
             status: LightEffectStatus.Playing,
             paletteUuid: '550e8400-e29b-41d4-a716-446655550001',
+            layer: 0,
         },
         {
             uuid: '550e8400-e29b-41d4-a716-446655440002',
@@ -19,6 +20,7 @@ export class MockEffectsApi implements IEffectsApi {
             stripUuid: '13120111-0184-4961-9e74-018a960d4b32',
             status: LightEffectStatus.Paused,
             paletteUuid: '550e8400-e29b-41d4-a716-446655550002',
+            layer: 1,
         },
         {
             uuid: '550e8400-e29b-41d4-a716-446655440003',
@@ -27,6 +29,7 @@ export class MockEffectsApi implements IEffectsApi {
             stripUuid: '99d53b59-cb0d-449f-a9e9-bf6cb7bf391a',
             status: LightEffectStatus.Inactive,
             paletteUuid: null,
+            layer: 0,
         },
     ];
 
@@ -51,6 +54,13 @@ export class MockEffectsApi implements IEffectsApi {
 
     async createEffect(data: ILightEffectMutation): Promise<string> {
         await this.delay(500);
+        const siblings = this.effects.filter(e =>
+            (data.stripUuid && e.stripUuid === data.stripUuid) ||
+            (data.poolUuid && e.poolUuid === data.poolUuid),
+        );
+        const layer = data.layer ?? (siblings.length === 0
+            ? 0
+            : Math.max(...siblings.map(e => e.layer)) + 1);
         const newEffect: ILightEffect = {
             uuid: 'mock-uuid-' + Math.floor(Math.random() * 10000),
             name: data.name,
@@ -60,6 +70,7 @@ export class MockEffectsApi implements IEffectsApi {
             paletteUuid: data.paletteUuid,
             settingsUuid: '550e8400-e29b-41d4-a716-446655660001',
             status: LightEffectStatus.Inactive,
+            layer,
         };
         this.effects.push(newEffect);
         return newEffect.uuid;
@@ -78,6 +89,7 @@ export class MockEffectsApi implements IEffectsApi {
                 poolUuid: data.poolUuid ?? effect.poolUuid,
                 paletteUuid: data.paletteUuid ?? effect.paletteUuid,
                 settingsUuid: data.settingsUuid ?? effect.settingsUuid,
+                layer: data.layer ?? effect.layer,
             };
         }
     }

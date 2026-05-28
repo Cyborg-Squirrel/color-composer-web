@@ -71,6 +71,7 @@ export class RealEffectsApi implements IEffectsApi {
                 poolUuid: data.poolUuid,
                 settingsUuid: data.settingsUuid,
                 paletteUuid: data.paletteUuid,
+                layer: data.layer,
             })
         });
 
@@ -98,6 +99,7 @@ export class RealEffectsApi implements IEffectsApi {
                 poolUuid: data.poolUuid,
                 paletteUuid: data.paletteUuid,
                 settingsUuid: data.settingsUuid,
+                layer: data.layer,
             })
         });
 

@@ -18,6 +18,7 @@ export class MockHomeApi implements IHomeApi {
                     type: 'RainbowCycle',
                     stripUuid: 'strip-uuid-1',
                     status: LightEffectStatus.Playing,
+                    layer: 0,
                 },
                 {
                     uuid: 'ae2',
@@ -25,6 +26,7 @@ export class MockHomeApi implements IHomeApi {
                     type: 'ColorWipe',
                     stripUuid: 'strip-uuid-2',
                     status: LightEffectStatus.Playing,
+                    layer: 0,
                 },
             ],
             strips: [

@@ -40,6 +40,7 @@ export class RealEffectSettingsApi implements IEffectSettingsApi {
                 name: data.name,
                 settings: data.settings || {},
                 isDefault: data.isDefault ?? false,
+                skipFramesIfBlank: data.skipFramesIfBlank,
             })
         });
 
@@ -65,6 +66,7 @@ export class RealEffectSettingsApi implements IEffectSettingsApi {
                 name: data.name,
                 settings: data.settings,
                 isDefault: data.isDefault,
+                skipFramesIfBlank: data.skipFramesIfBlank,
             })
         });
 

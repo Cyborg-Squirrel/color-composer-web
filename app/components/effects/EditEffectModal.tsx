@@ -1,4 +1,4 @@
-import { Box, Button, Group, Modal, Paper, Select, Stack, Text, TextInput, useModalsStack } from "@mantine/core";
+import { Box, Button, Group, Modal, NumberInput, Paper, Select, Stack, Switch, Text, TextInput, useModalsStack } from "@mantine/core";
 import { useEffect, useMemo, useState } from "react";
 import type {
   ILightEffectSettings,
@@ -27,6 +27,7 @@ export interface EditEffectPayload {
     paletteUuid: string | null;
     /** Selected strip — null means unassign from any strip. */
     stripUuid: string | null;
+    layer: number;
   };
   preset: EditEffectPresetChoice;
 }
@@ -61,15 +62,18 @@ export function EditEffectModal({
   const [name, setName] = useState(effect.name);
   const [paletteUuid, setPaletteUuid] = useState<string | null>(effect.paletteUuid ?? null);
   const [stripUuid, setStripUuid] = useState<string | null>(effect.stripUuid ?? null);
+  const [layer, setLayer] = useState<number>(effect.layer);
   const [presetChoice, setPresetChoice] = useState<PresetChoice>(effect.settingsUuid ?? null);
   const [presetName, setPresetName] = useState<string>("");
   const [settings, setSettings] = useState<Record<string, unknown>>({});
+  const [skipFramesIfBlank, setSkipFramesIfBlank] = useState<boolean>(true);
 
   // Hydrate effect-level fields when the modal opens for a new effect.
   useEffect(() => {
     setName(effect.name);
     setPaletteUuid(effect.paletteUuid ?? null);
     setStripUuid(effect.stripUuid ?? null);
+    setLayer(effect.layer);
     setPresetChoice(effect.settingsUuid ?? null);
   }, [effect.uuid]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -88,12 +92,15 @@ export function EditEffectModal({
     if (presetChoice === NEW_PRESET) {
       setPresetName(`${effect.type} preset`);
       setSettings({});
+      setSkipFramesIfBlank(true);
     } else if (selectedPreset) {
       setPresetName(selectedPreset.name);
       setSettings(selectedPreset.settings ?? {});
+      setSkipFramesIfBlank(selectedPreset.skipFramesIfBlank);
     } else {
       setPresetName("");
       setSettings({});
+      setSkipFramesIfBlank(true);
     }
   }, [presetChoice, selectedPreset?.uuid]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -122,14 +129,16 @@ export function EditEffectModal({
     const nameChanged = presetName.trim() !== selectedPreset.name;
     const settingsChanged =
       JSON.stringify(settings ?? {}) !== JSON.stringify(selectedPreset.settings ?? {});
-    return nameChanged || settingsChanged;
-  }, [selectedPreset, presetName, settings]);
+    const skipChanged = skipFramesIfBlank !== selectedPreset.skipFramesIfBlank;
+    return nameChanged || settingsChanged || skipChanged;
+  }, [selectedPreset, presetName, settings, skipFramesIfBlank]);
 
   // Dirty = any field diverges from the effect's initial state.
   const dirty =
     name !== effect.name ||
     paletteUuid !== (effect.paletteUuid ?? null) ||
     stripUuid !== (effect.stripUuid ?? null) ||
+    layer !== effect.layer ||
     presetChoice !== (effect.settingsUuid ?? null) ||
     (Boolean(selectedPreset) && presetChanged);
 
@@ -158,6 +167,7 @@ export function EditEffectModal({
           type: effect.type,
           name: presetName.trim(),
           settings,
+          skipFramesIfBlank,
         },
       };
     } else if (selectedPreset) {
@@ -165,14 +175,14 @@ export function EditEffectModal({
         kind: "existing",
         settingsUuid: selectedPreset.uuid,
         ...(presetChanged
-          ? { mutation: { name: presetName.trim(), settings } }
+          ? { mutation: { name: presetName.trim(), settings, skipFramesIfBlank } }
           : {}),
       };
     } else {
       return;
     }
     onSave({
-      effect: { name: name.trim(), paletteUuid, stripUuid },
+      effect: { name: name.trim(), paletteUuid, stripUuid, layer },
       preset,
     });
   };
@@ -282,6 +292,14 @@ export function EditEffectModal({
                   </Text>
                 )}
               </Paper>
+              <Switch
+                data-testid="edit-effect-skip-blank"
+                checked={skipFramesIfBlank}
+                onChange={(e) => setSkipFramesIfBlank(e.currentTarget.checked)}
+                label="Skip frames if blank"
+                description="Stop rendering frames whose output is entirely blank."
+                size={isMobile ? "md" : "sm"}
+              />
               {selectedPreset && presetChanged && (
                 <Text
                   ff="var(--mantine-font-family-monospace)"
@@ -315,6 +333,17 @@ export function EditEffectModal({
           value={paletteUuid}
           onChange={setPaletteUuid}
           data={palettes.map((p) => ({ value: p.uuid, label: p.name }))}
+          size={isMobile ? "md" : "sm"}
+        />
+
+        <NumberInput
+          data-testid="edit-effect-layer"
+          label="Layer"
+          description="Render layer on this strip or pool. 0 = base."
+          min={0}
+          allowDecimal={false}
+          value={layer}
+          onChange={(v) => setLayer(typeof v === "number" ? v : effect.layer)}
           size={isMobile ? "md" : "sm"}
         />
 

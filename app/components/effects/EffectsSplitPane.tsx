@@ -192,7 +192,10 @@ export function EffectsSplitPane() {
   }, [effectsByStrip, effectsByPool, selectedStrip, selectedPool]);
 
   const activeEffects = useMemo(
-    () => selectedEffects.filter((e) => e.status !== LightEffectStatus.Inactive),
+    () =>
+      selectedEffects
+        .filter((e) => e.status !== LightEffectStatus.Inactive)
+        .sort((a, b) => a.layer - b.layer),
     [selectedEffects],
   );
   const inactiveEffects = useMemo(
@@ -244,6 +247,7 @@ export function EffectsSplitPane() {
         poolUuid: selectedPool?.uuid,
         settingsUuid,
         paletteUuid: payload.paletteUuid,
+        ...(payload.layer !== null ? { layer: payload.layer } : {}),
       });
       setAddOpen(false);
       // Then prompt the user about playing it.
@@ -292,6 +296,7 @@ export function EffectsSplitPane() {
                 stripUuid: payload.effect.stripUuid,
                 poolUuid: nextPoolUuid,
                 settingsUuid,
+                layer: payload.effect.layer,
               }
             : e,
         ),
@@ -302,6 +307,7 @@ export function EffectsSplitPane() {
         settingsUuid,
         paletteUuid: payload.effect.paletteUuid,
         stripUuid: payload.effect.stripUuid,
+        layer: payload.effect.layer,
         ...(movedFromPoolToStrip ? { poolUuid: null } : {}),
       });
       fetchAll();
@@ -397,7 +403,9 @@ export function EffectsSplitPane() {
               {sortedStrips.map((s) => {
                 const own = effectsByStrip.get(s.uuid) ?? [];
                 const playState = playStateFromOwn(own);
-                const stripActive = own.filter((e) => e.status !== LightEffectStatus.Inactive);
+                const stripActive = own
+                  .filter((e) => e.status !== LightEffectStatus.Inactive)
+                  .sort((a, b) => a.layer - b.layer);
                 const baseLayer = stripActive[0];
                 const palette = baseLayer?.paletteUuid ? paletteByUuid.get(baseLayer.paletteUuid) : undefined;
                 return (
@@ -554,14 +562,13 @@ export function EffectsSplitPane() {
               <Box style={{ width: 70, textAlign: "right", flexShrink: 0 }}>Layer</Box>
               <Box style={{ width: 24, flexShrink: 0 }} />
             </Group>
-            {activeEffects.map((eff, idx) => {
+            {activeEffects.map((eff) => {
               const palette = eff.paletteUuid ? paletteByUuid.get(eff.paletteUuid) : undefined;
               return (
                 <EffectListRow
                   key={eff.uuid}
                   effect={eff}
                   settings={presetForEffect(eff)}
-                  layerIndex={idx}
                   palette={palette}
                   onEdit={() => setEditing(eff)}
                   onDelete={() => setDeleting(eff)}

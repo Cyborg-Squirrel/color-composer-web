@@ -3,10 +3,12 @@ import {
   Button,
   Group,
   Modal,
+  NumberInput,
   Paper,
   Select,
   Stack,
   Stepper,
+  Switch,
   Text,
   TextInput,
   UnstyledButton,
@@ -47,6 +49,8 @@ export interface AddEffectPayload {
   name: string;
   effectType: string;
   paletteUuid: string | null;
+  /** Optional explicit render layer; when null, backend assigns max+1. */
+  layer: number | null;
   preset: AddEffectPresetChoice;
 }
 
@@ -82,7 +86,9 @@ export function AddEffectModal({
   const [presetName, setPresetName] = useState<string>("");
   const [presetNameTouched, setPresetNameTouched] = useState(false);
   const [params, setParams] = useState<Record<string, unknown>>({});
+  const [skipFramesIfBlank, setSkipFramesIfBlank] = useState<boolean>(true);
   const [paletteUuid, setPaletteUuid] = useState<string | null>(null);
+  const [layer, setLayer] = useState<number | null>(null);
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<EffectCategoryFilter>("All");
   const { schemas } = useEffectSchemas();
@@ -99,7 +105,9 @@ export function AddEffectModal({
     setPresetName("");
     setPresetNameTouched(false);
     setParams({});
+    setSkipFramesIfBlank(true);
     setPaletteUuid(null);
+    setLayer(null);
     setSearch("");
     setFilter("All");
   });
@@ -202,12 +210,14 @@ export function AddEffectModal({
               type: effectType,
               name: presetName.trim(),
               settings: params,
+              skipFramesIfBlank,
             },
           };
     onCreate({
       name: name.trim(),
       effectType,
       paletteUuid,
+      layer,
       preset,
     });
   };
@@ -283,6 +293,8 @@ export function AddEffectModal({
                 schema={schema}
                 params={params}
                 onParams={setParams}
+                skipFramesIfBlank={skipFramesIfBlank}
+                onSkipFramesIfBlank={setSkipFramesIfBlank}
                 errors={errors}
                 isMobile={isMobile}
               />
@@ -299,6 +311,8 @@ export function AddEffectModal({
                 palettes={palettes}
                 paletteUuid={paletteUuid}
                 onPalette={setPaletteUuid}
+                layer={layer}
+                onLayer={setLayer}
                 isMobile={isMobile}
               />
             </Stepper.Step>
@@ -467,6 +481,8 @@ function Step2NamePreset({
   schema,
   params,
   onParams,
+  skipFramesIfBlank,
+  onSkipFramesIfBlank,
   errors,
   isMobile,
 }: {
@@ -482,6 +498,8 @@ function Step2NamePreset({
   schema: ReturnType<typeof findSchema>;
   params: Record<string, unknown>;
   onParams: (v: Record<string, unknown>) => void;
+  skipFramesIfBlank: boolean;
+  onSkipFramesIfBlank: (v: boolean) => void;
   errors: Record<string, string>;
   isMobile: boolean;
 }) {
@@ -550,6 +568,14 @@ function Step2NamePreset({
                 />
               )}
             </Paper>
+            <Switch
+              data-testid="add-effect-skip-blank"
+              checked={skipFramesIfBlank}
+              onChange={(e) => onSkipFramesIfBlank(e.currentTarget.checked)}
+              label="Skip frames if blank"
+              description="Stop rendering frames whose output is entirely blank."
+              size={isMobile ? "md" : "sm"}
+            />
           </>
         ) : selectedPreset && schema ? (
           <Paper
@@ -572,11 +598,15 @@ function Step3Palette({
   palettes,
   paletteUuid,
   onPalette,
+  layer,
+  onLayer,
   isMobile,
 }: {
   palettes: IPalette[];
   paletteUuid: string | null;
   onPalette: (v: string | null) => void;
+  layer: number | null;
+  onLayer: (v: number | null) => void;
   isMobile: boolean;
 }) {
   return (
@@ -592,6 +622,17 @@ function Step3Palette({
         value={paletteUuid}
         onChange={onPalette}
         data={palettes.map((p) => ({ value: p.uuid, label: p.name }))}
+        size={isMobile ? "md" : "sm"}
+      />
+      <NumberInput
+        data-testid="add-effect-layer"
+        label="Layer"
+        description="Render layer on the strip or pool. Leave blank to stack on top."
+        placeholder="Auto"
+        min={0}
+        allowDecimal={false}
+        value={layer ?? ""}
+        onChange={(v) => onLayer(typeof v === "number" ? v : null)}
         size={isMobile ? "md" : "sm"}
       />
     </Stack>

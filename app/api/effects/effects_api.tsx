@@ -23,6 +23,8 @@ export interface ILightEffect {
     paletteUuid?: string | null;
     settingsUuid?: string | null;
     status: LightEffectStatus;
+    /** Render layer on the parent strip/pool. 0 = base; must be unique among siblings. */
+    layer: number;
 }
 
 export interface ILightEffectMutation {
@@ -32,6 +34,8 @@ export interface ILightEffectMutation {
     poolUuid?: string | null;
     settingsUuid?: string | null;
     paletteUuid?: string | null;
+    /** Optional on create — backend assigns `max(layer)+1` when omitted. */
+    layer?: number | null;
 }
 
 /* ───────────────────────── Effect Settings Schemas ──────────────────────

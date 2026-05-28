@@ -4,6 +4,8 @@ export interface ILightEffectSettings {
     name: string;
     settings: Record<string, unknown>;
     isDefault: boolean;
+    /** When true, the renderer skips frames whose output is entirely blank. */
+    skipFramesIfBlank: boolean;
 }
 
 export interface ILightEffectSettingsMutation {
@@ -11,6 +13,8 @@ export interface ILightEffectSettingsMutation {
     name: string;
     settings?: Record<string, unknown>;
     isDefault?: boolean;
+    /** Optional; defaults to true on creation if omitted. */
+    skipFramesIfBlank?: boolean;
 }
 
 export type { IEffectSettingsApi } from './effect_settings_api.interface';

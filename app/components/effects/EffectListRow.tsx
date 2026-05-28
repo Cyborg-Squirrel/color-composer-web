@@ -10,8 +10,6 @@ interface EffectListRowProps {
   effect: ILightEffect;
   /** Linked settings preset, looked up via effect.settingsUuid. */
   settings?: ILightEffectSettings;
-  /** Layer index among active (non-Inactive) effects. Undefined for inactive rows. */
-  layerIndex?: number;
   palette?: IPalette;
   onEdit: () => void;
   onDelete: () => void;
@@ -30,7 +28,6 @@ function buildSummary(effect: ILightEffect, settings: ILightEffectSettings | und
 export function EffectListRow({
   effect,
   settings,
-  layerIndex,
   palette,
   onEdit,
   onDelete,
@@ -41,10 +38,10 @@ export function EffectListRow({
   const bg = previewBackground(effect.type, color);
   const isGradient = bg.startsWith("linear-gradient");
   const isInactive = effect.status === LightEffectStatus.Inactive;
-  const isBase = !isInactive && layerIndex === 0;
+  const isBase = !isInactive && effect.layer === 0;
   const isPlaying = effect.status === LightEffectStatus.Playing;
   const layerLabel = !isInactive
-    ? (layerIndex === 0 ? "Base" : `Layer ${layerIndex}`)
+    ? (effect.layer === 0 ? "Base" : `Layer ${effect.layer}`)
     : null;
   const summary = buildSummary(effect, settings, palette);
   const [hoverActivate, setHoverActivate] = useState(false);
