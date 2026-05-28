@@ -1,4 +1,4 @@
-import { Box, Button, Group, Modal, NumberInput, Paper, Select, Stack, Switch, Text, TextInput, useModalsStack } from "@mantine/core";
+import { Box, Button, Group, Modal, Paper, Select, Stack, Switch, Text, TextInput, useModalsStack } from "@mantine/core";
 import { useEffect, useMemo, useState } from "react";
 import type {
   ILightEffectSettings,
@@ -27,7 +27,6 @@ export interface EditEffectPayload {
     paletteUuid: string | null;
     /** Selected strip — null means unassign from any strip. */
     stripUuid: string | null;
-    layer: number;
   };
   preset: EditEffectPresetChoice;
 }
@@ -62,7 +61,6 @@ export function EditEffectModal({
   const [name, setName] = useState(effect.name);
   const [paletteUuid, setPaletteUuid] = useState<string | null>(effect.paletteUuid ?? null);
   const [stripUuid, setStripUuid] = useState<string | null>(effect.stripUuid ?? null);
-  const [layer, setLayer] = useState<number>(effect.layer);
   const [presetChoice, setPresetChoice] = useState<PresetChoice>(effect.settingsUuid ?? null);
   const [presetName, setPresetName] = useState<string>("");
   const [settings, setSettings] = useState<Record<string, unknown>>({});
@@ -73,7 +71,6 @@ export function EditEffectModal({
     setName(effect.name);
     setPaletteUuid(effect.paletteUuid ?? null);
     setStripUuid(effect.stripUuid ?? null);
-    setLayer(effect.layer);
     setPresetChoice(effect.settingsUuid ?? null);
   }, [effect.uuid]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -138,7 +135,6 @@ export function EditEffectModal({
     name !== effect.name ||
     paletteUuid !== (effect.paletteUuid ?? null) ||
     stripUuid !== (effect.stripUuid ?? null) ||
-    layer !== effect.layer ||
     presetChoice !== (effect.settingsUuid ?? null) ||
     (Boolean(selectedPreset) && presetChanged);
 
@@ -182,7 +178,7 @@ export function EditEffectModal({
       return;
     }
     onSave({
-      effect: { name: name.trim(), paletteUuid, stripUuid, layer },
+      effect: { name: name.trim(), paletteUuid, stripUuid },
       preset,
     });
   };
@@ -333,17 +329,6 @@ export function EditEffectModal({
           value={paletteUuid}
           onChange={setPaletteUuid}
           data={palettes.map((p) => ({ value: p.uuid, label: p.name }))}
-          size={isMobile ? "md" : "sm"}
-        />
-
-        <NumberInput
-          data-testid="edit-effect-layer"
-          label="Layer"
-          description="Render layer on this strip or pool. 0 = base."
-          min={0}
-          allowDecimal={false}
-          value={layer}
-          onChange={(v) => setLayer(typeof v === "number" ? v : effect.layer)}
           size={isMobile ? "md" : "sm"}
         />
 

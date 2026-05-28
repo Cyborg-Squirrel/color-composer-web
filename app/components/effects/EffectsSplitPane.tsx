@@ -247,7 +247,6 @@ export function EffectsSplitPane() {
         poolUuid: selectedPool?.uuid,
         settingsUuid,
         paletteUuid: payload.paletteUuid,
-        ...(payload.layer !== null ? { layer: payload.layer } : {}),
       });
       setAddOpen(false);
       // Then prompt the user about playing it.
@@ -296,7 +295,6 @@ export function EffectsSplitPane() {
                 stripUuid: payload.effect.stripUuid,
                 poolUuid: nextPoolUuid,
                 settingsUuid,
-                layer: payload.effect.layer,
               }
             : e,
         ),
@@ -307,7 +305,6 @@ export function EffectsSplitPane() {
         settingsUuid,
         paletteUuid: payload.effect.paletteUuid,
         stripUuid: payload.effect.stripUuid,
-        layer: payload.effect.layer,
         ...(movedFromPoolToStrip ? { poolUuid: null } : {}),
       });
       fetchAll();
