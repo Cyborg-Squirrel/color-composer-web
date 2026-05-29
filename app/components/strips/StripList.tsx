@@ -16,6 +16,7 @@ import {
 } from "~/components/util/stripHelpers";
 import { useClientApi } from "~/provider/ClientApiContext";
 import { useResourceEvents } from "~/provider/EventStreamContext";
+import { applyEventToList, eventTouches } from "~/api/events/events_api";
 import { usePoolApi } from "~/provider/PoolApiContext";
 import { useStripApi } from "~/provider/StripApiContext";
 import PoolCard from "./PoolCard";
@@ -64,10 +65,35 @@ export function StripList({ refreshKey, onChanged, tab }: StripListProps) {
     }
   }, [stripApi, clientApi, poolApi]);
 
+  // A strip's / pool's derived `inUse` (play state) tracks its effects but isn't
+  // carried in any strip/pool delta, so refresh just those lists — without the
+  // loading skeleton — when an effect changes.
+  const refreshUsage = useCallback(async () => {
+    try {
+      const [s, p] = await Promise.all([stripApi.getStrips(), poolApi.getPools()]);
+      setStrips(s);
+      setPools(p);
+    } catch (err) {
+      console.error("Failed to refresh strip usage", err);
+    }
+  }, [stripApi, poolApi]);
+
   useEffect(() => { fetchAll(); }, [fetchAll, refreshKey]);
+
+  // Apply server events in place; only effect changes need a targeted refetch.
   useResourceEvents(
-    ["LedStrip", "LedClient", "StripPool", "LightEffect", "Palette"],
-    () => { fetchAll(); },
+    ["LedStrip", "LedClient", "StripPool", "LightEffect"],
+    (event) => {
+      if (eventTouches(event, "LedStrip")) {
+        setStrips((prev) => (prev ? applyEventToList(prev, event) : prev));
+      } else if (eventTouches(event, "StripPool")) {
+        setPools((prev) => applyEventToList(prev, event));
+      } else if (eventTouches(event, "LedClient")) {
+        setClients((prev) => applyEventToList(prev, event));
+      } else {
+        refreshUsage();
+      }
+    },
     [],
   );
 

@@ -5,6 +5,7 @@ import { useCallback, useEffect, useState } from "react";
 import type { IPalette } from "~/api/palettes/palettes_api";
 import { usePaletteApi } from "~/provider/PaletteApiContext";
 import { useResourceEvents } from "~/provider/EventStreamContext";
+import { applyEventToList } from "~/api/events/events_api";
 import { isMobileUi } from "~/components/util/IsMobile";
 import { ConfirmDeleteModal } from "~/components/util/ConfirmDeleteModal";
 import { EmptyState } from "~/components/util/EmptyState";
@@ -43,7 +44,11 @@ export function PaletteGrid({ refreshKey, onPaletteMutated }: PaletteGridProps) 
   }, [paletteApi]);
 
   useEffect(() => { fetchAll(); }, [fetchAll, refreshKey]);
-  useResourceEvents("Palette", () => { fetchAll(); }, []);
+  useResourceEvents(
+    "Palette",
+    (event) => setPalettes((prev) => (prev ? applyEventToList(prev, event) : prev)),
+    [],
+  );
 
   const confirmDelete = async () => {
     if (!deleting) return;

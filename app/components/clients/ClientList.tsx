@@ -6,6 +6,7 @@ import { useLocation } from "react-router";
 import type { ILedStripClient } from "~/api/clients/clients_api";
 import type { ILedStrip } from "~/api/strips/strips_api";
 import { useResourceEvents } from "~/provider/EventStreamContext";
+import { applyEventToList, eventTouches } from "~/api/events/events_api";
 import { useClientApi } from "~/provider/ClientApiContext";
 import { useStripApi } from "~/provider/StripApiContext";
 import { isMobileUi } from "~/components/util/IsMobile";
@@ -46,8 +47,18 @@ export function ClientList({ refreshKey, onClientChanged }: ClientListProps) {
 
   useEffect(() => { fetchAll(); }, [fetchAll, refreshKey]);
 
-  // Live refresh when the server publishes client/strip changes.
-  useResourceEvents(["LedClient", "LedStrip"], () => { fetchAll(); }, []);
+  // Apply server events to the in-memory lists instead of refetching.
+  useResourceEvents(
+    ["LedClient", "LedStrip"],
+    (event) => {
+      if (eventTouches(event, "LedClient")) {
+        setClients((prev) => (prev ? applyEventToList(prev, event) : prev));
+      } else {
+        setStrips((prev) => applyEventToList(prev, event));
+      }
+    },
+    [],
+  );
 
   // Open edit modal when navigated from Home with state.openClientUuid.
   useEffect(() => {

@@ -33,6 +33,7 @@ import { useClientApi } from "~/provider/ClientApiContext";
 import { useEffectApi } from "~/provider/EffectApiContext";
 import { useEffectSettingsApi } from "~/provider/EffectSettingsApiContext";
 import { useResourceEvents } from "~/provider/EventStreamContext";
+import { applyEventToList, eventTouches } from "~/api/events/events_api";
 import { usePaletteApi } from "~/provider/PaletteApiContext";
 import { usePoolApi } from "~/provider/PoolApiContext";
 import { useStripApi } from "~/provider/StripApiContext";
@@ -97,17 +98,13 @@ export function EffectsSplitPane() {
 
   useResourceEvents(
     ["LedStrip", "LedClient", "StripPool", "LightEffect", "EffectSettings", "Palette"],
-    async (event) => {
-      try {
-        if (event.type.startsWith("LedStrip")) setStrips(await stripApi.getStrips());
-        else if (event.type.startsWith("LedClient")) setClients(await clientApi.getClients());
-        else if (event.type.startsWith("StripPool")) setPools(await poolApi.getPools());
-        else if (event.type.startsWith("LightEffect")) setEffects(await effectApi.getEffects());
-        else if (event.type.startsWith("EffectSettings")) setPresets(await effectSettingsApi.getEffectSettings());
-        else if (event.type.startsWith("Palette")) setPalettes(await paletteApi.getPalettes());
-      } catch (err) {
-        console.error("Failed to refresh resource for event", event.type, err);
-      }
+    (event) => {
+      if (eventTouches(event, "LedStrip")) setStrips((prev) => applyEventToList(prev, event));
+      else if (eventTouches(event, "LedClient")) setClients((prev) => applyEventToList(prev, event));
+      else if (eventTouches(event, "StripPool")) setPools((prev) => applyEventToList(prev, event));
+      else if (eventTouches(event, "LightEffect")) setEffects((prev) => applyEventToList(prev, event));
+      else if (eventTouches(event, "EffectSettings")) setPresets((prev) => applyEventToList(prev, event));
+      else if (eventTouches(event, "Palette")) setPalettes((prev) => applyEventToList(prev, event));
     },
     [],
   );

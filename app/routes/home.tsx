@@ -34,6 +34,7 @@ import { useClientApi } from "~/provider/ClientApiContext";
 import { useEffectApi } from "~/provider/EffectApiContext";
 import { useEffectSettingsApi } from "~/provider/EffectSettingsApiContext";
 import { useResourceEvents } from "~/provider/EventStreamContext";
+import { applyEventToList, eventTouches } from "~/api/events/events_api";
 import { useHomeApi } from "~/provider/HomeApiContext";
 import { usePaletteApi } from "~/provider/PaletteApiContext";
 import { usePoolApi } from "~/provider/PoolApiContext";
@@ -99,6 +100,13 @@ function StatCard({ label, value, sub, accent, onClick, testId }: StatCardProps)
   );
 }
 
+/** +1 for *Created events, -1 for *Deleted, 0 otherwise. */
+function countDelta(type: string): number {
+  if (type.endsWith("Created")) return 1;
+  if (type.endsWith("Deleted")) return -1;
+  return 0;
+}
+
 function HomeContent() {
   const navigate = useNavigate();
   const homeApi = useHomeApi();
@@ -147,9 +155,30 @@ function HomeContent() {
   }, [homeApi, stripApi, clientApi, poolApi, effectApi, paletteApi, effectSettingsApi]);
 
   useEffect(() => { fetchAll(); }, [fetchAll]);
+  // Apply each event to the relevant in-memory list (and keep totals in step)
+  // instead of refetching the whole dashboard.
   useResourceEvents(
     ["LedClient", "LedStrip", "StripPool", "LightEffect", "EffectSettings", "Palette"],
-    () => { fetchAll(); },
+    (event) => {
+      const delta = countDelta(event.type);
+      if (eventTouches(event, "LedClient")) {
+        setClients((prev) => applyEventToList(prev, event));
+        setTotals((t) => (t ? { ...t, clients: t.clients + delta } : t));
+      } else if (eventTouches(event, "LedStrip")) {
+        setStrips((prev) => applyEventToList(prev, event));
+        setTotals((t) => (t ? { ...t, strips: t.strips + delta } : t));
+      } else if (eventTouches(event, "StripPool")) {
+        setPools((prev) => applyEventToList(prev, event));
+      } else if (eventTouches(event, "LightEffect")) {
+        setEffects((prev) => applyEventToList(prev, event));
+        setTotals((t) => (t ? { ...t, effects: t.effects + delta } : t));
+      } else if (eventTouches(event, "EffectSettings")) {
+        setPresets((prev) => applyEventToList(prev, event));
+      } else if (eventTouches(event, "Palette")) {
+        setPalettes((prev) => applyEventToList(prev, event));
+        setTotals((t) => (t ? { ...t, palettes: t.palettes + delta } : t));
+      }
+    },
     [],
   );
 
