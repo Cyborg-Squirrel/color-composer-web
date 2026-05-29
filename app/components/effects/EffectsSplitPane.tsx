@@ -11,7 +11,7 @@ import {
   UnstyledButton,
 } from "@mantine/core";
 import { CaretLeftIcon, PlayIcon, PlusIcon } from "@phosphor-icons/react";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState, type DragEvent } from "react";
 import type { ILedStripClient } from "~/api/clients/clients_api";
 import type { ILightEffectSettings } from "~/api/effect_settings/effect_settings_api";
 import { LightEffectStatus, type ILightEffect, type LightEffectStatusCommand } from "~/api/effects/effects_api";
@@ -72,6 +72,8 @@ export function EffectsSplitPane() {
   const [editing, setEditing] = useState<ILightEffect | null>(null);
   const [deleting, setDeleting] = useState<ILightEffect | null>(null);
   const [confirmPlay, setConfirmPlay] = useState<{ uuid: string; name: string } | null>(null);
+  const [dragUuid, setDragUuid] = useState<string | null>(null);
+  const [overUuid, setOverUuid] = useState<string | null>(null);
 
   const fetchAll = useCallback(async () => {
     try {
@@ -281,10 +283,14 @@ export function EffectsSplitPane() {
           await effectSettingsApi.updateEffectSettings(settingsUuid, payload.preset.mutation);
         }
       }
-      // Moving a pool-assigned effect onto a strip means clearing its pool too,
-      // since the API enforces exactly one of stripUuid/poolUuid.
-      const movedFromPoolToStrip = Boolean(target.poolUuid && payload.effect.stripUuid);
-      const nextPoolUuid = movedFromPoolToStrip ? null : target.poolUuid ?? null;
+      // Reassignment now lives on its own endpoint. Decide whether the owner
+      // changed: moving to a strip (incl. pool → strip), or clearing an
+      // existing strip assignment.
+      const nextStrip = payload.effect.stripUuid;
+      const reassignToStrip =
+        Boolean(nextStrip) && (nextStrip !== target.stripUuid || Boolean(target.poolUuid));
+      const unassign = nextStrip === null && Boolean(target.stripUuid);
+
       setEffects((prev) =>
         prev.map((e) =>
           e.uuid === target.uuid
@@ -292,21 +298,23 @@ export function EffectsSplitPane() {
                 ...e,
                 name: payload.effect.name,
                 paletteUuid: payload.effect.paletteUuid,
-                stripUuid: payload.effect.stripUuid,
-                poolUuid: nextPoolUuid,
                 settingsUuid,
+                ...(reassignToStrip ? { stripUuid: nextStrip, poolUuid: null } : {}),
+                ...(unassign ? { stripUuid: null, poolUuid: null } : {}),
               }
             : e,
         ),
       );
       await effectApi.updateEffect(target.uuid, {
         name: payload.effect.name,
-        effectType: target.type,
         settingsUuid,
         paletteUuid: payload.effect.paletteUuid,
-        stripUuid: payload.effect.stripUuid,
-        ...(movedFromPoolToStrip ? { poolUuid: null } : {}),
       });
+      if (reassignToStrip) {
+        await effectApi.reassignEffect(target.uuid, { targetStripUuid: nextStrip });
+      } else if (unassign) {
+        await effectApi.reassignEffect(target.uuid, { unassign: true });
+      }
       fetchAll();
     } catch (err) {
       console.error("Failed to update effect", err);
@@ -338,6 +346,45 @@ export function EffectsSplitPane() {
     } catch (err) {
       console.error("Failed to deactivate effect", err);
     }
+  };
+
+  // Drag-to-reorder for the active (layered) effects of the selected strip/pool.
+  // The dragged effect takes the drop target's layer; the backend shifts the
+  // rest to stay contiguous.
+  const handleReorder = async (fromUuid: string, toUuid: string) => {
+    if (fromUuid === toUuid) return;
+    const target = activeEffects.find((e) => e.uuid === toUuid);
+    if (!target) return;
+    const targetLayer = target.layer;
+    try {
+      await effectApi.updateEffect(fromUuid, { layer: targetLayer });
+    } catch (err) {
+      console.error("Failed to reorder effect", err);
+      fetchAll();
+    }
+  };
+
+  const handleRowDragStart =
+    (uuid: string) => (e: DragEvent<HTMLDivElement>) => {
+      setDragUuid(uuid);
+      e.dataTransfer.effectAllowed = "move";
+      e.dataTransfer.setData("text/plain", uuid);
+    };
+  const handleRowDragOver =
+    (uuid: string) => (e: DragEvent<HTMLDivElement>) => {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = "move";
+      if (overUuid !== uuid) setOverUuid(uuid);
+    };
+  const handleRowDrop = (uuid: string) => (e: DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    if (dragUuid) handleReorder(dragUuid, uuid);
+    setDragUuid(null);
+    setOverUuid(null);
+  };
+  const handleRowDragEnd = () => {
+    setDragUuid(null);
+    setOverUuid(null);
   };
 
   const handleDeleteConfirm = async () => {
@@ -570,6 +617,13 @@ export function EffectsSplitPane() {
                   onEdit={() => setEditing(eff)}
                   onDelete={() => setDeleting(eff)}
                   onDeactivate={() => handleDeactivateEffect(eff)}
+                  draggable={activeEffects.length > 1}
+                  isDragging={dragUuid === eff.uuid}
+                  isDragOver={overUuid === eff.uuid && dragUuid !== eff.uuid}
+                  onDragStart={handleRowDragStart(eff.uuid)}
+                  onDragOver={handleRowDragOver(eff.uuid)}
+                  onDrop={handleRowDrop(eff.uuid)}
+                  onDragEnd={handleRowDragEnd}
                 />
               );
             })}

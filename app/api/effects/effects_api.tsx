@@ -38,6 +38,18 @@ export interface ILightEffectMutation {
     layer?: number | null;
 }
 
+/**
+ * Body for PATCH /effect/reassign/{uuid}. Reassignment is no longer folded
+ * into the effect update endpoint.
+ *   - Provide at most one of `targetStripUuid` / `targetPoolUuid` to move.
+ *   - Set `unassign: true` to detach from any strip/pool (stops rendering).
+ */
+export interface IEffectReassign {
+    unassign?: boolean;
+    targetStripUuid?: string | null;
+    targetPoolUuid?: string | null;
+}
+
 /* ───────────────────────── Effect Settings Schemas ──────────────────────
  * Per API.md `GET /effect/schemas`: each effect type advertises its expected
  * settings keys, their value types, and a list of polymorphic validators.

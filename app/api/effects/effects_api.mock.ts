@@ -1,4 +1,4 @@
-import { LightEffectStatus, type IEffectSchema, type ILightEffect, type ILightEffectMutation, type LightEffectStatusCommand } from './effects_api';
+import { LightEffectStatus, type IEffectReassign, type IEffectSchema, type ILightEffect, type ILightEffectMutation, type LightEffectStatusCommand } from './effects_api';
 import type { IEffectsApi } from './effects_api.interface';
 import { MOCK_EFFECT_SCHEMAS } from './effects_api.mock_schemas';
 
@@ -78,19 +78,44 @@ export class MockEffectsApi implements IEffectsApi {
 
     async updateEffect(uuid: string, data: Partial<ILightEffectMutation>): Promise<void> {
         await this.delay(500);
-        const index = this.effects.findIndex(e => e.uuid === uuid);
-        if (index !== -1) {
-            const effect = this.effects[index];
-            this.effects[index] = {
-                ...effect,
-                name: data.name ?? effect.name,
-                type: data.effectType ?? effect.type,
-                stripUuid: data.stripUuid ?? effect.stripUuid,
-                poolUuid: data.poolUuid ?? effect.poolUuid,
-                paletteUuid: data.paletteUuid ?? effect.paletteUuid,
-                settingsUuid: data.settingsUuid ?? effect.settingsUuid,
-                layer: data.layer ?? effect.layer,
-            };
+        const effect = this.effects.find(e => e.uuid === uuid);
+        if (!effect) return;
+        effect.name = data.name ?? effect.name;
+        // A null paletteUuid clears the palette; undefined leaves it unchanged.
+        if (data.paletteUuid !== undefined) effect.paletteUuid = data.paletteUuid;
+        if (data.settingsUuid !== undefined) effect.settingsUuid = data.settingsUuid;
+        if (data.layer !== undefined && data.layer !== null && data.layer !== effect.layer) {
+            this.moveLayer(effect, data.layer);
+        }
+    }
+
+    /** Mirror the backend's "set layer, keep siblings contiguous" reorder. */
+    private moveLayer(effect: ILightEffect, targetLayer: number): void {
+        const ownerMatch = (e: ILightEffect) =>
+            effect.stripUuid ? e.stripUuid === effect.stripUuid : e.poolUuid === effect.poolUuid;
+        const siblings = this.effects.filter(ownerMatch).sort((a, b) => a.layer - b.layer);
+        const fromIdx = siblings.findIndex(e => e.uuid === effect.uuid);
+        if (fromIdx === -1) return;
+        const [item] = siblings.splice(fromIdx, 1);
+        const clamped = Math.max(0, Math.min(targetLayer, siblings.length));
+        siblings.splice(clamped, 0, item);
+        siblings.forEach((e, i) => { e.layer = i; });
+    }
+
+    async reassignEffect(uuid: string, data: IEffectReassign): Promise<void> {
+        await this.delay(500);
+        const effect = this.effects.find(e => e.uuid === uuid);
+        if (!effect) return;
+        if (data.unassign) {
+            effect.stripUuid = null;
+            effect.poolUuid = null;
+            effect.status = LightEffectStatus.Inactive;
+        } else if (data.targetStripUuid) {
+            effect.stripUuid = data.targetStripUuid;
+            effect.poolUuid = null;
+        } else if (data.targetPoolUuid) {
+            effect.poolUuid = data.targetPoolUuid;
+            effect.stripUuid = null;
         }
     }
 

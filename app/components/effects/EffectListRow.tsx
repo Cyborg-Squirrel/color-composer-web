@@ -1,6 +1,6 @@
 import { ActionIcon, Badge, Box, Group, Menu, Stack, Text, UnstyledButton } from "@mantine/core";
-import { DotsThreeVerticalIcon, LightningIcon, LightningSlashIcon, PencilSimpleIcon, PlusIcon, TrashIcon } from "@phosphor-icons/react";
-import { useState } from "react";
+import { DotsSixVerticalIcon, DotsThreeVerticalIcon, LightningIcon, LightningSlashIcon, PencilSimpleIcon, PlusIcon, TrashIcon } from "@phosphor-icons/react";
+import { useState, type DragEvent } from "react";
 import type { ILightEffectSettings } from "~/api/effect_settings/effect_settings_api";
 import { LightEffectStatus, type ILightEffect } from "~/api/effects/effects_api";
 import type { IPalette } from "~/api/palettes/palettes_api";
@@ -15,6 +15,14 @@ interface EffectListRowProps {
   onDelete: () => void;
   onActivate?: () => void;
   onDeactivate?: () => void;
+  /** Drag-to-reorder — only wired for active (layered) rows. */
+  draggable?: boolean;
+  isDragging?: boolean;
+  isDragOver?: boolean;
+  onDragStart?: (e: DragEvent<HTMLDivElement>) => void;
+  onDragOver?: (e: DragEvent<HTMLDivElement>) => void;
+  onDrop?: (e: DragEvent<HTMLDivElement>) => void;
+  onDragEnd?: (e: DragEvent<HTMLDivElement>) => void;
 }
 
 function buildSummary(effect: ILightEffect, settings: ILightEffectSettings | undefined, palette?: IPalette): string {
@@ -33,6 +41,13 @@ export function EffectListRow({
   onDelete,
   onActivate,
   onDeactivate,
+  draggable = false,
+  isDragging = false,
+  isDragOver = false,
+  onDragStart,
+  onDragOver,
+  onDrop,
+  onDragEnd,
 }: EffectListRowProps) {
   const color = "#4488ff";
   const bg = previewBackground(effect.type, color);
@@ -45,6 +60,7 @@ export function EffectListRow({
     : null;
   const summary = buildSummary(effect, settings, palette);
   const [hoverActivate, setHoverActivate] = useState(false);
+  const [hoverDrag, setHoverDrag] = useState(false);
 
   const swatchBackground = isGradient
     ? bg
@@ -53,6 +69,11 @@ export function EffectListRow({
   return (
     <Box
       data-testid={`eff-row-${effect.uuid}`}
+      draggable={draggable}
+      onDragStart={onDragStart}
+      onDragOver={onDragOver}
+      onDrop={onDrop}
+      onDragEnd={onDragEnd}
       style={{
         background: "var(--neon-bg2)",
         border: "1px solid var(--mantine-color-default-border)",
@@ -61,6 +82,10 @@ export function EffectListRow({
         display: "flex",
         alignItems: "center",
         gap: 10,
+        cursor: draggable ? "grab" : undefined,
+        opacity: isDragging ? 0.4 : 1,
+        outline: isDragOver ? "2px solid var(--neon-accent)" : undefined,
+        outlineOffset: -1,
       }}
       className="neon-slide-in"
     >
@@ -103,7 +128,10 @@ export function EffectListRow({
         </UnstyledButton>
       ) : (
         <Box
+          onMouseEnter={() => draggable && setHoverDrag(true)}
+          onMouseLeave={() => setHoverDrag(false)}
           style={{
+            position: "relative",
             width: 34,
             height: 34,
             borderRadius: 3,
@@ -111,8 +139,25 @@ export function EffectListRow({
             background: swatchBackground,
             border: "1px solid var(--mantine-color-default-border)",
             boxShadow: isPlaying ? "0 0 8px var(--neon-accent-glow)" : "none",
+            overflow: "hidden",
           }}
-        />
+        >
+          {draggable && hoverDrag && (
+            <Box
+              style={{
+                position: "absolute",
+                inset: 0,
+                background: "rgba(0, 0, 0, 0.55)",
+                color: "var(--neon-accent)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <DotsSixVerticalIcon size={18} weight="bold" />
+            </Box>
+          )}
+        </Box>
       )}
 
       <Stack gap={2} style={{ flex: 1, minWidth: 0 }}>
