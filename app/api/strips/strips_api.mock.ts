@@ -78,15 +78,19 @@ export class MockStripsApi implements IStripsApi {
     brightness?: number;
     blendMode?: BlendMode;
     clientUuid?: string;
+    unassign?: boolean;
   }): Promise<void> {
     // Artificial delay before returning mock content
     await this.delay(500);
     
     const index = this.strips.findIndex(strip => strip.uuid === uuid);
     if (index !== -1) {
+      const { unassign, ...changes } = data;
       this.strips[index] = {
         ...this.strips[index],
-        ...data
+        ...changes,
+        // Unassigning detaches the strip from its client.
+        ...(unassign ? { clientUuid: '' } : {}),
       };
     }
   }

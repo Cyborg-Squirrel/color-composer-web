@@ -4,7 +4,7 @@ interface StatusDotProps {
 }
 
 const CONNECTED_GREEN = "var(--mantine-color-green-8)";
-const DISCONNECTED_GRAY = "var(--mantine-color-gray-4)";
+const DISCONNECTED_GRAY = "var(--mantine-color-gray-8)";
 
 export function StatusDot({ connected, size = 7 }: StatusDotProps) {
   const color = connected ? CONNECTED_GREEN : DISCONNECTED_GRAY;

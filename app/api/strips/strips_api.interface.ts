@@ -19,6 +19,9 @@ export interface IStripsApi {
     brightness?: number;
     blendMode?: BlendMode;
     clientUuid?: string;
+    // Detaches the strip from its client. Must not be sent with a non-null
+    // clientUuid — the server returns 400.
+    unassign?: boolean;
   }): Promise<void>;
   deleteStrip(uuid: string): Promise<void>;
 }

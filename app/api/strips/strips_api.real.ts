@@ -63,6 +63,7 @@ export class RealStripsApi implements IStripsApi {
     brightness?: number;
     blendMode?: BlendMode;
     clientUuid?: string;
+    unassign?: boolean;
   }): Promise<void> {
     if (!this.apiUrl) {
       console.log('API_URL environment variable is not set. ' +
