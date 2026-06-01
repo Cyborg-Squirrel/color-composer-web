@@ -101,7 +101,7 @@ export function AddEffectModal({
     setPresetName("");
     setPresetNameTouched(false);
     setParams({});
-    setSkipFramesIfBlank(true);
+    setSkipFramesIfBlank(false);
     setPaletteUuid(null);
     setSearch("");
     setFilter("All");
