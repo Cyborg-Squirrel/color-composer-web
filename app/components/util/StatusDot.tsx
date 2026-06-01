@@ -10,6 +10,7 @@ export function StatusDot({ connected, size = 7 }: StatusDotProps) {
   const color = connected ? CONNECTED_GREEN : DISCONNECTED_GRAY;
   return (
     <span
+      className={connected ? "status-dot-online" : undefined}
       style={{
         display: "inline-block",
         width: size,
