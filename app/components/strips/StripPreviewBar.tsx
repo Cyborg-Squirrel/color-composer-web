@@ -37,7 +37,7 @@ export function StripPreviewBar({
   const { background, isGradient } = pickBackground(effectType, color, colorB);
   const height = size === "small" ? 6 : 10;
 
-  let opacity = brightness / 100;
+  let opacity = Math.min((brightness / 100) + 0.5, 1);
   if (!online) opacity = 0.12;
   else if (playState === "paused") opacity = 0.35;
   else if (playState === "stopped") opacity = 1;
