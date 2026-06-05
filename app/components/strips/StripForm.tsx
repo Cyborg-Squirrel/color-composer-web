@@ -40,7 +40,6 @@ const StripForm = forwardRef<IStripFormHandle, IStripFormProps>((props, ref) => 
         },
         validate: {
             name: (value) => (value.length > 0 && value.length <= 50 ? null : 'Name is required and must be 50 characters or less'),
-            clientUuid: (value) => (value ? null : 'Client is required'),
             pin: (value, values) => {
                 if (!values.clientUuid) return null;
                 const client = props.clients.find(c => c.uuid === values.clientUuid);
@@ -77,14 +76,18 @@ const StripForm = forwardRef<IStripFormHandle, IStripFormProps>((props, ref) => 
         setSubmitError(null);
         try {
             if (strip) {
+                // If the strip previously had a client and the user cleared the
+                // field, detach it via the unassign flag (the server rejects
+                // unassign combined with a clientUuid).
+                const unassign = Boolean(strip.clientUuid) && !values.clientUuid;
                 await stripApi.updateStrip(strip.uuid, {
                     name: values.name,
-                    clientUuid: values.clientUuid,
                     pin: values.pin,
                     length: values.length,
                     height: values.height,
                     brightness: values.brightness,
                     blendMode: values.blendMode,
+                    ...(unassign ? { unassign: true } : { clientUuid: values.clientUuid }),
                 });
             } else {
                 await stripApi.createStrip({
@@ -169,7 +172,7 @@ const StripForm = forwardRef<IStripFormHandle, IStripFormProps>((props, ref) => 
             <Select
                 data-testid="strip-client"
                 pt="sm"
-                withAsterisk
+                clearable
                 label="Client"
                 placeholder="Select the client this strip is connected to"
                 data={props.clients.map(c => ({ value: c.uuid, label: c.name }))}

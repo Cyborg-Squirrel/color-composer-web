@@ -1,4 +1,4 @@
-import type { ILightEffect, ILightEffectMutation, LightEffectStatusCommand } from './effects_api';
+import type { IEffectReassign, IEffectSchema, ILightEffect, ILightEffectMutation, LightEffectStatusCommand } from './effects_api';
 import type { IEffectsApi } from './effects_api.interface';
 
 export class RealEffectsApi implements IEffectsApi {
@@ -69,8 +69,9 @@ export class RealEffectsApi implements IEffectsApi {
                 effectType: data.effectType,
                 stripUuid: data.stripUuid,
                 poolUuid: data.poolUuid,
-                settings: data.settings || {},
+                settingsUuid: data.settingsUuid,
                 paletteUuid: data.paletteUuid,
+                layer: data.layer,
             })
         });
 
@@ -78,32 +79,57 @@ export class RealEffectsApi implements IEffectsApi {
             throw new Error(`Failed to create effect: ${res.status} ${res.statusText}`);
         }
 
-        const json = await res.json();
-        return json.uuid;
+        return res.text();
     }
 
+    // PATCH /effect/update/{uuid} — name, palette, settings, and layer only.
+    // Strip/pool reassignment now lives in reassignEffect. A null paletteUuid
+    // is translated to unassignPalette so the palette can be cleared.
     async updateEffect(uuid: string, data: Partial<ILightEffectMutation>): Promise<void> {
         if (!this.apiUrl) {
             console.log('API_URL environment variable is not set.');
             return;
         }
 
-        const res = await fetch(this.apiUrl + '/effect/' + uuid, {
+        const res = await fetch(this.apiUrl + '/effect/update/' + uuid, {
             method: 'PATCH',
             headers: {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
                 name: data.name,
-                stripUuid: data.stripUuid,
-                poolUuid: data.poolUuid,
-                paletteUuid: data.paletteUuid,
-                settings: data.settings,
+                paletteUuid: data.paletteUuid === null ? undefined : data.paletteUuid,
+                unassignPalette: data.paletteUuid === null ? true : undefined,
+                settingsUuid: data.settingsUuid,
+                layer: data.layer ?? undefined,
             })
         });
 
         if (!res.ok) {
             throw new Error(`Failed to update effect: ${res.status} ${res.statusText}`);
+        }
+    }
+
+    async reassignEffect(uuid: string, data: IEffectReassign): Promise<void> {
+        if (!this.apiUrl) {
+            console.log('API_URL environment variable is not set.');
+            return;
+        }
+
+        const res = await fetch(this.apiUrl + '/effect/reassign/' + uuid, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                unassign: data.unassign,
+                targetStripUuid: data.targetStripUuid,
+                targetPoolUuid: data.targetPoolUuid,
+            })
+        });
+
+        if (!res.ok) {
+            throw new Error(`Failed to reassign effect: ${res.status} ${res.statusText}`);
         }
     }
 
@@ -128,7 +154,7 @@ export class RealEffectsApi implements IEffectsApi {
             return;
         }
 
-        const res = await fetch(this.apiUrl + '/effect/status', {
+        const res = await fetch(this.apiUrl + '/effect/command', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -142,5 +168,14 @@ export class RealEffectsApi implements IEffectsApi {
         if (!res.ok) {
             throw new Error(`Failed to update effect status: ${res.status} ${res.statusText}`);
         }
+    }
+
+    async getEffectSchemas(): Promise<IEffectSchema[]> {
+        if (!this.apiUrl) return [];
+        const res = await fetch(this.apiUrl + '/effect/schemas');
+        if (!res.ok) {
+            throw new Error(`Failed to fetch effect schemas: ${res.status} ${res.statusText}`);
+        }
+        return res.json();
     }
 }

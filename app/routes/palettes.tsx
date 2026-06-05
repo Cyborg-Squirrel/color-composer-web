@@ -1,6 +1,6 @@
 import { useState } from "react";
 import AddPaletteButton from "~/components/palettes/AddPaletteButton";
-import { PalettesTable } from "~/components/palettes/PalettesTable";
+import PaletteGrid from "~/components/palettes/PaletteGrid";
 import BasicAppShell from "~/components/layouts/BasicAppShell";
 import { Layout } from "~/root";
 import type { Route } from "./+types/home";
@@ -14,18 +14,19 @@ export function meta({}: Route.MetaArgs) {
 
 export default function Palettes() {
   const [refreshKey, setRefreshKey] = useState(0);
-  const handlePaletteMutated = () => setRefreshKey(k => k + 1);
+  const bump = () => setRefreshKey((k) => k + 1);
 
   return (
     <Layout>
       <BasicAppShell
         title="Color Composer"
         pageName="Palettes"
-        topPadding="sm"
-        boxCssEnabled={true}
-        addButton={<AddPaletteButton onSuccess={handlePaletteMutated} />}
+        topPadding="xs"
+        containerSize="md"
+        boxCssEnabled={false}
+        addButton={<AddPaletteButton onSuccess={bump} />}
       >
-        <PalettesTable refreshKey={refreshKey} onPaletteMutated={handlePaletteMutated} />
+        <PaletteGrid refreshKey={refreshKey} onPaletteMutated={bump} />
       </BasicAppShell>
     </Layout>
   );

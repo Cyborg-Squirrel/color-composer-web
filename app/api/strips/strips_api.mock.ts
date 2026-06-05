@@ -12,7 +12,7 @@ export class MockStripsApi implements IStripsApi {
       height: 1,
       brightness: 20,
       blendMode: 'Additive',
-      activeEffects: 2,
+      inUse: true,
     },
     {
       name: 'LED Lamp Strip',
@@ -23,7 +23,7 @@ export class MockStripsApi implements IStripsApi {
       height: 1,
       brightness: 34,
       blendMode: 'Layer',
-      activeEffects: 0,
+      inUse: false,
     }
   ];
 
@@ -58,7 +58,7 @@ export class MockStripsApi implements IStripsApi {
       height: data.height || 1,
       brightness: data.brightness || 100,
       blendMode: data.blendMode || 'Additive',
-      activeEffects: 0,
+      inUse: false,
     };
 
     this.strips.push(newStrip);
@@ -78,15 +78,19 @@ export class MockStripsApi implements IStripsApi {
     brightness?: number;
     blendMode?: BlendMode;
     clientUuid?: string;
+    unassign?: boolean;
   }): Promise<void> {
     // Artificial delay before returning mock content
     await this.delay(500);
     
     const index = this.strips.findIndex(strip => strip.uuid === uuid);
     if (index !== -1) {
+      const { unassign, ...changes } = data;
       this.strips[index] = {
         ...this.strips[index],
-        ...data
+        ...changes,
+        // Unassigning detaches the strip from its client.
+        ...(unassign ? { clientUuid: '' } : {}),
       };
     }
   }

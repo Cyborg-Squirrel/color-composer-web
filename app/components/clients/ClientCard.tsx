@@ -1,74 +1,107 @@
-import { ActionIcon, Card, Divider, Space, Text } from "@mantine/core";
-import { PencilSimpleIcon } from "@phosphor-icons/react";
-import { ClientStatus, type ILedStripClient } from "~/api/clients/clients_api";
-import { type ILedStrip } from "~/api/strips/strips_api";
-import { getClientStatusColor, getClientStatusText, getLastSeenAtString } from "../util/TextHelper";
-import classes from './ClientGrid.module.css';
+import { ActionIcon, Badge, Box, Group, Paper, Stack, Text, Tooltip } from "@mantine/core";
+import { CpuIcon, TrashIcon } from "@phosphor-icons/react";
+import { ClientStatus, NightDriverType, PiClientType, type ILedStripClient } from "~/api/clients/clients_api";
 
-interface IClientCardProps {
-    client: ILedStripClient;
-    strips: ILedStrip[];
-    isMobile: boolean;
-    isHovered: boolean;
-    onHoverEnter: () => void;
-    onHoverLeave: () => void;
-    onClick: (uuid: string) => void;
+interface ClientCardProps {
+  client: ILedStripClient;
+  stripCount: number;
+  onClick: () => void;
+  onDelete: () => void;
 }
 
-function ClientCard(props: IClientCardProps) {
-    const shouldShowIcon = props.isHovered && !props.isMobile;
+export function ClientCard({ client, stripCount, onClick, onDelete }: ClientCardProps) {
+  const online = client.status !== ClientStatus.Offline && client.status !== ClientStatus.Error;
+  const isPi = client.clientType === PiClientType;
+  const typeLabel = isPi ? "Pi" : client.clientType === NightDriverType ? "Night Driver" : client.clientType;
+  const deleteDisabled = stripCount > 0;
 
-    return (
-        <Card
-            key={props.client.uuid}
-            h='14em'
-            className={`${classes.card} ${props.isHovered ? classes.grid_card_hovered : classes.grid_card}`}
-            onMouseEnter={props.onHoverEnter}
-            onMouseLeave={props.onHoverLeave}
-            onClick={() => {
-                props.onClick(props.client.uuid);
-            }}
+  return (
+    <Paper
+      withBorder
+      radius="sm"
+      p="md"
+      className="neon-slide-in"
+      data-testid={`client-card-${client.uuid}`}
+      onClick={onClick}
+      style={{ cursor: "pointer", transition: "border-color .15s" }}
+    >
+      <Group gap="md" wrap="nowrap" align="center">
+        <Box
+          style={{
+            width: 36,
+            height: 36,
+            borderRadius: 4,
+            background: "var(--neon-bg4)",
+            border: "1px solid var(--mantine-color-default-border)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            flexShrink: 0,
+          }}
         >
-            <span className={classes.icon_container}>
-                <ActionIcon
-                    variant="transparent"
-                    size="lg"
-                    c={shouldShowIcon ? undefined : 'transparent'}
-                >
-                    <PencilSimpleIcon size={24} />
-                </ActionIcon>
-            </span>
-            <Text fw={700} span>
-                {props.client.name}
-            </Text>
-            <Text c={getClientStatusColor(props.client.status)} span>
-                {getStatusText(props.client.status, props.client.lastSeenAt)}
-            </Text>
-            <Space h={6}></Space>
-            <Divider></Divider>
-            <Space h={12}></Space>
-            <SpanRow startingText='Address: ' endingText={props.client.address}></SpanRow>
-            <Space h={10}></Space>
-            <SpanRow startingText='Type: ' endingText={props.client.clientType}></SpanRow>
-            <Space h={10}></Space>
-            <SpanRow startingText='Active effects: ' endingText={'' + props.client.activeEffects}></SpanRow>
-        </Card>
-    );
-}
+          <CpuIcon
+            size={18}
+            weight="duotone"
+            style={{ color: online ? "var(--neon-accent)" : "var(--neon-text3)" }}
+          />
+        </Box>
 
-function SpanRow(props: { startingText: string, endingText: string }) {
-    return <span>
-        <Text fw={700} span>{props.startingText}</Text>
-        <Text className={classes.subtle_text} span>{props.endingText}</Text>
-    </span>
-}
+        <Stack gap={4} style={{ flex: 1, minWidth: 0 }}>
+          <Group gap="xs" wrap="wrap" align="center">
+            <Text size="sm" fw={500} truncate>
+              {client.name}
+            </Text>
+            <Badge
+              size="xs"
+              variant="light"
+              color={isPi ? "violet" : "blue"}
+              ff="var(--mantine-font-family-monospace)"
+              style={{ letterSpacing: "0.06em" }}
+            >
+              {typeLabel}
+            </Badge>
+            <Badge
+              size="xs"
+              variant="light"
+              color={online ? "teal" : "gray"}
+              ff="var(--mantine-font-family-monospace)"
+              style={{ letterSpacing: "0.06em" }}
+            >
+              {online ? "Online" : "Offline"}
+            </Badge>
+          </Group>
+          <Group gap="md" wrap="wrap">
+            <Text ff="var(--mantine-font-family-monospace)" size="xs" c="dimmed">
+              {client.address}
+            </Text>
+            <Text ff="var(--mantine-font-family-monospace)" size="xs" c="dimmed">
+              {stripCount} {stripCount === 1 ? "strip" : "strips"}
+            </Text>
+          </Group>
+        </Stack>
 
-function getStatusText(status: ClientStatus, lastSeenAt: number): string {
-    if (status == ClientStatus.Offline) {
-        return 'Offline since ' + getLastSeenAtString(lastSeenAt);
-    } else {
-        return getClientStatusText(status);
-    }
+        <Tooltip
+          label={deleteDisabled ? "Remove attached strips first" : "Delete client"}
+          openDelay={300}
+        >
+          <ActionIcon
+            data-testid={`client-delete-${client.uuid}`}
+            variant="subtle"
+            color="red"
+            size="sm"
+            disabled={deleteDisabled}
+            onClick={(e) => {
+              e.stopPropagation();
+              if (!deleteDisabled) onDelete();
+            }}
+            aria-label="Delete client"
+          >
+            <TrashIcon size={14} />
+          </ActionIcon>
+        </Tooltip>
+      </Group>
+    </Paper>
+  );
 }
 
 export default ClientCard;

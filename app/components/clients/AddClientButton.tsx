@@ -1,5 +1,6 @@
 import { Button } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
+import { PlusIcon } from "@phosphor-icons/react";
 import { isMobileUi } from "~/components/util/IsMobile";
 import ClientFormModal from "./ClientFormModal";
 
@@ -26,7 +27,9 @@ function AddClientButton({ onSuccess }: IAddClientButtonProps) {
             strips={[]}
             title='Add Client'
         />
-        <Button data-testid="add-client-btn" onClick={open}>Add Client</Button>
+        <Button data-testid="add-client-btn" leftSection={<PlusIcon size={12} />} onClick={open}>
+            Add Client
+        </Button>
     </>)
 }
 
